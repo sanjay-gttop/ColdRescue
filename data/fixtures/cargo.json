@@ -1,0 +1,18 @@
+{
+  "event_id": "evt_fix_002",
+  "event_type": "cargo.profile",
+  "occurred_at": "2024-06-01T12:00:00Z",
+  "schema_version": "1.0.0",
+  "incident_id": "inc_fix_001",
+  "correlation_id": "corr_fix_001",
+  "idempotency_key": "ikey_fix_002",
+  "cargo_description": "Mixed dairy produce",
+  "cargo_kg": 500.0,
+  "safe_temperature_min_c": 2.0,
+  "safe_temperature_max_c": 8.0,
+  "current_temperature_c": null,
+  "backup_runtime_min": 90.0,
+  "available_capacity_kg": 1000.0,
+  "unloading_duration_min": 30.0,
+  "time_sensitivity": "HIGH"
+}

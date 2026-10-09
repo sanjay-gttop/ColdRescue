@@ -1,0 +1,17 @@
+{
+  "event_id": "evt_fix_005",
+  "event_type": "route.planned",
+  "occurred_at": "2024-06-01T12:00:00Z",
+  "schema_version": "1.0.0",
+  "incident_id": "inc_fix_001",
+  "correlation_id": "corr_fix_001",
+  "idempotency_key": "ikey_fix_005",
+  "route_id": "route_01",
+  "driver_id": "driver_01",
+  "receiver_id": "recv_01",
+  "status": "PLANNED",
+  "total_distance_km": 15.0,
+  "estimated_duration_min": 25.0,
+  "waypoints": [],
+  "notes": null
+}

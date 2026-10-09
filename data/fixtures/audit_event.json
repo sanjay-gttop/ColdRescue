@@ -1,0 +1,18 @@
+{
+  "event_id": "evt_fix_008",
+  "event_type": "audit.simulation_started",
+  "occurred_at": "2024-06-01T12:00:00Z",
+  "schema_version": "1.0.0",
+  "incident_id": null,
+  "correlation_id": "corr_fix_001",
+  "idempotency_key": "ikey_fix_008",
+  "action": "SIMULATION_STARTED",
+  "actor": "simulator.engine",
+  "target_id": null,
+  "target_type": null,
+  "details": {
+    "scenario_id": "REEFER_UNIT_FAILURE",
+    "seed": 42
+  },
+  "ip_address": null
+}

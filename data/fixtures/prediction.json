@@ -1,0 +1,15 @@
+{
+  "event_id": "evt_fix_004",
+  "event_type": "prediction.thermal_progression",
+  "occurred_at": "2024-06-01T12:00:00Z",
+  "schema_version": "1.0.0",
+  "incident_id": "inc_fix_001",
+  "correlation_id": "corr_fix_001",
+  "idempotency_key": "ikey_fix_004",
+  "prediction_type": "THERMAL_PROGRESSION",
+  "predicted_temperature_c": 12.0,
+  "time_to_spoilage_min": 43.0,
+  "confidence": 0.6,
+  "model_name": "newton_linear_v1",
+  "assumptions": "ESTIMATE ONLY - not validated for food-safety decisions."
+}

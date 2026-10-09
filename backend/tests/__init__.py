@@ -1,0 +1,3 @@
+"""
+ColdRescue backend tests package.
+"""

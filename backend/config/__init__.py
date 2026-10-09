@@ -1,0 +1,1 @@
+"""ColdRescue backend config package."""

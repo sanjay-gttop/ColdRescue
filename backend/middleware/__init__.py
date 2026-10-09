@@ -1,0 +1,1 @@
+"""ColdRescue middleware package."""

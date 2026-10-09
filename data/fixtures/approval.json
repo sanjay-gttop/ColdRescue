@@ -1,0 +1,15 @@
+{
+  "event_id": "evt_fix_007",
+  "event_type": "approval.granted",
+  "occurred_at": "2024-06-01T12:00:00Z",
+  "schema_version": "1.0.0",
+  "incident_id": "inc_fix_001",
+  "correlation_id": "corr_fix_001",
+  "idempotency_key": "ikey_fix_007",
+  "approval_id": "appr_01",
+  "assignment_id": "assign_01",
+  "decision": "APPROVED",
+  "approved_by": "operator_jane",
+  "reason": null,
+  "policy_rule_ids": []
+}
