@@ -48,4 +48,5 @@ logs/
 .terraform/
 cdk.out/
 .cdk.staging/
+cdk.context.json
 infrastructure/layers/
