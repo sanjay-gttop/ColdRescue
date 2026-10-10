@@ -1,0 +1,35 @@
+{
+  "timestamp": "2026-10-10T20:38:21Z",
+  "aws_region": "ap-south-1",
+  "calculator": {
+    "name": "ColdRescue-RouteCalculator-dev",
+    "arn": "arn:aws:geo:ap-south-1:494110627063:route-calculator/ColdRescue-RouteCalculator-dev",
+    "data_source": "Esri",
+    "status": "ACTIVE"
+  },
+  "live_calculation": {
+    "origin": {
+      "name": "Chennai Harbour Cold Hub",
+      "lat": 13.0827,
+      "lon": 80.2707
+    },
+    "destination": {
+      "name": "Guindy Regional Depot",
+      "lat": 13.0067,
+      "lon": 80.217
+    },
+    "distance_km": 13.27,
+    "travel_time_min": 33.3,
+    "average_speed_kmh": 23.9,
+    "provider_name": "amazon_location_service",
+    "is_fallback": false,
+    "waypoints_count": 2
+  },
+  "fallback_validation": {
+    "provider_name": "local_haversine_fallback",
+    "distance_km": 13.34,
+    "travel_time_min": 17.8,
+    "is_fallback": true
+  },
+  "overall_status": "VERIFIED_LIVE"
+}

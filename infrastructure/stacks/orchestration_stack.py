@@ -116,6 +116,15 @@ class ColdRescueOrchestrationStack(Stack):
         audit_fn.add_to_role_policy(events_table_policy)
         failure_fn.add_to_role_policy(events_table_policy)
 
+        # Grant Amazon Location Service calculate-route permissions to RetrieveRoutesFn
+        route_calculator_arn = f"arn:aws:geo:{self.region}:{self.account}:route-calculator/ColdRescue-RouteCalculator-{environment_name}"
+        routes_fn.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=["geo:CalculateRoute"],
+                resources=[route_calculator_arn],
+            )
+        )
+
         # Retry policy for transient Lambda execution errors
         lambda_retry_props = {
             "errors": [
