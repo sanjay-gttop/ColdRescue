@@ -1,0 +1,18 @@
+{
+  "timestamp": "2026-10-10T20:17:34Z",
+  "aws_region": "ap-south-1",
+  "websocket_url": "wss://lijip4qwv5.execute-api.ap-south-1.amazonaws.com/dev",
+  "table_name": "ColdRescue-WebSocketConnections-dev",
+  "connection_registered": true,
+  "active_connections_count": 1,
+  "sample_connection": {
+    "user_id": "operator@coldrescue.io",
+    "ttl_timestamp": 1791749854,
+    "role": "OPERATOR",
+    "connection_id": "gdIddo60aC5gKEgN6A==",
+    "connected_at": "2026-10-10T20:17:34.846671+00:00"
+  },
+  "message_sent": true,
+  "connections_after_disconnect": 0,
+  "overall_status": "VERIFIED_LIVE"
+}
