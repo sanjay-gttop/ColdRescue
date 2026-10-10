@@ -33,6 +33,9 @@ class Settings(BaseSettings):
     # Amazon Location Service
     AWS_LOCATION_ROUTE_CALCULATOR_NAME: str = "ColdRescue-RouteCalculator-dev"
 
+    # DynamoDB Persistence
+    DYNAMODB_EVENTS_TABLE_NAME: str = "ColdRescue-Events-dev"
+
     # Application security
     SECRET_KEY: str = "dev-secret-key"
 

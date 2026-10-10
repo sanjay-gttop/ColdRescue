@@ -22,6 +22,7 @@ from aws_cdk import (
     Stack,
     aws_logs as logs,
     aws_s3 as s3,
+    aws_dynamodb as dynamodb,
 )
 from constructs import Construct
 
@@ -84,6 +85,38 @@ class ColdRescueFoundationStack(Stack):
             ),
         )
 
+        # ── 3. DynamoDB Event Store Table ────────────────────────────────────
+        self.events_table = dynamodb.Table(
+            self,
+            "EventsTable",
+            table_name=f"ColdRescue-Events-{environment_name}",
+            partition_key=dynamodb.Attribute(
+                name="stream_id",
+                type=dynamodb.AttributeType.STRING,
+            ),
+            sort_key=dynamodb.Attribute(
+                name="sequence_number",
+                type=dynamodb.AttributeType.NUMBER,
+            ),
+            billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
+            point_in_time_recovery=True,
+            removal_policy=(
+                RemovalPolicy.RETAIN
+                if is_production
+                else RemovalPolicy.DESTROY
+            ),
+        )
+
+        # GSI: Query by idempotency_key for conflict detection
+        self.events_table.add_global_secondary_index(
+            index_name="IdempotencyKeyIndex",
+            partition_key=dynamodb.Attribute(
+                name="idempotency_key",
+                type=dynamodb.AttributeType.STRING,
+            ),
+            projection_type=dynamodb.ProjectionType.ALL,
+        )
+
         # ── 3. CloudFormation Outputs ────────────────────────────────────────
         CfnOutput(
             self,
@@ -123,4 +156,20 @@ class ColdRescueFoundationStack(Stack):
                 "ARN of the CloudWatch Log Group for ColdRescue backend application logs"
             ),
             export_name=f"ColdRescue-{environment_name}-LogGroupArn",
+        )
+
+        CfnOutput(
+            self,
+            "EventsTableNameOutput",
+            value=self.events_table.table_name,
+            description="Name of the DynamoDB table for event ingestion and persistence",
+            export_name=f"ColdRescue-{environment_name}-EventsTableName",
+        )
+
+        CfnOutput(
+            self,
+            "EventsTableArnOutput",
+            value=self.events_table.table_arn,
+            description="ARN of the DynamoDB table for event ingestion and persistence",
+            export_name=f"ColdRescue-{environment_name}-EventsTableArn",
         )

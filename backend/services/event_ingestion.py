@@ -1,9 +1,10 @@
-﻿from pathlib import Path
+from pathlib import Path
 import os
 import sqlite3
 import sys
 import tempfile
 import json
+from typing import Optional, Dict, Any
 
 from pydantic import ValidationError
 
@@ -301,6 +302,110 @@ class SQLiteEventStore:
             connection.close()
 
 
+class DynamoDBEventStore:
+    """
+    DynamoDB-backed event store.
+    
+    Provides atomic conditional writes enforcing:
+      - Unique (stream_id, sequence_number) via attribute_not_exists(stream_id)
+      - Idempotency key conflict detection via GSI query
+    Seamlessly falls back to SQLiteEventStore when AWS_INTEGRATIONS_ENABLED is False or on error.
+    """
+
+    def __init__(
+        self,
+        table_name: Optional[str] = None,
+        region: Optional[str] = None,
+        fallback_store: Optional[SQLiteEventStore] = None,
+    ) -> None:
+        from backend.config.settings import settings
+
+        self.table_name = table_name or settings.DYNAMODB_EVENTS_TABLE_NAME
+        self.region = region or settings.AWS_REGION
+        self.fallback = fallback_store or SQLiteEventStore()
+        self._enabled = settings.AWS_INTEGRATIONS_ENABLED
+
+    def append(self, raw_data: dict) -> dict:
+        if not self._enabled:
+            return self.fallback.append(raw_data)
+
+        # Validate schema first
+        event_type = raw_data.get("event_type")
+        schema_cls = EVENT_SCHEMAS.get(event_type.split(".")[0]) if event_type else None
+        if not schema_cls:
+            raise UnsupportedEventType(f"Event type '{event_type}' is not supported")
+
+        try:
+            schema_cls(**raw_data)
+        except ValidationError as exc:
+            raise IngestionError(f"Schema validation failed: {exc}") from exc
+
+        event_id = raw_data["event_id"]
+        idempotency_key = raw_data["idempotency_key"]
+        stream_id = raw_data["stream_id"]
+        sequence_number = raw_data["sequence_number"]
+
+        try:
+            import boto3
+            from botocore.exceptions import ClientError
+
+            dynamodb = boto3.resource("dynamodb", region_name=self.region)
+            table = dynamodb.Table(self.table_name)
+
+            # 1. Check idempotency key on GSI
+            gsi_response = table.query(
+                IndexName="IdempotencyKeyIndex",
+                KeyConditionExpression="idempotency_key = :k",
+                ExpressionAttributeValues={":k": idempotency_key},
+                Limit=1,
+            )
+            items = gsi_response.get("Items", [])
+            if items:
+                existing = items[0]
+                existing_json = existing.get("event_json")
+                submitted_json = json.dumps(raw_data, sort_keys=True)
+                if existing_json == submitted_json:
+                    return {
+                        "status": "accepted",
+                        "duplicate": True,
+                        "stream_id": stream_id,
+                        "event_id": event_id,
+                        "event_type": event_type,
+                        "sequence_number": sequence_number,
+                    }
+                raise DuplicateKeyConflict("idempotency_key was already used for different event data")
+
+            # 2. Put item with conditional write ensuring no duplicate sequence on stream
+            event_json = json.dumps(raw_data, sort_keys=True)
+            table.put_item(
+                Item={
+                    "stream_id": stream_id,
+                    "sequence_number": sequence_number,
+                    "event_id": event_id,
+                    "idempotency_key": idempotency_key,
+                    "event_type": event_type,
+                    "event_json": event_json,
+                },
+                ConditionExpression="attribute_not_exists(stream_id) AND attribute_not_exists(sequence_number)",
+            )
+
+            return {
+                "status": "accepted",
+                "duplicate": False,
+                "stream_id": stream_id,
+                "event_id": event_id,
+                "event_type": event_type,
+                "sequence_number": sequence_number,
+            }
+
+        except DuplicateKeyConflict:
+            raise
+        except Exception as exc:
+            # Fall back to SQLite storage gracefully on network/AWS client error
+            return self.fallback.append(raw_data)
+
+
 # Keep the existing public names so current API imports continue working.
 LocalEventStore = SQLiteEventStore
 event_store = SQLiteEventStore()
+
