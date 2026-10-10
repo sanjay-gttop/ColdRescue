@@ -64,27 +64,39 @@ def validate_and_ingest_handler(event: Dict[str, Any], context: Any = None) -> D
 
 
 def predict_thermal_risk_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
-    """Lambda task: Evaluate remaining safe cooling time and temperature breach deadline."""
-    from backend.services.thermal_risk import ThermalInput, simulate_thermal_risk
+    """Lambda task: Evaluate remaining safe cooling time using ThermalMLPredictor with deterministic fallback."""
+    from ml.inference.predict import ThermalMLPredictor
 
     incident = event.get("incident", {})
     cargo = incident.get("cargo", {})
 
-    thermal_input = ThermalInput(
-        cargo_type=cargo.get("cargo_type", "dairy"),
-        current_temperature_c=float(cargo.get("current_temperature_c", 4.0)),
-        ambient_temperature_c=float(cargo.get("ambient_temperature_c", 28.0)),
-        safe_temperature_limit_c=float(cargo.get("safe_temperature_max_c", 8.0)),
-        cooling_status=incident.get("cooling_status", "failed"),
-        backup_runtime_minutes=float(cargo.get("backup_runtime_min", 30.0)),
+    cargo_type = cargo.get("cargo_type", "dairy")
+    current_temp = float(cargo.get("current_temperature_c", 4.0))
+    ambient_temp = float(cargo.get("ambient_temperature_c", 28.0))
+    safe_max = float(cargo.get("safe_temperature_max_c", 8.0))
+    cooling_status = incident.get("cooling_status", "failed")
+    backup_runtime = float(cargo.get("backup_runtime_min", 30.0))
+    mass_kg = float(cargo.get("mass_kg", 500.0))
+
+    predictor = ThermalMLPredictor()
+    prediction = predictor.predict(
+        cargo_type=cargo_type,
+        current_temp_c=current_temp,
+        ambient_temp_c=ambient_temp,
+        safe_limit_c=safe_max,
+        cooling_status=cooling_status,
+        backup_runtime_min=backup_runtime,
+        mass_kg=mass_kg,
     )
 
-    prediction = simulate_thermal_risk(thermal_input)
+    breach_minutes = prediction.get("predicted_breach_minutes", 0.0)
     return {
         "status": "PREDICTED",
-        "predicted_breach_minutes": prediction.predicted_breach_minutes,
-        "model_version": prediction.model_version,
-        "is_breached": prediction.predicted_breach_minutes == 0,
+        "predicted_breach_minutes": breach_minutes,
+        "model_version": prediction.get("model_version", "1.0.0"),
+        "provenance": prediction.get("provenance", "ml_surrogate_model"),
+        "is_fallback": prediction.get("is_fallback", False),
+        "is_breached": breach_minutes == 0,
     }
 
 
