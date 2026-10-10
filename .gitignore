@@ -48,3 +48,4 @@ logs/
 .terraform/
 cdk.out/
 .cdk.staging/
+infrastructure/layers/

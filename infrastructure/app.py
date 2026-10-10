@@ -8,6 +8,7 @@ import aws_cdk as cdk
 from aws_cdk import Tags
 
 from infrastructure.stacks.foundation_stack import ColdRescueFoundationStack
+from infrastructure.stacks.orchestration_stack import ColdRescueOrchestrationStack
 
 
 def main() -> None:
@@ -40,11 +41,22 @@ def main() -> None:
         description="ColdRescue M0 Foundation: Secure S3 Audit Archive and CloudWatch Application Logging.",
     )
 
+    # Instantiate M9 Orchestration Stack
+    orch_stack_name = f"ColdRescue-Orchestration-{env_name}"
+    orchestration_stack = ColdRescueOrchestrationStack(
+        app,
+        orch_stack_name,
+        environment_name=env_name,
+        env=target_env,
+        description="ColdRescue M9: Step Functions Incident Recovery Orchestration and Lambda Tasks.",
+    )
+
     # Standardized Resource Tagging across all stack resources
-    Tags.of(foundation_stack).add("Project", "ColdRescue")
-    Tags.of(foundation_stack).add("Environment", env_name)
-    Tags.of(foundation_stack).add("ManagedBy", "AWS-CDK")
-    Tags.of(foundation_stack).add("Milestone", "M0")
+    for s, m in [(foundation_stack, "M0"), (orchestration_stack, "M9")]:
+        Tags.of(s).add("Project", "ColdRescue")
+        Tags.of(s).add("Environment", env_name)
+        Tags.of(s).add("ManagedBy", "AWS-CDK")
+        Tags.of(s).add("Milestone", m)
 
     app.synth()
 
