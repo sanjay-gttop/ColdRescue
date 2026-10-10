@@ -325,29 +325,34 @@ class DynamoDBEventStore:
         self.fallback = fallback_store or SQLiteEventStore()
         self._enabled = settings.AWS_INTEGRATIONS_ENABLED
 
-    def append(self, raw_data: dict) -> dict:
+    def ingest(self, stream_id: str, raw_event: dict) -> dict:
+        """Ingest event adhering to event_store interface."""
         if not self._enabled:
-            return self.fallback.append(raw_data)
+            return self.fallback.ingest(stream_id=stream_id, raw_event=raw_event)
+        
+        if not stream_id or not stream_id.strip():
+            raise ValueError("stream_id must not be empty or whitespace")
+        stream_id = stream_id.strip()
 
-        # Validate schema first
-        event_type = raw_data.get("event_type")
-        schema_cls = EVENT_SCHEMAS.get(event_type.split(".")[0]) if event_type else None
-        if not schema_cls:
-            raise UnsupportedEventType(f"Event type '{event_type}' is not supported")
+        event_type = str(raw_event.get("event_type", "")).strip().lower()
+        schema = EVENT_SCHEMAS.get(event_type)
+        if schema is None:
+            raise UnsupportedEventType(
+                "Unsupported event_type. Use one of: " + ", ".join(EVENT_SCHEMAS)
+            )
 
-        try:
-            schema_cls(**raw_data)
-        except ValidationError as exc:
-            raise IngestionError(f"Schema validation failed: {exc}") from exc
+        event = schema(**raw_event)
+        if event.sequence_number is None:
+            raise ValueError("sequence_number is required when ingesting an event")
 
-        event_id = raw_data["event_id"]
-        idempotency_key = raw_data["idempotency_key"]
-        stream_id = raw_data["stream_id"]
-        sequence_number = raw_data["sequence_number"]
+        normalized = event.model_dump(mode="json")
+        event_json = json.dumps(normalized, sort_keys=True, separators=(",", ":"))
+        event_id = event.event_id
+        idempotency_key = event.idempotency_key
+        sequence_number = event.sequence_number
 
         try:
             import boto3
-            from botocore.exceptions import ClientError
 
             dynamodb = boto3.resource("dynamodb", region_name=self.region)
             table = dynamodb.Table(self.table_name)
@@ -363,20 +368,17 @@ class DynamoDBEventStore:
             if items:
                 existing = items[0]
                 existing_json = existing.get("event_json")
-                submitted_json = json.dumps(raw_data, sort_keys=True)
-                if existing_json == submitted_json:
+                if existing_json == event_json and existing.get("stream_id") == stream_id:
                     return {
-                        "status": "accepted",
+                        "status": "duplicate",
                         "duplicate": True,
                         "stream_id": stream_id,
                         "event_id": event_id,
-                        "event_type": event_type,
                         "sequence_number": sequence_number,
                     }
                 raise DuplicateKeyConflict("idempotency_key was already used for different event data")
 
             # 2. Put item with conditional write ensuring no duplicate sequence on stream
-            event_json = json.dumps(raw_data, sort_keys=True)
             table.put_item(
                 Item={
                     "stream_id": stream_id,
@@ -400,12 +402,23 @@ class DynamoDBEventStore:
 
         except DuplicateKeyConflict:
             raise
-        except Exception as exc:
-            # Fall back to SQLite storage gracefully on network/AWS client error
-            return self.fallback.append(raw_data)
+        except Exception:
+            return self.fallback.ingest(stream_id=stream_id, raw_event=raw_event)
+
+    def clear(self) -> None:
+        """Clear store fallback."""
+        self.fallback.clear()
+
+
+def get_event_store():
+    from backend.config.settings import settings
+    if settings.AWS_INTEGRATIONS_ENABLED:
+        return DynamoDBEventStore()
+    return SQLiteEventStore()
 
 
 # Keep the existing public names so current API imports continue working.
 LocalEventStore = SQLiteEventStore
-event_store = SQLiteEventStore()
+event_store = get_event_store()
+
 
