@@ -1,0 +1,26 @@
+{
+  "timestamp": "2026-10-10T20:34:56Z",
+  "aws_region": "ap-south-1",
+  "ecs_cluster": {
+    "name": "ColdRescue-Cluster-dev",
+    "arn": "arn:aws:ecs:ap-south-1:494110627063:cluster/ColdRescue-Cluster-dev",
+    "status": "ACTIVE"
+  },
+  "task_definition": {
+    "arn": "arn:aws:ecs:ap-south-1:494110627063:task-definition/ColdRescueSimulatordevSimulatorTaskDef44842197:2",
+    "cpu": "256",
+    "memory": "512",
+    "container_name": "TelemetryEmitterContainer"
+  },
+  "live_task_execution": {
+    "task_arn": "arn:aws:ecs:ap-south-1:494110627063:task/ColdRescue-Cluster-dev/e1c00cc5b2744fc68dcf77153580c229",
+    "exit_code": 0,
+    "last_status": "STOPPED",
+    "event_bridge_published_event_id": "daeedbf4-926c-b11c-67b5-e17a4bae9942",
+    "event_bus": "ColdRescue-Bus-dev",
+    "log_stream": "telemetry/TelemetryEmitterContainer/e1c00cc5b2744fc68dcf77153580c229",
+    "log_group": "/ecs/coldrescue-simulator/dev"
+  },
+  "standing_tasks_count": 0,
+  "overall_status": "VERIFIED_LIVE"
+}

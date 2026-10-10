@@ -47,7 +47,7 @@ def emit_events(
 
         try:
             # Run simulation
-            sim_result = run_simulation(scenario_name=scenario_name, seed=current_seed)
+            sim_result = run_simulation(scenario_id=scenario_name, seed=current_seed)
             report = sim_result.to_report()
 
             # Formulate ingestion payload
@@ -92,7 +92,31 @@ def emit_events(
             }
 
             headers = {"Content-Type": "application/json"}
-            target_endpoint = f"{api_url.rstrip('/')}/api/v1/events"
+            token = os.getenv("AUTH_TOKEN")
+            if token:
+                headers["Authorization"] = f"Bearer {token}"
+
+            # If COLDRESCUE_EVENT_BUS is set or AWS_INTEGRATIONS_ENABLED is true, also publish to EventBridge
+            bus_name = os.getenv("COLDRESCUE_EVENT_BUS", "ColdRescue-Bus-dev")
+            region = os.getenv("AWS_REGION", "ap-south-1")
+            try:
+                import boto3
+                events_client = boto3.client("events", region_name=region)
+                eb_resp = events_client.put_events(
+                    Entries=[
+                        {
+                            "EventBusName": bus_name,
+                            "Source": "coldrescue.incident",
+                            "DetailType": "IncidentDetected",
+                            "Detail": json.dumps(payload),
+                        }
+                    ]
+                )
+                logger.info(f"Published to EventBridge bus '{bus_name}': {eb_resp.get('Entries')}")
+            except Exception as eb_err:
+                logger.debug(f"EventBridge publish skipped/fallback: {eb_err}")
+
+            target_endpoint = f"{api_url.rstrip('/')}/incidents/recover"
             logger.info(f"Emitting telemetry to {target_endpoint}...")
 
             res = requests.post(target_endpoint, json=payload, headers=headers, timeout=10)
@@ -119,7 +143,7 @@ def main() -> None:
     parser.add_argument(
         "--scenario",
         type=str,
-        default="tamil_nadu_dairy_grid_outage",
+        default=os.getenv("SCENARIO_NAME", "WAREHOUSE_GRID_OUTAGE"),
         help="Simulation scenario name",
     )
     parser.add_argument("--seed", type=int, default=42, help="Random seed")

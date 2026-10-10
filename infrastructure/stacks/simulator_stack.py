@@ -69,11 +69,28 @@ class ColdRescueSimulatorStack(Stack):
             memory_limit_mib=512,
         )
 
-        # Grant permissions to write logs and metrics
+        # Grant permissions to write logs, metrics, and publish to EventBridge
         self.task_definition.add_to_task_role_policy(
             iam.PolicyStatement(
-                actions=["cloudwatch:PutMetricData", "logs:CreateLogStream", "logs:PutLogEvents"],
+                actions=["logs:CreateLogStream", "logs:PutLogEvents"],
+                resources=[self.log_group.log_group_arn, f"{self.log_group.log_group_arn}:*"],
+            )
+        )
+        self.task_definition.add_to_task_role_policy(
+            iam.PolicyStatement(
+                actions=["cloudwatch:PutMetricData"],
                 resources=["*"],
+                conditions={
+                    "StringEquals": {
+                        "cloudwatch:namespace": "ColdRescue/Simulator"
+                    }
+                },
+            )
+        )
+        self.task_definition.add_to_task_role_policy(
+            iam.PolicyStatement(
+                actions=["events:PutEvents"],
+                resources=[f"arn:aws:events:{self.region}:{self.account}:event-bus/ColdRescue-Bus-{environment_name}"],
             )
         )
 
@@ -104,7 +121,7 @@ class ColdRescueSimulatorStack(Stack):
             environment={
                 "COLDRESCUE_API_URL": api_url,
                 "COLDRESCUE_ENV": environment_name,
-                "SCENARIO_NAME": "tamil_nadu_dairy_grid_outage",
+                "SCENARIO_NAME": "WAREHOUSE_GRID_OUTAGE",
             },
         )
 
