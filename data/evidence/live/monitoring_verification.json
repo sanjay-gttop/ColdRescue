@@ -1,0 +1,24 @@
+{
+  "timestamp": "2026-10-10T20:19:44Z",
+  "aws_region": "ap-south-1",
+  "sns_alert_topic": {
+    "arn": "arn:aws:sns:ap-south-1:494110627063:ColdRescue-Alerts-dev",
+    "test_message_id": "21ab757b-51c1-577f-bda9-163ff1df32a3",
+    "subscription_count": 1,
+    "status": "ACTIVE"
+  },
+  "cloudwatch_alarm": {
+    "name": "ColdRescue-Workflow-Failures-dev",
+    "arn": "arn:aws:cloudwatch:ap-south-1:494110627063:alarm:ColdRescue-Workflow-Failures-dev",
+    "state": "INSUFFICIENT_DATA",
+    "metric": "ExecutionsFailed",
+    "namespace": "AWS/States",
+    "alarm_action_wired": true
+  },
+  "cloudwatch_dashboard": {
+    "name": "ColdRescue-Operations-dev",
+    "arn": "arn:aws:cloudwatch::494110627063:dashboard/ColdRescue-Operations-dev",
+    "widget_count": 3
+  },
+  "overall_status": "VERIFIED_LIVE"
+}
