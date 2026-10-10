@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-10-10T20:41:16Z",
+  "aws_region": "ap-south-1",
+  "amplify_app": {
+    "app_id": "d1pwxznhg8jq0u",
+    "app_arn": "arn:aws:amplify:ap-south-1:494110627063:apps/d1pwxznhg8jq0u",
+    "app_name": "ColdRescue-Frontend-dev",
+    "branch": "dev",
+    "deployment_job_id": "1",
+    "deployment_status": "SUCCEED",
+    "live_url": "https://dev.d1pwxznhg8jq0u.amplifyapp.com",
+    "http_status": 200,
+    "contains_coldrescue_title": true
+  },
+  "overall_status": "VERIFIED_LIVE"
+}
