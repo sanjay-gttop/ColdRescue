@@ -26,6 +26,8 @@ def build_layer():
         "--python-version",
         "312",
         "pydantic",
+        "pydantic-settings",
+        "python-dotenv",
     ]
     print(f"Installing dependencies to {target_dir}...")
     subprocess.check_call(cmd)

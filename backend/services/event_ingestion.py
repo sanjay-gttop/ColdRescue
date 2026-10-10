@@ -56,10 +56,10 @@ def _default_database_path() -> Path:
         return Path(configured).expanduser().resolve()
 
     # Tests must never clear or write to the real local event database.
-    if "pytest" in sys.modules:
+    if "pytest" in sys.modules or os.environ.get("AWS_LAMBDA_FUNCTION_NAME") or os.environ.get("LAMBDA_TASK_ROOT"):
         return (
             Path(tempfile.gettempdir())
-            / f"coldrescue-test-events-{os.getpid()}.sqlite3"
+            / f"coldrescue-events-{os.getpid()}.sqlite3"
         )
 
     project_root = Path(__file__).resolve().parents[2]

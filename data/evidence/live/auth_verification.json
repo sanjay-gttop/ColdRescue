@@ -1,0 +1,26 @@
+{
+  "user_pool_id": "ap-south-1_G0kvEfnGO",
+  "client_id": "69oabefdctnfb7agpq26sr3mql",
+  "users": {
+    "operator@coldrescue.io": {
+      "role": "OPERATOR",
+      "group": "OPERATOR",
+      "id_token_prefix": "eyJraWQiOiJCR1RNUkk5RzhBbFBNZz..."
+    },
+    "approver@coldrescue.io": {
+      "role": "APPROVER",
+      "group": "APPROVER",
+      "id_token_prefix": "eyJraWQiOiJCR1RNUkk5RzhBbFBNZz..."
+    },
+    "driver@coldrescue.io": {
+      "role": "DRIVER",
+      "group": "DRIVER",
+      "id_token_prefix": "eyJraWQiOiJCR1RNUkk5RzhBbFBNZz..."
+    },
+    "receiver@coldrescue.io": {
+      "role": "RECEIVER",
+      "group": "RECEIVER",
+      "id_token_prefix": "eyJraWQiOiJCR1RNUkk5RzhBbFBNZz..."
+    }
+  }
+}
