@@ -142,14 +142,19 @@ class SimulationResult:
         }
 
 
-def run_simulation(scenario_id: str, seed: int = 0) -> SimulationResult:
+def run_simulation(
+    scenario_id: str,
+    seed: int = 0,
+    ambient_temp_c: float = 25.0,
+) -> SimulationResult:
     """
     Run a complete power-failure simulation.
 
     Parameters
     ----------
-    scenario_id : named scenario (must be in AVAILABLE_SCENARIOS)
-    seed        : random seed for reproducible parameter generation
+    scenario_id     : named scenario (must be in AVAILABLE_SCENARIOS)
+    seed            : random seed for reproducible parameter generation
+    ambient_temp_c  : ambient temperature in °C (default: 25.0)
 
     Returns
     -------
@@ -275,11 +280,13 @@ def run_simulation(scenario_id: str, seed: int = 0) -> SimulationResult:
         0.0,
     ) + 30.0
 
+    effective_ingress_rate = cargo.heat_ingress_rate / max(cargo.thermal_resistance, 0.001)
+
     thermal = ThermalModel(
         initial_temp_c=cargo.initial_temp_c,
         safe_temp_max_c=cargo.safe_temp_max_c,
-        ambient_temp_c=25.0,
-        heat_ingress_rate=0.005,
+        ambient_temp_c=ambient_temp_c,
+        heat_ingress_rate=effective_ingress_rate,
         door_open_pulse_c=0.5,
     )
 
@@ -444,6 +451,12 @@ def main() -> None:
         help="Random seed for reproducibility (default: 0)",
     )
     parser.add_argument(
+        "--ambient-temp",
+        type=float,
+        default=25.0,
+        help="Ambient temperature in °C (default: 25.0)",
+    )
+    parser.add_argument(
         "--list-scenarios",
         action="store_true",
         help="List all available scenarios and exit",
@@ -462,7 +475,11 @@ def main() -> None:
         sys.exit(1)
 
     try:
-        result = run_simulation(args.scenario, seed=args.seed)
+        result = run_simulation(
+            args.scenario,
+            seed=args.seed,
+            ambient_temp_c=args.ambient_temp,
+        )
         print_report(result)
     except ValueError as error:
         print(f"ERROR: {error}", file=sys.stderr)

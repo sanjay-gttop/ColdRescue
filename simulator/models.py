@@ -39,6 +39,12 @@ class CargoProfile(BaseModel):
     unloading_duration_min: float = Field(
         ..., ge=0.0, description="Estimated unloading time (min, >=0)"
     )
+    thermal_resistance: float = Field(
+        default=1.0, gt=0.0, description="Thermal insulation resistance factor (higher = slower warming)"
+    )
+    heat_ingress_rate: float = Field(
+        default=0.005, gt=0.0, description="Base heat ingress rate constant (1/min)"
+    )
 
     @model_validator(mode="after")
     def validate_temp_range(self) -> "CargoProfile":
