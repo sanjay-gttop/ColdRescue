@@ -6,6 +6,7 @@
   "incident_id": null,
   "correlation_id": "corr_fix_001",
   "idempotency_key": "ikey_fix_003",
+  "sequence_number": null,
   "receiver_id": "recv_01",
   "receiver_name": "Arctic Cold Logistics Hub",
   "category": "COLD_STORAGE_FACILITY",

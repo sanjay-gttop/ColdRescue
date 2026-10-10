@@ -1,0 +1,30 @@
+﻿# Secrets and local configuration
+.env
+.env.*
+!.env.example
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Backup files
+*.backup
+
+# Frontend dependencies and builds
+frontend/node_modules/
+frontend/dist/
+
+# Git and generated infrastructure output
+.git/
+cdk.out/
+
+# Editor and operating system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

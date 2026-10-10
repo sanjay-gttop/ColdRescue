@@ -6,6 +6,7 @@
   "incident_id": null,
   "correlation_id": "corr_fix_001",
   "idempotency_key": "ikey_fix_008",
+  "sequence_number": null,
   "action": "SIMULATION_STARTED",
   "actor": "simulator.engine",
   "target_id": null,

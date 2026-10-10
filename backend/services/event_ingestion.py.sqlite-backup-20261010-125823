@@ -1,0 +1,168 @@
+
+"""Local event ingestion with validation, deduplication and sequence checks."""
+from __future__ import annotations
+
+from threading import Lock
+from typing import Any
+
+from pydantic import ValidationError
+
+from backend.schemas.incident import IncidentEvent
+from backend.schemas.cargo import CargoEvent
+from backend.schemas.receiver import ReceiverEvent
+from backend.schemas.route import RouteEvent
+from backend.schemas.assignment import AssignmentEvent
+from backend.schemas.approval import ApprovalEvent
+from backend.schemas.prediction import PredictionEvent
+from backend.schemas.audit_event import AuditEvent
+
+
+EVENT_SCHEMAS = {
+    "incident": IncidentEvent,
+    "cargo": CargoEvent,
+    "receiver": ReceiverEvent,
+    "route": RouteEvent,
+    "assignment": AssignmentEvent,
+    "approval": ApprovalEvent,
+    "prediction": PredictionEvent,
+    "audit": AuditEvent,
+}
+
+
+class IngestionError(Exception):
+    """Base error for event ingestion."""
+
+
+class UnsupportedEventType(IngestionError):
+    """Raised when an event type is not supported."""
+
+
+class DuplicateKeyConflict(IngestionError):
+    """Raised when an idempotency key is reused with different data."""
+
+
+class DuplicateEventIDConflict(IngestionError):
+    """Raised when an event ID is reused for a different submission."""
+
+
+class OutOfOrderEvent(IngestionError):
+    """Raised when an event sequence is not newer than the stream state."""
+
+
+class LocalEventStore:
+    """
+    Temporary, process-local event store.
+
+    This store is for local development only. It is not durable and does
+    not provide cross-process coordination; replace it with durable storage
+    before deploying multiple workers or production traffic.
+    """
+
+    def __init__(self) -> None:
+        self._lock = Lock()
+        self._events: list[dict[str, Any]] = []
+        self._idempotency: dict[str, dict[str, Any]] = {}
+        self._event_ids: dict[str, dict[str, Any]] = {}
+        self._latest_sequence: dict[str, int] = {}
+
+    def ingest(
+        self,
+        stream_id: str,
+        raw_event: dict[str, Any],
+    ) -> dict[str, Any]:
+        # Reject invalid stream identifiers even if the service is called
+        # directly without going through the API request model.
+        if not stream_id or not stream_id.strip():
+            raise ValueError("stream_id must not be empty or whitespace")
+
+        stream_id = stream_id.strip()
+
+        event_type = str(raw_event.get("event_type", "")).strip().lower()
+        schema = EVENT_SCHEMAS.get(event_type)
+
+        if schema is None:
+            raise UnsupportedEventType(
+                "Unsupported event_type. Use one of: "
+                + ", ".join(EVENT_SCHEMAS)
+            )
+
+        event = schema.model_validate(raw_event)
+
+        if event.sequence_number is None:
+            raise ValueError(
+                "sequence_number is required when ingesting an event"
+            )
+
+        normalized_event = event.model_dump(mode="json")
+        idempotency_key = event.idempotency_key
+        event_id = event.event_id
+        sequence_number = event.sequence_number
+
+        with self._lock:
+            # An identical retry remains safe and idempotent.
+            existing = self._idempotency.get(idempotency_key)
+
+            if existing is not None:
+                same_event = (
+                    existing["stream_id"] == stream_id
+                    and existing["event"] == normalized_event
+                )
+
+                if same_event:
+                    return {
+                        "status": "duplicate",
+                        "duplicate": True,
+                        "stream_id": stream_id,
+                        "event_id": event_id,
+                        "sequence_number": sequence_number,
+                    }
+
+                raise DuplicateKeyConflict(
+                    "idempotency_key was already used for different event data"
+                )
+
+            # Event IDs must be unique across accepted submissions.
+            existing_event = self._event_ids.get(event_id)
+
+            if existing_event is not None:
+                raise DuplicateEventIDConflict(
+                    "event_id has already been used"
+                )
+
+            latest = self._latest_sequence.get(stream_id, 0)
+
+            if sequence_number <= latest:
+                raise OutOfOrderEvent(
+                    f"sequence_number must be greater than {latest} "
+                    f"for stream '{stream_id}'"
+                )
+
+            record = {
+                "stream_id": stream_id,
+                "event": normalized_event,
+            }
+
+            self._events.append(record)
+            self._idempotency[idempotency_key] = record
+            self._event_ids[event_id] = record
+            self._latest_sequence[stream_id] = sequence_number
+
+            return {
+                "status": "accepted",
+                "duplicate": False,
+                "stream_id": stream_id,
+                "event_id": event_id,
+                "event_type": event_type,
+                "sequence_number": sequence_number,
+            }
+
+    def clear(self) -> None:
+        """Clear local state; intended for automated tests."""
+        with self._lock:
+            self._events.clear()
+            self._idempotency.clear()
+            self._event_ids.clear()
+            self._latest_sequence.clear()
+
+
+event_store = LocalEventStore()

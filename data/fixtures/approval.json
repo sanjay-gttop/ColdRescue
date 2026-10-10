@@ -6,6 +6,7 @@
   "incident_id": "inc_fix_001",
   "correlation_id": "corr_fix_001",
   "idempotency_key": "ikey_fix_007",
+  "sequence_number": null,
   "approval_id": "appr_01",
   "assignment_id": "assign_01",
   "decision": "APPROVED",

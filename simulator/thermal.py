@@ -98,7 +98,9 @@ class ThermalModel:
             new_temp = self.initial_temp_c
         else:
             # Newton's law of cooling (heat ingress from warmer ambient)
-            delta = self.heat_ingress_rate * (self.ambient_temp_c - self._current_temp_c)
+            delta = self.heat_ingress_rate * (
+                self.ambient_temp_c - self._current_temp_c
+            )
             new_temp = self._current_temp_c + delta * SIMULATION_STEP_MIN
 
         # Door-open heat pulse
@@ -132,16 +134,41 @@ class ThermalModel:
         duration_min        : total simulation duration
         cooling_lost_at_min : when cooling is lost (0 = immediately)
         door_open_times_min : list of times at which door-open events occur
+
+        Door events scheduled between minute boundaries are applied during
+        the simulation step containing their scheduled time.
         """
-        door_open_set = set(door_open_times_min or [])
+        door_open_times = sorted(door_open_times_min or [])
+        processed_door_events: set[int] = set()
+
         steps: List[ThermalStep] = []
         t = 0.0
+
         while t < duration_min:
             cooling_active = t < cooling_lost_at_min
-            door_opened = t in door_open_set
-            record = self.step(cooling_active=cooling_active, door_opened=door_opened)
+            step_end = t + SIMULATION_STEP_MIN
+
+            # Apply a door event during the step containing its scheduled time.
+            # For example, an event at 12.5 minutes is applied during the
+            # step beginning at minute 12. An event at 12.0 is also applied
+            # during the step beginning at minute 12.
+            door_opened = False
+
+            for index, event_time in enumerate(door_open_times):
+                if index in processed_door_events:
+                    continue
+
+                if t <= event_time < step_end:
+                    door_opened = True
+                    processed_door_events.add(index)
+
+            record = self.step(
+                cooling_active=cooling_active,
+                door_opened=door_opened,
+            )
             steps.append(record)
             t += SIMULATION_STEP_MIN
+
         return steps
 
     def minutes_to_exceed_safe_temp(self) -> Optional[float]:

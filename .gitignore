@@ -41,8 +41,10 @@ Thumbs.db
 *.log
 logs/
 
-# Infrastructure secrets
+# Infrastructure secrets & CDK artifacts
 *.tfvars
 *.tfstate
 *.tfstate.backup
 .terraform/
+cdk.out/
+.cdk.staging/

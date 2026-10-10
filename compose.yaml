@@ -1,0 +1,16 @@
+﻿services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: coldrescue-backend
+    ports:
+      - "8000:8000"
+    environment:
+      APP_ENV: development
+      APP_DEBUG: "false"
+      LOG_LEVEL: INFO
+      AWS_REGION: ap-south-1
+      AWS_INTEGRATIONS_ENABLED: "false"
+      CORS_ORIGINS: "http://localhost:5173,http://localhost:3000"
+    restart: unless-stopped

@@ -1,0 +1,1 @@
+"""ColdRescue Infrastructure Package."""

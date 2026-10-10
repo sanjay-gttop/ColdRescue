@@ -1,0 +1,171 @@
+from dataclasses import asdict, dataclass
+from typing import Any
+
+
+POLICY_VERSION = "coldrescue-safety-v1.0.0"
+
+
+@dataclass(frozen=True)
+class AssignmentCandidate:
+    incident_id: str
+    receiver_id: str
+    cargo_kg: float
+    receiver_capacity_remaining_kg: float
+    cooling_viable: bool
+    receiver_backup_runtime_minutes: float
+    route_minutes: float | None
+    unloading_minutes: float
+    thermal_deadline_minutes: float | None
+    safety_margin_minutes: float
+    required_safety_horizon_minutes: float | None = None
+    route_provider: str = "unknown"
+    route_is_simulated: bool = False
+
+
+@dataclass(frozen=True)
+class PolicyDecision:
+    allowed: bool
+    incident_id: str
+    receiver_id: str
+    policy_version: str
+    evaluated_at: str
+    block_reasons: list[dict[str, str]]
+    total_required_minutes: float | None
+    route_provider: str
+    route_is_simulated: bool
+
+
+def evaluate_assignment(candidate: AssignmentCandidate) -> PolicyDecision:
+    from datetime import datetime, timezone
+
+    reasons: list[dict[str, str]] = []
+
+    def block(code: str, message: str) -> None:
+        reasons.append({"code": code, "message": message})
+
+    if candidate.cargo_kg <= 0:
+        block("INVALID_CARGO_MASS", "Cargo mass must be positive.")
+
+    if candidate.receiver_capacity_remaining_kg < 0:
+        block(
+            "INVALID_RECEIVER_CAPACITY",
+            "Receiver remaining capacity cannot be negative.",
+        )
+    elif candidate.cargo_kg > candidate.receiver_capacity_remaining_kg:
+        block(
+            "INSUFFICIENT_CAPACITY",
+            f"Cargo requires {candidate.cargo_kg:g} kg, but receiver "
+            f"has only {candidate.receiver_capacity_remaining_kg:g} kg free.",
+        )
+
+    if not candidate.cooling_viable:
+        block(
+            "NO_VIABLE_COOLING",
+            "Receiver has no verified viable cooling arrangement.",
+        )
+
+    if candidate.receiver_backup_runtime_minutes < 0:
+        block(
+            "INVALID_BACKUP_RUNTIME",
+            "Receiver backup runtime cannot be negative.",
+        )
+
+    if candidate.route_minutes is None:
+        block(
+            "ROUTE_UNAVAILABLE",
+            "No usable route duration is available.",
+        )
+    elif candidate.route_minutes < 0:
+        block("INVALID_ROUTE_DURATION", "Route duration cannot be negative.")
+
+    if candidate.unloading_minutes < 0:
+        block(
+            "INVALID_UNLOADING_DURATION",
+            "Unloading duration cannot be negative.",
+        )
+
+    if candidate.safety_margin_minutes < 0:
+        block(
+            "INVALID_SAFETY_MARGIN",
+            "Safety margin cannot be negative.",
+        )
+
+    if candidate.thermal_deadline_minutes is None:
+        block(
+            "THERMAL_DEADLINE_UNKNOWN",
+            "No validated thermal deadline is available.",
+        )
+    elif candidate.thermal_deadline_minutes < 0:
+        block(
+            "INVALID_THERMAL_DEADLINE",
+            "Thermal deadline cannot be negative.",
+        )
+
+    if (
+        candidate.required_safety_horizon_minutes is not None
+        and candidate.required_safety_horizon_minutes < 0
+    ):
+        block(
+            "INVALID_REQUIRED_HORIZON",
+            "Required safety horizon cannot be negative.",
+        )
+
+    required_minutes = None
+
+    # Do not calculate feasibility using invalid or unknown values.
+    valid_durations = (
+        candidate.route_minutes is not None
+        and candidate.route_minutes >= 0
+        and candidate.unloading_minutes >= 0
+        and candidate.safety_margin_minutes >= 0
+        and candidate.thermal_deadline_minutes is not None
+        and candidate.thermal_deadline_minutes >= 0
+    )
+
+    if valid_durations:
+        required_minutes = (
+            candidate.route_minutes
+            + candidate.unloading_minutes
+            + candidate.safety_margin_minutes
+        )
+
+        if required_minutes > candidate.thermal_deadline_minutes:
+            block(
+                "THERMAL_DEADLINE_EXCEEDED",
+                f"Trip and unloading require {required_minutes:g} minutes, "
+                f"including the safety margin, but the estimated thermal "
+                f"deadline is {candidate.thermal_deadline_minutes:g} minutes.",
+            )
+
+        backup_horizon = (
+            candidate.required_safety_horizon_minutes
+            if candidate.required_safety_horizon_minutes is not None
+            else required_minutes
+        )
+
+        if (
+            candidate.receiver_backup_runtime_minutes < backup_horizon
+        ):
+            block(
+                "INSUFFICIENT_BACKUP_RUNTIME",
+                f"Receiver backup runtime is "
+                f"{candidate.receiver_backup_runtime_minutes:g} minutes, "
+                f"but the required safety horizon is "
+                f"{backup_horizon:g} minutes.",
+            )
+
+    return PolicyDecision(
+        allowed=len(reasons) == 0,
+        incident_id=candidate.incident_id,
+        receiver_id=candidate.receiver_id,
+        policy_version=POLICY_VERSION,
+        evaluated_at=datetime.now(timezone.utc).isoformat(),
+        block_reasons=reasons,
+        total_required_minutes=required_minutes,
+        route_provider=candidate.route_provider,
+        route_is_simulated=candidate.route_is_simulated,
+    )
+
+
+def decision_to_dict(decision: PolicyDecision) -> dict[str, Any]:
+    return asdict(decision) 

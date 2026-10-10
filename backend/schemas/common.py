@@ -40,6 +40,11 @@ class EventEnvelope(BaseModel):
     incident_id: Optional[str] = Field(None, description="Associated incident ID")
     correlation_id: str = Field(..., description="Request correlation identifier")
     idempotency_key: str = Field(..., description="Idempotency / dedup key")
+    sequence_number: Optional[int] = Field(
+    None,
+    ge=1,
+    description="Monotonically increasing sequence number for an event stream",
+)
 
     @field_validator("occurred_at")
     @classmethod
