@@ -1,0 +1,27 @@
+{
+  "model_type": "LinearThermalSurrogateModel",
+  "version": "1.0.0",
+  "feature_names": [
+    "bias",
+    "temp_buffer_c",
+    "ambient_gradient_c",
+    "backup_runtime_min",
+    "thermal_resistance",
+    "cooling_status_factor",
+    "mass_log_kg"
+  ],
+  "weights": [
+    -123.5635,
+    32.1437,
+    -2.7428,
+    -0.1825,
+    78.267,
+    594.282,
+    -1.8377
+  ],
+  "metrics": {
+    "train_mae_minutes": 76.58,
+    "train_rmse_minutes": 95.16,
+    "sample_count": 1000
+  }
+}
