@@ -10,6 +10,7 @@ from aws_cdk import Tags
 from infrastructure.stacks.foundation_stack import ColdRescueFoundationStack
 from infrastructure.stacks.auth_stack import ColdRescueAuthStack
 from infrastructure.stacks.orchestration_stack import ColdRescueOrchestrationStack
+from infrastructure.stacks.event_pipeline_stack import ColdRescueEventPipelineStack
 
 
 def main() -> None:
@@ -63,8 +64,23 @@ def main() -> None:
         description="ColdRescue M9: Step Functions Incident Recovery Orchestration and Lambda Tasks.",
     )
 
+    # Instantiate M13 Event Pipeline Stack (EventBridge, SQS, DLQ, Idempotent Consumer)
+    pipeline_stack_name = f"ColdRescue-EventPipeline-{env_name}"
+    event_pipeline_stack = ColdRescueEventPipelineStack(
+        app,
+        pipeline_stack_name,
+        environment_name=env_name,
+        env=target_env,
+        description="ColdRescue M13: EventBridge Routing, SQS Buffering, DLQ, and Idempotent Consumer.",
+    )
+
     # Standardized Resource Tagging across all stack resources
-    for s, m in [(foundation_stack, "M0"), (auth_stack, "M10"), (orchestration_stack, "M9")]:
+    for s, m in [
+        (foundation_stack, "M0"),
+        (auth_stack, "M10"),
+        (orchestration_stack, "M9"),
+        (event_pipeline_stack, "M13"),
+    ]:
         Tags.of(s).add("Project", "ColdRescue")
         Tags.of(s).add("Environment", env_name)
         Tags.of(s).add("ManagedBy", "AWS-CDK")
