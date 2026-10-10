@@ -27,6 +27,7 @@ class ColdRescueOrchestrationStack(Stack):
         construct_id: str,
         *,
         environment_name: str = "dev",
+        user_pool: Any = None,
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
@@ -335,11 +336,25 @@ class ColdRescueOrchestrationStack(Stack):
             ),
         )
 
+        # Configure Cognito Authorizer if user_pool is provided
+        authorizer = None
+        authorization_type = apigw.AuthorizationType.NONE
+        if user_pool:
+            authorizer = apigw.CognitoUserPoolsAuthorizer(
+                self,
+                "ColdRescueCognitoAuthorizer",
+                cognito_user_pools=[user_pool],
+                results_cache_ttl=Duration.minutes(5),
+            )
+            authorization_type = apigw.AuthorizationType.COGNITO
+
         incidents_resource = api.root.add_resource("incidents")
         recover_resource = incidents_resource.add_resource("recover")
         recover_resource.add_method(
             "POST",
             sfn_integration,
+            authorizer=authorizer,
+            authorization_type=authorization_type,
             method_responses=[apigw.MethodResponse(status_code="200")],
         )
 

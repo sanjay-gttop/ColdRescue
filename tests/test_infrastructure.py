@@ -134,3 +134,46 @@ def test_no_wildcard_iam_roles_created():
                     actions = [actions]
                 assert "*:*" not in actions
                 assert "*" not in actions
+
+
+def test_auth_stack_synthesizes_cognito_user_pool_and_rbac_groups():
+    """Verify M10 auth stack creates UserPool, WebClient, and 4 RBAC groups."""
+    from infrastructure.stacks.auth_stack import ColdRescueAuthStack
+
+    app = cdk.App()
+    target_env = cdk.Environment(account="494110627063", region="ap-south-1")
+    stack = ColdRescueAuthStack(
+        app,
+        "Test-ColdRescue-Auth-dev",
+        environment_name="dev",
+        env=target_env,
+    )
+    template = Template.from_stack(stack)
+
+    # 1. User Pool
+    template.has_resource_properties(
+        "AWS::Cognito::UserPool",
+        {
+            "UserPoolName": "ColdRescue-Users-dev",
+            "UsernameAttributes": ["email"],
+        },
+    )
+
+    # 2. User Pool Client (public web client without client secret)
+    template.has_resource_properties(
+        "AWS::Cognito::UserPoolClient",
+        {
+            "ClientName": "ColdRescue-WebClient-dev",
+            "GenerateSecret": False,
+        },
+    )
+
+    # 3. 4 RBAC Groups: OPERATOR, APPROVER, DRIVER, RECEIVER
+    for group_name in ["OPERATOR", "APPROVER", "DRIVER", "RECEIVER"]:
+        template.has_resource_properties(
+            "AWS::Cognito::UserPoolGroup",
+            {
+                "GroupName": group_name,
+            },
+        )
+

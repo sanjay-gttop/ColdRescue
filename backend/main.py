@@ -47,11 +47,14 @@ app.add_middleware(
 app.add_exception_handler(ValidationError, validation_exception_handler)
 app.add_exception_handler(Exception, generic_exception_handler)
 
+from backend.api.recovery_actions import router as recovery_actions_router
+
 # Routers
 app.include_router(health_router)
 app.include_router(health_router, prefix="/api/v1")
 app.include_router(allocation_router, prefix="/api/v1")
 app.include_router(events_router, prefix="/api/v1")
+app.include_router(recovery_actions_router, prefix="/api/v1")
 
 
 @app.on_event("startup")

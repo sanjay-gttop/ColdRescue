@@ -8,6 +8,7 @@ import aws_cdk as cdk
 from aws_cdk import Tags
 
 from infrastructure.stacks.foundation_stack import ColdRescueFoundationStack
+from infrastructure.stacks.auth_stack import ColdRescueAuthStack
 from infrastructure.stacks.orchestration_stack import ColdRescueOrchestrationStack
 
 
@@ -41,18 +42,29 @@ def main() -> None:
         description="ColdRescue M0 Foundation: Secure S3 Audit Archive and CloudWatch Application Logging.",
     )
 
+    # Instantiate M10 Auth Stack (Cognito User Pool, App Client, RBAC Groups)
+    auth_stack_name = f"ColdRescue-Auth-{env_name}"
+    auth_stack = ColdRescueAuthStack(
+        app,
+        auth_stack_name,
+        environment_name=env_name,
+        env=target_env,
+        description="ColdRescue M10: Cognito User Pool, Client, and RBAC Groups.",
+    )
+
     # Instantiate M9 Orchestration Stack
     orch_stack_name = f"ColdRescue-Orchestration-{env_name}"
     orchestration_stack = ColdRescueOrchestrationStack(
         app,
         orch_stack_name,
         environment_name=env_name,
+        user_pool=auth_stack.user_pool,
         env=target_env,
         description="ColdRescue M9: Step Functions Incident Recovery Orchestration and Lambda Tasks.",
     )
 
     # Standardized Resource Tagging across all stack resources
-    for s, m in [(foundation_stack, "M0"), (orchestration_stack, "M9")]:
+    for s, m in [(foundation_stack, "M0"), (auth_stack, "M10"), (orchestration_stack, "M9")]:
         Tags.of(s).add("Project", "ColdRescue")
         Tags.of(s).add("Environment", env_name)
         Tags.of(s).add("ManagedBy", "AWS-CDK")
