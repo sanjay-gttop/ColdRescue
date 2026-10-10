@@ -38,7 +38,7 @@ def sqs_event_consumer_handler(event: Dict[str, Any], context: Any = None) -> Di
             if detail.get("simulate_failure") is True:
                 raise RuntimeError(f"Controlled processing failure injected for message {message_id}")
 
-            stream_id = detail.get("stream_id") or f"stream_{detail.get('incident_id', message_id)}"
+            stream_id = detail.pop("stream_id", None) or f"stream_{detail.get('incident_id', message_id)}"
             event_id = detail.get("event_id") or message_id
 
             # Ingest idempotently into event store
@@ -47,8 +47,10 @@ def sqs_event_consumer_handler(event: Dict[str, Any], context: Any = None) -> Di
         except DuplicateKeyConflict:
             # Idempotency duplicate safely handled: do not fail or duplicate actions
             continue
-        except Exception:
+        except Exception as exc:
             # Report failure for this specific message to trigger SQS retry / DLQ routing
+            import logging
+            logging.getLogger("sqs_consumer").warning(f"SQS record {message_id} failed: {exc}")
             batch_item_failures.append({"itemIdentifier": message_id})
 
     return {
@@ -74,7 +76,7 @@ def redrive_dlq_messages(dlq_messages: List[Dict[str, Any]]) -> Dict[str, Any]:
         # Clear simulated failure flag before redrive
         detail.pop("simulate_failure", None)
 
-        stream_id = detail.get("stream_id", "stream_replayed")
+        stream_id = detail.pop("stream_id", None) or "stream_replayed"
         try:
             res = store.ingest(stream_id=stream_id, raw_event=detail)
             if res.get("duplicate") is True:

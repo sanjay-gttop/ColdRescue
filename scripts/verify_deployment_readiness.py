@@ -75,13 +75,15 @@ def run_full_verification() -> Dict[str, Any]:
 
     # 2. Event validation & Ingestion
     store = get_event_store()
+    run_uid = f"{int(time.time())}"
+    stream_id = f"stream_v17_{run_uid}"
     raw_evt = {
-        "event_id": "evt_v17_001",
+        "event_id": f"evt_v17_{run_uid}",
         "event_type": "incident",
         "occurred_at": datetime.now(timezone.utc).isoformat(),
         "schema_version": "1.0.0",
-        "correlation_id": "corr_v17_001",
-        "idempotency_key": f"idem_v17_001_{time.time()}",
+        "correlation_id": f"corr_v17_{run_uid}",
+        "idempotency_key": f"idem_v17_{run_uid}",
         "sequence_number": 1,
         "incident_type": "REEFER_UNIT_FAILURE",
         "status": "OPEN",
@@ -89,7 +91,7 @@ def run_full_verification() -> Dict[str, Any]:
         "location_name": "Coimbatore Hub",
         "reported_by": "verification_agent",
     }
-    ing_res = store.ingest(stream_id="stream_v17", raw_event=raw_evt)
+    ing_res = store.ingest(stream_id=stream_id, raw_event=raw_evt)
     check(
         2,
         "Event Schema & Store Ingestion",
@@ -203,7 +205,7 @@ def run_full_verification() -> Dict[str, Any]:
     )
 
     # 9. DynamoDB Idempotency & Audit
-    dup_res = store.ingest(stream_id="stream_v17", raw_event=raw_evt)
+    dup_res = store.ingest(stream_id=stream_id, raw_event=raw_evt)
     check(
         9,
         "Persistence & Idempotency Deduplication",
@@ -221,17 +223,19 @@ def run_full_verification() -> Dict[str, Any]:
     )
 
     # 11. EventBridge & SQS Buffer
+    sqs_stream_id = f"stream_sqs_v17_{run_uid}"
     sqs_sample = {
         "Records": [
             {
-                "messageId": "msg_v17_batch",
+                "messageId": f"msg_v17_{run_uid}",
                 "body": json.dumps({
-                    "event_id": f"evt_sqs_v17_{time.time()}",
+                    "stream_id": sqs_stream_id,
+                    "event_id": f"evt_sqs_v17_{run_uid}",
                     "event_type": "incident",
                     "occurred_at": datetime.now(timezone.utc).isoformat(),
                     "schema_version": "1.0.0",
-                    "correlation_id": "corr_sqs_v17",
-                    "idempotency_key": f"idem_sqs_v17_{time.time()}",
+                    "correlation_id": f"corr_sqs_{run_uid}",
+                    "idempotency_key": f"idem_sqs_{run_uid}",
                     "sequence_number": 1,
                     "incident_type": "REEFER_UNIT_FAILURE",
                     "status": "OPEN",
@@ -251,16 +255,18 @@ def run_full_verification() -> Dict[str, Any]:
     )
 
     # 12. DLQ Behavior & Safe Redrive
+    dlq_stream_id = f"stream_dlq_{run_uid}"
     dlq_sample = [
         {
-            "messageId": "msg_dlq_test",
+            "messageId": f"msg_dlq_{run_uid}",
             "body": {
-                "event_id": f"evt_dlq_{time.time()}",
+                "stream_id": dlq_stream_id,
+                "event_id": f"evt_dlq_{run_uid}",
                 "event_type": "incident",
                 "occurred_at": datetime.now(timezone.utc).isoformat(),
                 "schema_version": "1.0.0",
-                "correlation_id": "corr_dlq_01",
-                "idempotency_key": f"idem_dlq_{time.time()}",
+                "correlation_id": f"corr_dlq_{run_uid}",
+                "idempotency_key": f"idem_dlq_{run_uid}",
                 "sequence_number": 1,
                 "incident_type": "REEFER_UNIT_FAILURE",
                 "status": "OPEN",
