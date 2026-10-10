@@ -190,3 +190,103 @@ class LocalHaversineRouteProvider(RouteProvider):
             confidence=0.30,
             notes="Missing origin/destination coordinates; fallback estimate applied.",
         )
+
+
+class AmazonLocationRouteProvider(RouteProvider):
+    """
+    Live Amazon Location Service route calculator.
+    
+    Uses AWS Location Service CalculateRoute API when AWS_INTEGRATIONS_ENABLED is True.
+    If disabled, not provisioned, or on network failure, gracefully falls back to LocalHaversineRouteProvider.
+    """
+
+    def __init__(
+        self,
+        calculator_name: Optional[str] = None,
+        region: Optional[str] = None,
+        fallback_provider: Optional[RouteProvider] = None,
+    ) -> None:
+        from backend.config.settings import settings
+
+        self.calculator_name = calculator_name or settings.AWS_LOCATION_ROUTE_CALCULATOR_NAME
+        self.region = region or settings.AWS_REGION
+        self.fallback = fallback_provider or LocalHaversineRouteProvider()
+        self._enabled = settings.AWS_INTEGRATIONS_ENABLED
+
+    def calculate_route(
+        self,
+        origin: Location,
+        destination: ReceiverNode,
+        average_speed_kmh: Optional[float] = None,
+    ) -> RouteEstimate:
+        """Calculate route via Amazon Location Service or fall back gracefully."""
+        if not self._enabled:
+            return self.fallback.calculate_route(origin, destination, average_speed_kmh)
+
+        if (
+            origin.latitude is None
+            or origin.longitude is None
+            or destination.latitude is None
+            or destination.longitude is None
+        ):
+            return self.fallback.calculate_route(origin, destination, average_speed_kmh)
+
+        try:
+            import boto3
+
+            client = boto3.client("location", region_name=self.region)
+            response = client.calculate_route(
+                CalculatorName=self.calculator_name,
+                DeparturePosition=[origin.longitude, origin.latitude],
+                DestinationPosition=[destination.longitude, destination.latitude],
+                TravelMode="Truck",
+            )
+
+            summary = response.get("Summary", {})
+            distance_km = round(summary.get("Distance", 0.0), 2)
+            duration_sec = summary.get("DurationSeconds", 0.0)
+            travel_time_min = round(duration_sec / 60.0, 1)
+            speed = round((distance_km / max(travel_time_min / 60.0, 0.001)), 1)
+
+            waypoints = [
+                WaypointCoordinate(
+                    label=f"Origin: {origin.name}",
+                    latitude=origin.latitude,
+                    longitude=origin.longitude,
+                    eta_min=0.0,
+                ),
+                WaypointCoordinate(
+                    label=f"Destination: {destination.name}",
+                    latitude=destination.latitude,
+                    longitude=destination.longitude,
+                    eta_min=travel_time_min,
+                ),
+            ]
+
+            return RouteEstimate(
+                origin_id=origin.location_id,
+                destination_id=destination.receiver_id,
+                distance_km=distance_km,
+                travel_time_min=travel_time_min,
+                average_speed_kmh=speed,
+                provider_name="amazon_location_service",
+                is_fallback=False,
+                confidence=0.98,
+                waypoints=waypoints,
+                notes=f"Calculated via Amazon Location Service ({self.calculator_name})",
+            )
+        except Exception as exc:
+            # Safe degraded operation fallback
+            estimate = self.fallback.calculate_route(origin, destination, average_speed_kmh)
+            estimate.notes = f"{estimate.notes or ''} [Amazon Location unavailable: {exc}]".strip()
+            return estimate
+
+
+def get_route_provider() -> RouteProvider:
+    """Factory function returning the active route provider based on environment settings."""
+    from backend.config.settings import settings
+
+    if settings.AWS_INTEGRATIONS_ENABLED:
+        return AmazonLocationRouteProvider()
+    return LocalHaversineRouteProvider()
+

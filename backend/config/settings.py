@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     CLOUDWATCH_LOG_GROUP: str = "/coldrescue/application/development"
     CLOUDWATCH_LOG_STREAM: str = "local-development"
 
+    # Amazon Location Service
+    AWS_LOCATION_ROUTE_CALCULATOR_NAME: str = "ColdRescue-RouteCalculator-dev"
+
     # Application security
     SECRET_KEY: str = "dev-secret-key"
 

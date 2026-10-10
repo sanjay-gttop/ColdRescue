@@ -111,3 +111,28 @@ def test_negative_speed_raises_error():
     )
     with pytest.raises(ValueError, match="Speed must be positive"):
         provider.calculate_route(origin, destination, average_speed_kmh=-10.0)
+
+
+def test_amazon_location_fallback_when_disabled():
+    from backend.services.route_provider import AmazonLocationRouteProvider, get_route_provider
+
+    provider = AmazonLocationRouteProvider()
+    origin = Location(location_id="loc_05", name="Origin", latitude=19.0760, longitude=72.8777)
+    destination = ReceiverNode(
+        receiver_id="recv_05",
+        name="Dest",
+        category=ReceiverCategory.COLD_STORAGE_FACILITY,
+        capacity_kg=500.0,
+        accepts_temperature_min_c=2.0,
+        accepts_temperature_max_c=8.0,
+        latitude=19.2183,
+        longitude=72.9781,
+    )
+    estimate = provider.calculate_route(origin, destination)
+    assert estimate.is_fallback is True
+    assert estimate.provider_name == "local_haversine_fallback"
+    assert estimate.distance_km > 0
+
+    active_provider = get_route_provider()
+    assert active_provider is not None
+
