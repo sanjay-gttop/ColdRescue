@@ -3,10 +3,20 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from enum import Enum
+import json
+import logging
 import math
+import os
 from typing import Any, Optional
 
+import boto3
+from botocore.exceptions import ClientError, BotoCoreError
 from pydantic import BaseModel
+
+logger = logging.getLogger(__name__)
+
+SAGEMAKER_ENDPOINT_NAME = os.environ.get("COLDRESCUE_SAGEMAKER_ENDPOINT", "coldrescue-thermal-serverless-v1")
+AWS_REGION = os.environ.get("AWS_REGION", "ap-south-1")
 
 
 THERMAL_MODEL_VERSION = "thermal-simulation-v1.2.0"
@@ -222,6 +232,8 @@ class ThermalRiskLevel(str, Enum):
 
 
 class ThermalRiskAssessment(BaseModel):
+    model_config = {"protected_namespaces": ()}
+
     cargo_id: str
     risk_level: ThermalRiskLevel
     current_temperature_c: Optional[float] = None
@@ -232,6 +244,10 @@ class ThermalRiskAssessment(BaseModel):
     estimated_safe_window_min: float
     predicted_temperature_after_transit_c: Optional[float] = None
     spoilage_breached: bool = False
+    prediction_source: str = "physics_fallback"
+    model_version: str = THERMAL_MODEL_VERSION
+    is_fallback: bool = True
+    fallback_reason: Optional[str] = None
     explanation: str
     assumptions: str
     disclaimer: str = (
@@ -345,6 +361,7 @@ class ThermalRiskService:
         else:
             raise ValueError(f"Unsupported cooling status: {raw_status}")
 
+        # Baseline deterministic physics simulation (always run for fallback and trajectory)
         prediction = simulate_thermal_risk(
             ThermalInput(
                 cargo_type=cargo_type,
@@ -358,12 +375,51 @@ class ThermalRiskService:
         )
 
         if prediction.predicted_breach_minutes is not None:
-            safe_window = prediction.predicted_breach_minutes
+            physics_safe_window = prediction.predicted_breach_minutes
         elif prediction.status == "UNKNOWN_COOLING_STATE":
-            safe_window = 0.0
+            physics_safe_window = 0.0
         else:
-            # This is the simulated horizon, not an unlimited safe-life claim.
-            safe_window = float(DEFAULT_SIMULATION_HORIZON_MINUTES)
+            physics_safe_window = float(DEFAULT_SIMULATION_HORIZON_MINUTES)
+
+        # Attempt real SageMaker Serverless Inference when enabled
+        safe_window = physics_safe_window
+        prediction_source = "physics_fallback"
+        model_version = THERMAL_MODEL_VERSION
+        is_fallback = True
+        fallback_reason = None
+
+        if os.environ.get("ENABLE_SAGEMAKER_INFERENCE", "false").lower() in ("true", "1", "yes"):
+            try:
+                sm_runtime = boto3.client("sagemaker-runtime", region_name=AWS_REGION)
+                cargo_kg = float(getattr(cargo, "cargo_kg", 500.0) or 500.0)
+                payload_dict = {
+                    "cargo_type": cargo_type,
+                    "current_temp_c": current_temp,
+                    "ambient_temp_c": ambient,
+                    "safe_limit_c": safe_max,
+                    "cooling_status": sim_cooling,
+                    "backup_runtime_min": backup_runtime,
+                    "mass_kg": cargo_kg,
+                    "thermal_resistance": 1.0,
+                }
+                response = sm_runtime.invoke_endpoint(
+                    EndpointName=SAGEMAKER_ENDPOINT_NAME,
+                    ContentType="application/json",
+                    Body=json.dumps(payload_dict),
+                )
+                resp_body = json.loads(response["Body"].read().decode("utf-8"))
+                if "predicted_breach_minutes" in resp_body:
+                    safe_window = float(resp_body["predicted_breach_minutes"])
+                    prediction_source = "sagemaker_serverless"
+                    model_version = resp_body.get("model_version", "1.0.0")
+                    is_fallback = False
+                    fallback_reason = None
+            except (ClientError, BotoCoreError, Exception) as sm_err:
+                fallback_reason = f"SageMaker unavailable ({type(sm_err).__name__}); deterministic physics fallback armed."
+                logger.warning("SageMaker endpoint invocation fell back to physics: %s", sm_err)
+                safe_window = physics_safe_window
+                prediction_source = "physics_fallback"
+                is_fallback = True
 
         predicted_arrival_temp = current_temp
 
@@ -415,12 +471,16 @@ class ThermalRiskService:
                 else None
             ),
             spoilage_breached=False,
+            prediction_source=prediction_source,
+            model_version=model_version,
+            is_fallback=is_fallback,
+            fallback_reason=fallback_reason,
             explanation=(
                 f"{explanation_prefix}Estimated safe preservation window is "
-                f"{safe_window:.1f} minutes. Cooling status: {raw_status.upper()}."
+                f"{safe_window:.1f} minutes via {prediction_source}. Cooling status: {raw_status.upper()}."
             ),
             assumptions=(
-                f"Model {THERMAL_MODEL_VERSION}; ambient={ambient:.1f} C, "
+                f"Model {model_version}; ambient={ambient:.1f} C, "
                 f"safe_max={safe_max:.1f} C. Coefficients are illustrative."
             ),
         )

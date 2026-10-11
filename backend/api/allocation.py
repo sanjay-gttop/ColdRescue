@@ -79,3 +79,21 @@ async def compare_allocation_strategies(payload: CompareStrategiesRequest) -> St
         scenario_name=payload.scenario_name,
         ambient_temperature_c=payload.ambient_temperature_c,
     )
+
+
+class BenchmarkRequest(BaseModel):
+    scenario_count: int = Field(default=50, ge=1, le=100)
+    seed: int = Field(default=42)
+
+
+@router.post("/benchmark")
+async def execute_counterfactual_benchmark(payload: BenchmarkRequest = BenchmarkRequest()) -> Dict[str, Any]:
+    """Execute 50 reproducible synthetic rescue scenarios comparing manual, greedy, and global solvers."""
+    from scripts.run_stress_benchmark import generate_benchmark_scenarios, run_benchmark
+    scenarios = generate_benchmark_scenarios(count=payload.scenario_count, seed=payload.seed)
+    results = run_benchmark(scenarios)
+    results["seed"] = payload.seed
+    results["benchmark_version"] = "1.0.0"
+    results["disclosure"] = "Illustrative estimate based on stated simulation assumptions, not measured real-world savings."
+    return results
+

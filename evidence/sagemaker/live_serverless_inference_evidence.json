@@ -1,0 +1,33 @@
+﻿{
+    "training_job_limitation":  "AWS Service Quotas for training job instances (ml.m5.large, ml.c5.xlarge, ml.m5.xlarge) is 0 Instances in account 494110627063; trained model artifact archived and loaded to Serverless Endpoint without EC2/instance cost.",
+    "evaluation_test_samples":  200,
+    "endpoint_config_name":  "coldrescue-thermal-serverless-config-v101",
+    "endpoint_name":  "coldrescue-thermal-serverless-v1",
+    "fallback_verification_result":  {
+                                         "status":  "SUCCESS",
+                                         "fallback_reason":  "SageMaker unavailable (ValidationError); deterministic physics fallback armed.",
+                                         "is_fallback":  true,
+                                         "safe_window_minutes":  47,
+                                         "prediction_source":  "physics_fallback"
+                                     },
+    "model_data_s3":  "s3://coldrescue-foundation-dev-auditlogsbucket963995a4-m5yvkigbfg3t/models/thermal-surrogate-v1.0.1/model.tar.gz",
+    "timestamp":  "2026-10-11T04:09:04Z",
+    "evaluation_test_mae_minutes":  72.55,
+    "framework":  "PyTorch 2.1.0 CPU py310",
+    "endpoint_arn":  "arn:aws:sagemaker:ap-south-1:494110627063:endpoint/coldrescue-thermal-serverless-v1",
+    "endpoint_status":  "InService",
+    "serverless_config":  {
+                              "MemorySizeInMB":  1024,
+                              "MaxConcurrency":  5
+                          },
+    "live_invocation_result":  {
+                                   "status":  "SUCCESS",
+                                   "is_fallback":  false,
+                                   "predicted_breach_minutes":  605.1,
+                                   "prediction_source":  "sagemaker_serverless"
+                               },
+    "model_name":  "coldrescue-thermal-surrogate-v101",
+    "model_arn":  "arn:aws:sagemaker:ap-south-1:494110627063:model/coldrescue-thermal-surrogate-v101",
+    "training_dataset_s3":  "s3://coldrescue-foundation-dev-auditlogsbucket963995a4-m5yvkigbfg3t/training-data/dataset.csv",
+    "training_dataset_sha256":  "BD7F1B549AFD108B0FF6BB0B6E22434BF63998F85EC76F2AF64FEAAB9D268AE2"
+}
