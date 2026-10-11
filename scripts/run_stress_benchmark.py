@@ -88,6 +88,88 @@ def generate_benchmark_scenarios(count: int = 50, seed: int = 42) -> List[Dict[s
 
     return scenarios
 
+def generate_high_contention_scenarios(count: int = 50, seed: int = 77) -> List[Dict[str, Any]]:
+    """Generate reproducible high-contention scenarios with scarce receiver capacities and competing deadlines.
+
+    Features:
+      - 3 to 6 concurrent incidents per scenario competing for scarce hubs
+      - Restricted receiver capacities (total capacity < 75% of total cargo mass in 80% of scenarios)
+      - Narrow travel time budgets and varied cooling availability
+      - Infeasible assignments, rectangular matrices, and tie-breaking edges
+    """
+    rng = random.Random(seed)
+    cargo_types = ["dairy", "vaccine", "produce"]
+    categories = [
+        ReceiverCategory.COLD_STORAGE_FACILITY,
+        ReceiverCategory.FOOD_BANK,
+        ReceiverCategory.HOSPITAL_OR_CLINIC,
+        ReceiverCategory.COMMUNITY_COLD_ROOM,
+    ]
+
+    scenarios = []
+    for i in range(count):
+        scenario_id = f"contention_{i+1:03d}"
+        num_incidents = rng.randint(3, 6)
+        num_receivers = rng.randint(2, 4)
+        ambient_temp = rng.uniform(32.0, 44.0)  # Extreme heat wave conditions
+
+        incidents = []
+        total_cargo_kg = 0.0
+        for inc_idx in range(num_incidents):
+            c_type = rng.choice(cargo_types)
+            mass_kg = rng.uniform(400.0, 1800.0)
+            total_cargo_kg += mass_kg
+            backup_min = rng.choice([0.0, 10.0, 20.0])  # Severely depleted backup power
+            incidents.append({
+                "incident_id": f"{scenario_id}_inc_{inc_idx+1}",
+                "cargo_type": c_type,
+                "mass_kg": round(mass_kg, 1),
+                "current_temp_c": 5.0 if c_type != "produce" else 11.0,
+                "ambient_temp_c": round(ambient_temp, 1),
+                "safe_temp_max_c": 8.0 if c_type == "dairy" else (6.0 if c_type == "vaccine" else 14.0),
+                "safe_temp_min_c": 2.0 if c_type != "produce" else 4.0,
+                "backup_runtime_min": backup_min,
+            })
+
+        # Cap receiver capacity below total cargo mass to force contention
+        cap_fraction = rng.uniform(0.40, 0.75)
+        allocated_total_cap = total_cargo_kg * cap_fraction
+        cap_per_receiver = allocated_total_cap / num_receivers
+
+        receivers = []
+        for rec_idx in range(num_receivers):
+            # One receiver might have zero capacity to test edge handling
+            if rec_idx == 0 and rng.random() < 0.15:
+                cap_kg = 0.0
+            else:
+                cap_kg = cap_per_receiver * rng.uniform(0.8, 1.2)
+
+            rec_backup = rng.choice([15.0, 30.0, 60.0])
+            cooling = rng.choices(["operational", "degraded", "failed"], weights=[0.7, 0.2, 0.1])[0]
+            distance = rng.uniform(8.0, 40.0)
+
+            receivers.append({
+                "receiver_id": f"{scenario_id}_recv_{rec_idx+1}",
+                "name": f"Vault Hub {rec_idx+1}",
+                "category": rng.choice(categories).value,
+                "capacity_kg": round(cap_kg, 1),
+                "cooling_status": cooling,
+                "backup_runtime_min": rec_backup,
+                "distance_km": round(distance, 1),
+                "accepts_temp_min_c": 0.0,
+                "accepts_temp_max_c": 12.0,
+                "compatible_cargo_types": ["dairy", "general", "produce", "vaccine"],
+            })
+
+        scenarios.append({
+            "scenario_id": scenario_id,
+            "ambient_temp_c": round(ambient_temp, 1),
+            "incidents": incidents,
+            "receivers": receivers,
+        })
+
+    return scenarios
+
 
 def run_benchmark(scenarios: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Execute Greedy vs Global allocation comparison across scenarios."""
@@ -258,17 +340,34 @@ def main() -> None:
     parser = argparse.ArgumentParser(description="ColdRescue Greedy vs Global Stress Benchmark")
     parser.add_argument("--count", type=int, default=50, help="Number of scenarios to evaluate")
     parser.add_argument("--seed", type=int, default=42, help="Random seed for scenario generation")
+    parser.add_argument("--suite", type=str, default="baseline", choices=["baseline", "contention"], help="Benchmark suite (baseline or contention)")
     parser.add_argument("--outdir", type=str, default="data/benchmarks", help="Output directory")
 
     args = parser.parse_args()
-    print(f"Generating {args.count} reproducible scenarios with seed={args.seed}...")
-    scenarios = generate_benchmark_scenarios(count=args.count, seed=args.seed)
+    seed = args.seed if args.seed != 42 or args.suite == "baseline" else 77
+    print(f"Generating {args.count} reproducible {args.suite} scenarios with seed={seed}...")
+    if args.suite == "contention":
+        scenarios = generate_high_contention_scenarios(count=args.count, seed=seed)
+    else:
+        scenarios = generate_benchmark_scenarios(count=args.count, seed=seed)
 
     print(f"Running benchmark across {len(scenarios)} scenarios...")
     summary = run_benchmark(scenarios)
+    summary["suite_name"] = args.suite
+    summary["seed"] = seed
 
     out_path = Path(args.outdir)
     save_reports(summary, out_path)
+
+    # Also sync to evidence/benchmark/ for traceable evidence preservation
+    evidence_dir = Path("evidence/benchmark")
+    evidence_dir.mkdir(parents=True, exist_ok=True)
+    if args.suite == "contention":
+        evidence_json = evidence_dir / "high_contention_benchmark_evidence.json"
+    else:
+        evidence_json = evidence_dir / "live_counterfactual_benchmark_evidence.json"
+    with open(evidence_json, "w", encoding="utf-8") as ef:
+        json.dump(summary, ef, indent=2)
 
     print("\nBenchmark Complete!")
     print(f"Total Cargo Evaluated: {summary['total_cargo_evaluated_kg']} kg")

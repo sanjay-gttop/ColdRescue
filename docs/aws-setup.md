@@ -10,9 +10,9 @@ This document outlines the AWS environment, prerequisites, identity verification
 
 | Parameter | Value |
 |---|---|
-| **AWS Account ID** | `494110627063` |
+| **AWS Account ID** | `<AWS_ACCOUNT_ID>` |
 | **AWS Primary Region** | `ap-south-1` (Asia Pacific - Mumbai) |
-| **IAM User** | `Death` |
+| **IAM User** | `<REDACTED_IAM_USER>` |
 | **CDK CLI Version** | `2.1145.0` (invoked via `npx aws-cdk`) |
 | **Python CDK Library** | `aws-cdk-lib==2.145.0`, `constructs>=10.0.0,<11.0.0` |
 | **Development Stack Name** | `ColdRescue-Foundation-development` |

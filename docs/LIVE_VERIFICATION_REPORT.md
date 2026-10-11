@@ -1,7 +1,7 @@
 # ColdRescue AWS Live Deployment & Verification Report
 **Project:** ColdRescue  
 **Track:** Track 03 — Waste and Energy ("Keep the cold chain powered. Keep food and medicine out of the bin.")  
-**AWS Account:** `494110627063`  
+**AWS Account:** `<AWS_ACCOUNT_ID>`  
 **Region:** `ap-south-1` (Asia Pacific - Mumbai)  
 **Verification Mode:** 100% Real AWS CloudFormation Deployed Resources & Live Executions  
 
@@ -39,14 +39,14 @@ All 7 CloudFormation infrastructure stacks and associated external cloud capabil
 - **REST API Authorization Gate:** Verified live that `POST https://l4bpu3mf2f.execute-api.ap-south-1.amazonaws.com/dev/incidents/recover` returns **`401 Unauthorized`** without a valid Cognito Bearer JWT token.
 
 ### B. AWS Step Functions Incident Recovery & Deterministic Safety (Milestone 9)
-- **State Machine ARN:** `arn:aws:states:ap-south-1:494110627063:stateMachine:ColdRescue-IncidentRecovery-dev`
+- **State Machine ARN:** `arn:aws:states:ap-south-1:<AWS_ACCOUNT_ID>:stateMachine:ColdRescue-IncidentRecovery-dev`
 - **Deterministic Hard-Block Execution:** `TRUCK-104-LIVE-1791662563` halted immediately at `SafetyPolicyBlockedState` with `POLICY_BLOCKED` when travel duration exceeded remaining safe thermal preservation window.
 - **Full End-to-End Recovery Execution:** `TRUCK-104-LIVE-1791662747` executed all 10 stages (`TaskIngestAndValidate` $\rightarrow$ `TaskPredictThermalRisk` $\rightarrow$ `TaskRetrieveRoutes` $\rightarrow$ `TaskSolveAllocation` $\rightarrow$ `TaskEvaluateSafetyPolicy` $\rightarrow$ `TaskHumanApproval` $\rightarrow$ `TaskDriverAcknowledgement` $\rightarrow$ `TaskReceiverAcceptance` $\rightarrow$ `TaskFinalizeAuditSuccess`), successfully diverting 1,200.0 kg of high-risk cargo to salvage.
 
 ### C. EventBridge $\rightarrow$ SQS $\rightarrow$ Lambda $\rightarrow$ DynamoDB Event Pipeline (Milestone 13)
 - **Event Bus:** `ColdRescue-Bus-dev`
-- **Processing Queue:** `https://sqs.ap-south-1.amazonaws.com/494110627063/ColdRescue-ProcessingQueue-dev`
-- **Dead-Letter Queue:** `https://sqs.ap-south-1.amazonaws.com/494110627063/ColdRescue-DLQ-dev`
+- **Processing Queue:** `https://sqs.ap-south-1.amazonaws.com/<AWS_ACCOUNT_ID>/ColdRescue-ProcessingQueue-dev`
+- **Dead-Letter Queue:** `https://sqs.ap-south-1.amazonaws.com/<AWS_ACCOUNT_ID>/ColdRescue-DLQ-dev`
 - **Idempotent Ingestion & Duplicate Suppression:** Proven by publishing an event via EventBridge followed by duplicate injection directly to SQS; stream count in DynamoDB remained strictly `1`.
 
 ### D. Real-Time API Gateway WebSocket Push (Milestone 15)
@@ -62,11 +62,11 @@ All 7 CloudFormation infrastructure stacks and associated external cloud capabil
 
 ### F. ECS Fargate Continuous Telemetry Simulator (Milestone 14)
 - **Cluster:** `ColdRescue-Cluster-dev`
-- **Task Definition:** `arn:aws:ecs:ap-south-1:494110627063:task-definition/ColdRescueSimulatordevSimulatorTaskDef44842197:2`
+- **Task Definition:** `arn:aws:ecs:ap-south-1:<AWS_ACCOUNT_ID>:task-definition/ColdRescueSimulatordevSimulatorTaskDef44842197:2`
 - **Execution:** Successfully provisioned, ran simulation scenario `WAREHOUSE_GRID_OUTAGE`, published event `daeedbf4-926c-b11c-67b5-e17a4bae9942` to EventBridge `ColdRescue-Bus-dev`, and exited cleanly with exit code `0` (standing tasks count = `0`).
 
 ### G. CloudWatch Monitoring, Alarms & Operations Dashboard (Milestone 16)
-- **Alert Topic:** `arn:aws:sns:ap-south-1:494110627063:ColdRescue-Alerts-dev` (email: `alerts@coldrescue.io`)
+- **Alert Topic:** `arn:aws:sns:ap-south-1:<AWS_ACCOUNT_ID>:ColdRescue-Alerts-dev` (email: `alerts@coldrescue.io`)
 - **Metric Alarm:** `ColdRescue-Workflow-Failures-dev` monitoring Step Functions `ExecutionsFailed`.
 - **Operations Dashboard:** `ColdRescue-Operations-dev` with live widgets for workflow executions, SQS depth, and DLQ tracking.
 

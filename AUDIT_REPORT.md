@@ -56,18 +56,18 @@ In strict accordance with Phase 0 instructions:
 
 ## 4. AWS Account Identity & Discovered Resources
 
-- **Authenticated Identity:** `arn:aws:iam::494110627063:user/Death` (`UserId: AIDAXGC2J2T35PFPH263B`)
-- **Active AWS Account:** `494110627063`
+- **Authenticated Identity:** `arn:aws:iam::<AWS_ACCOUNT_ID>:user/<REDACTED_IAM_USER>` (`UserId: AIDAXGC2J2T35PFPH263B`)
+- **Active AWS Account:** `<AWS_ACCOUNT_ID>`
 - **Target Region:** `ap-south-1` (Mumbai)
 - **Verified Cloud Resources in `ap-south-1`:**
   - **CloudFormation Stacks:**
     - `CDKToolkit` (Status: `CREATE_COMPLETE`, bootstrapped 2026-10-10T12:12:38Z).
     - `ColdRescue-Foundation-dev`: **NOT DEPLOYED** (`ValidationError: Stack with id ColdRescue-Foundation-dev does not exist`).
   - **S3 Buckets:**
-    - `cdk-hnb659fds-assets-494110627063-ap-south-1` (Status: Active bootstrap asset store).
+    - `cdk-hnb659fds-assets-<AWS_ACCOUNT_ID>-ap-south-1` (Status: Active bootstrap asset store).
     - `AuditLogsBucket` (ColdRescue audit archive): **NOT DEPLOYED**.
   - **CloudWatch Logs:**
-    - `/coldrescue/application/dev`: **NOT DEPLOYED** (Inspection currently denied by IAM policy for user `Death`).
+    - `/coldrescue/application/dev`: **NOT DEPLOYED** (Inspection currently denied by IAM policy for user `<REDACTED_IAM_USER>`).
   - **Other Services:** DynamoDB, Step Functions, SageMaker, EventBridge, ECS, Cognito, Amplify, Location Service: **0 active resources** for ColdRescue in `ap-south-1`.
 
 ---
@@ -168,14 +168,14 @@ In strict accordance with Phase 0 instructions:
 1. **Undeployed Foundation Stack:**  
    The CDK stack `ColdRescue-Foundation-dev` (`infrastructure/stacks/foundation_stack.py`), which creates the S3 Audit Archive bucket and CloudWatch Application Log Group, has **not been deployed** to `ap-south-1`.
 2. **Missing IAM Permissions on Developer Identity:**  
-   User `Death` cannot deploy the M0 stack because it lacks permissions to create change sets on `ColdRescue-Foundation-dev` and publish assets to the CDK bootstrap bucket (`cdk-hnb659fds-assets-494110627063-ap-south-1`).
+   User `<REDACTED_IAM_USER>` cannot deploy the M0 stack because it lacks permissions to create change sets on `ColdRescue-Foundation-dev` and publish assets to the CDK bootstrap bucket (`cdk-hnb659fds-assets-<AWS_ACCOUNT_ID>-ap-south-1`).
 3. **API Routing Documentation Discrepancy:**  
    [`README.md`](file:///C:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/README.md) and [`docs/local-setup.md`](file:///C:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/docs/local-setup.md) document `GET /health`, whereas `backend/main.py` mounts the health router under prefix `/api/v1`, causing root `/health` calls to 404.
 4. **Git Repository Hygiene:**  
    There are 11 modified and 21 untracked files on branch `feature/thermal-routing-allocation`. These must be validated, organized, and committed under M0 conventions.
 
 #### Concrete Remediation Plan for M0:
-1. Attach the validated `ColdRescueM0DeployPolicy` to IAM user `Death` in AWS account `494110627063`.
+1. Attach the validated `ColdRescueM0DeployPolicy` to IAM user `<REDACTED_IAM_USER>` in AWS account `<AWS_ACCOUNT_ID>`.
 2. Deploy the M0 stack:
    ```powershell
    $env:PYTHONPATH="."

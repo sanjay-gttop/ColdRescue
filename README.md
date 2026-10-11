@@ -216,7 +216,7 @@ npx cdk --app ".venv\Scripts\python.exe infrastructure/app.py" synth
 
 ## AWS Deployment Instructions
 
-When ready to deploy into AWS account `494110627063` (`ap-south-1`):
+When ready to deploy into AWS account `<AWS_ACCOUNT_ID>` (`ap-south-1`):
 
 ```powershell
 $env:PYTHONPATH="."

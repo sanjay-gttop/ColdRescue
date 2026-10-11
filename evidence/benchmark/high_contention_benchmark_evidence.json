@@ -1,0 +1,522 @@
+{
+  "benchmark_timestamp": "2026-10-11T04:37:33.521041+00:00",
+  "total_scenarios": 50,
+  "total_cargo_evaluated_kg": 245902.7,
+  "total_greedy_diverted_kg": 5704.8,
+  "total_global_diverted_kg": 6180.6,
+  "global_lift_kg": 475.8,
+  "global_lift_percentage": 8.34,
+  "global_wins": 1,
+  "ties": 49,
+  "greedy_wins": 0,
+  "win_rate_global_pct": 2.0,
+  "tie_rate_pct": 98.0,
+  "avg_greedy_decision_time_ms": 71.97,
+  "avg_global_decision_time_ms": 107.95,
+  "energy_viability_policy_violations": 0,
+  "illustrative_emissions_avoided_kg_co2e": 14833.4,
+  "scenarios": [
+    {
+      "scenario_id": "contention_001",
+      "incident_count": 5,
+      "receiver_count": 3,
+      "total_cargo_kg": 5116.5,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 139.68
+    },
+    {
+      "scenario_id": "contention_002",
+      "incident_count": 3,
+      "receiver_count": 4,
+      "total_cargo_kg": 3830.5,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 0.47
+    },
+    {
+      "scenario_id": "contention_003",
+      "incident_count": 3,
+      "receiver_count": 3,
+      "total_cargo_kg": 2957.0,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 39.55
+    },
+    {
+      "scenario_id": "contention_004",
+      "incident_count": 6,
+      "receiver_count": 3,
+      "total_cargo_kg": 5416.2,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 247.36
+    },
+    {
+      "scenario_id": "contention_005",
+      "incident_count": 3,
+      "receiver_count": 3,
+      "total_cargo_kg": 3711.7,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 0.08
+    },
+    {
+      "scenario_id": "contention_006",
+      "incident_count": 5,
+      "receiver_count": 3,
+      "total_cargo_kg": 6218.4,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 115.4
+    },
+    {
+      "scenario_id": "contention_007",
+      "incident_count": 3,
+      "receiver_count": 4,
+      "total_cargo_kg": 4071.6,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 0.1
+    },
+    {
+      "scenario_id": "contention_008",
+      "incident_count": 4,
+      "receiver_count": 4,
+      "total_cargo_kg": 4071.1,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 0.1
+    },
+    {
+      "scenario_id": "contention_009",
+      "incident_count": 6,
+      "receiver_count": 3,
+      "total_cargo_kg": 6712.3,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 326.6
+    },
+    {
+      "scenario_id": "contention_010",
+      "incident_count": 3,
+      "receiver_count": 4,
+      "total_cargo_kg": 3340.0,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 0.09
+    },
+    {
+      "scenario_id": "contention_011",
+      "incident_count": 3,
+      "receiver_count": 4,
+      "total_cargo_kg": 2397.0,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 0.07
+    },
+    {
+      "scenario_id": "contention_012",
+      "incident_count": 6,
+      "receiver_count": 3,
+      "total_cargo_kg": 7021.9,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 197.15
+    },
+    {
+      "scenario_id": "contention_013",
+      "incident_count": 4,
+      "receiver_count": 2,
+      "total_cargo_kg": 4043.0,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 112.57
+    },
+    {
+      "scenario_id": "contention_014",
+      "incident_count": 3,
+      "receiver_count": 2,
+      "total_cargo_kg": 4671.1,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 89.95
+    },
+    {
+      "scenario_id": "contention_015",
+      "incident_count": 6,
+      "receiver_count": 4,
+      "total_cargo_kg": 6690.0,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 180.08
+    },
+    {
+      "scenario_id": "contention_016",
+      "incident_count": 6,
+      "receiver_count": 3,
+      "total_cargo_kg": 8256.5,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 131.93
+    },
+    {
+      "scenario_id": "contention_017",
+      "incident_count": 3,
+      "receiver_count": 3,
+      "total_cargo_kg": 3325.7,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 36.32
+    },
+    {
+      "scenario_id": "contention_018",
+      "incident_count": 5,
+      "receiver_count": 2,
+      "total_cargo_kg": 7551.8,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 173.74
+    },
+    {
+      "scenario_id": "contention_019",
+      "incident_count": 3,
+      "receiver_count": 2,
+      "total_cargo_kg": 3284.3,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 44.61
+    },
+    {
+      "scenario_id": "contention_020",
+      "incident_count": 4,
+      "receiver_count": 2,
+      "total_cargo_kg": 4822.0,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 106.11
+    },
+    {
+      "scenario_id": "contention_021",
+      "incident_count": 6,
+      "receiver_count": 2,
+      "total_cargo_kg": 6742.9,
+      "greedy_diverted_kg": 2015.5,
+      "global_diverted_kg": 2015.5,
+      "outcome": "TIE",
+      "decision_time_ms": 222.28
+    },
+    {
+      "scenario_id": "contention_022",
+      "incident_count": 4,
+      "receiver_count": 3,
+      "total_cargo_kg": 3658.9,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 167.98
+    },
+    {
+      "scenario_id": "contention_023",
+      "incident_count": 4,
+      "receiver_count": 4,
+      "total_cargo_kg": 4290.8,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 53.17
+    },
+    {
+      "scenario_id": "contention_024",
+      "incident_count": 4,
+      "receiver_count": 3,
+      "total_cargo_kg": 4066.6,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 206.9
+    },
+    {
+      "scenario_id": "contention_025",
+      "incident_count": 4,
+      "receiver_count": 3,
+      "total_cargo_kg": 4819.1,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 211.74
+    },
+    {
+      "scenario_id": "contention_026",
+      "incident_count": 3,
+      "receiver_count": 2,
+      "total_cargo_kg": 3167.8,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 0.31
+    },
+    {
+      "scenario_id": "contention_027",
+      "incident_count": 4,
+      "receiver_count": 4,
+      "total_cargo_kg": 4268.9,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 217.35
+    },
+    {
+      "scenario_id": "contention_028",
+      "incident_count": 4,
+      "receiver_count": 2,
+      "total_cargo_kg": 4693.0,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 201.31
+    },
+    {
+      "scenario_id": "contention_029",
+      "incident_count": 3,
+      "receiver_count": 4,
+      "total_cargo_kg": 3718.8,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 0.33
+    },
+    {
+      "scenario_id": "contention_030",
+      "incident_count": 6,
+      "receiver_count": 2,
+      "total_cargo_kg": 7537.2,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 490.3
+    },
+    {
+      "scenario_id": "contention_031",
+      "incident_count": 5,
+      "receiver_count": 3,
+      "total_cargo_kg": 4546.0,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 344.77
+    },
+    {
+      "scenario_id": "contention_032",
+      "incident_count": 6,
+      "receiver_count": 2,
+      "total_cargo_kg": 6858.5,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 154.59
+    },
+    {
+      "scenario_id": "contention_033",
+      "incident_count": 4,
+      "receiver_count": 3,
+      "total_cargo_kg": 4455.5,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 102.88
+    },
+    {
+      "scenario_id": "contention_034",
+      "incident_count": 3,
+      "receiver_count": 2,
+      "total_cargo_kg": 3489.4,
+      "greedy_diverted_kg": 964.4,
+      "global_diverted_kg": 964.4,
+      "outcome": "TIE",
+      "decision_time_ms": 117.44
+    },
+    {
+      "scenario_id": "contention_035",
+      "incident_count": 6,
+      "receiver_count": 3,
+      "total_cargo_kg": 8469.7,
+      "greedy_diverted_kg": 548.3,
+      "global_diverted_kg": 1024.1,
+      "outcome": "GLOBAL_WIN",
+      "decision_time_ms": 366.77
+    },
+    {
+      "scenario_id": "contention_036",
+      "incident_count": 3,
+      "receiver_count": 2,
+      "total_cargo_kg": 1958.3,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 111.02
+    },
+    {
+      "scenario_id": "contention_037",
+      "incident_count": 3,
+      "receiver_count": 2,
+      "total_cargo_kg": 4139.3,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 200.77
+    },
+    {
+      "scenario_id": "contention_038",
+      "incident_count": 5,
+      "receiver_count": 2,
+      "total_cargo_kg": 6398.4,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 222.84
+    },
+    {
+      "scenario_id": "contention_039",
+      "incident_count": 5,
+      "receiver_count": 3,
+      "total_cargo_kg": 5787.8,
+      "greedy_diverted_kg": 2176.6,
+      "global_diverted_kg": 2176.6,
+      "outcome": "TIE",
+      "decision_time_ms": 715.51
+    },
+    {
+      "scenario_id": "contention_040",
+      "incident_count": 4,
+      "receiver_count": 3,
+      "total_cargo_kg": 3964.1,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 559.13
+    },
+    {
+      "scenario_id": "contention_041",
+      "incident_count": 5,
+      "receiver_count": 4,
+      "total_cargo_kg": 3269.6,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 65.2
+    },
+    {
+      "scenario_id": "contention_042",
+      "incident_count": 3,
+      "receiver_count": 4,
+      "total_cargo_kg": 2743.6,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 0.39
+    },
+    {
+      "scenario_id": "contention_043",
+      "incident_count": 5,
+      "receiver_count": 2,
+      "total_cargo_kg": 6258.1,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 441.61
+    },
+    {
+      "scenario_id": "contention_044",
+      "incident_count": 5,
+      "receiver_count": 4,
+      "total_cargo_kg": 6324.4,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 264.73
+    },
+    {
+      "scenario_id": "contention_045",
+      "incident_count": 5,
+      "receiver_count": 2,
+      "total_cargo_kg": 4674.9,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 462.33
+    },
+    {
+      "scenario_id": "contention_046",
+      "incident_count": 3,
+      "receiver_count": 4,
+      "total_cargo_kg": 4389.1,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 0.34
+    },
+    {
+      "scenario_id": "contention_047",
+      "incident_count": 6,
+      "receiver_count": 3,
+      "total_cargo_kg": 7981.7,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 487.49
+    },
+    {
+      "scenario_id": "contention_048",
+      "incident_count": 4,
+      "receiver_count": 2,
+      "total_cargo_kg": 4968.9,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 329.62
+    },
+    {
+      "scenario_id": "contention_049",
+      "incident_count": 5,
+      "receiver_count": 3,
+      "total_cargo_kg": 5257.1,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 243.23
+    },
+    {
+      "scenario_id": "contention_050",
+      "incident_count": 4,
+      "receiver_count": 3,
+      "total_cargo_kg": 5495.7,
+      "greedy_diverted_kg": 0,
+      "global_diverted_kg": 0,
+      "outcome": "TIE",
+      "decision_time_ms": 91.88
+    }
+  ],
+  "suite_name": "contention",
+  "seed": 77
+}

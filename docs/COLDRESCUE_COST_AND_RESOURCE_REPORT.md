@@ -1,7 +1,7 @@
 # ColdRescue Cost and Resource Report
 **Project:** ColdRescue — AWS-Powered Cold-Chain Resilience and Waste Prevention (Track 03: Waste and Energy)  
 **Report Date:** 2026-10-11T00:50:00+05:30  
-**Target AWS Account:** `494110627063` | **Region:** `ap-south-1` (Mumbai)
+**Target AWS Account:** `<AWS_ACCOUNT_ID>` | **Region:** `ap-south-1` (Mumbai)
 
 ---
 
@@ -9,7 +9,7 @@
 
 | Resource Identifier | AWS Service | CloudFormation Stack | Current State | Monthly Cost Impact |
 | :--- | :--- | :--- | :--- | :--- |
-| `coldrescue-audit-dev-494110627063` | Amazon S3 | `ColdRescue-Foundation-dev` | Deployed (KMS encrypted) | <$0.05 / mo |
+| `coldrescue-audit-dev-<AWS_ACCOUNT_ID>` | Amazon S3 | `ColdRescue-Foundation-dev` | Deployed (KMS encrypted) | <$0.05 / mo |
 | `/coldrescue/audit-dev` | Amazon CloudWatch Logs | `ColdRescue-Foundation-dev` | Deployed (14d retention) | <$0.05 / mo |
 | `ColdRescue-Events-dev` | Amazon DynamoDB | `ColdRescue-Events-dev` | Deployed (PAY_PER_REQUEST) | <$0.10 / mo |
 | **Total Current Running Cost** | | | | **~$0.20 / month** |

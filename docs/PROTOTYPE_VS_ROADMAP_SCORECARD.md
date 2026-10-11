@@ -1,7 +1,7 @@
 # ColdRescue Prototype vs. Roadmap Scorecard
 **Roadmap Reference:** COLDRESCUE MASTER ROADMAP V7 (M0–M19) — Track 03: Waste and Energy  
 **Evaluation Date:** 2026-10-11T02:16:00+05:30  
-**Target Environment:** AWS Account `494110627063` | Region `ap-south-1` (Mumbai) | IAM Identity `arn:aws:iam::494110627063:user/Death`
+**Target Environment:** AWS Account `<AWS_ACCOUNT_ID>` | Region `ap-south-1` (Mumbai) | IAM Identity `arn:aws:iam::<AWS_ACCOUNT_ID>:user/<REDACTED_IAM_USER>`
 
 ---
 

@@ -1,8 +1,8 @@
 # ColdRescue V7 — Final Evidence Gap Audit
 
 **Date of Audit:** 2026-10-11T02:27:00+05:30  
-**Target AWS Account:** `494110627063` | **Region:** `ap-south-1` (Mumbai)  
-**IAM Principal:** `arn:aws:iam::494110627063:user/Death`  
+**Target AWS Account:** `<AWS_ACCOUNT_ID>` | **Region:** `ap-south-1` (Mumbai)  
+**IAM Principal:** `arn:aws:iam::<AWS_ACCOUNT_ID>:user/<REDACTED_IAM_USER>`  
 **Git HEAD:** `c5db8c8` | **Branch:** `feature/thermal-routing-allocation`  
 **Authoritative Reference:** ColdRescue Master Roadmap V7 (M0–M19)  
 **Audit Stance:** Rigorous, unsparing, read-only verification. Zero tolerance for unproven claims, simulated cloud states masquerading as real services, or unverified gates.

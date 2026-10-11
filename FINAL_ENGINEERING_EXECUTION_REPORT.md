@@ -3,8 +3,8 @@
 
 **Project:** ColdRescue — AWS-Powered Cold-Chain Resilience and Waste Prevention  
 **Evaluation Date:** 2026-10-11T08:38:00+05:30  
-**Target AWS Environment:** Account `494110627063` | Region `ap-south-1` (Mumbai)  
-**Caller Identity:** `arn:aws:iam::494110627063:user/Death`  
+**Target AWS Environment:** Account `<AWS_ACCOUNT_ID>` | Region `ap-south-1` (Mumbai)  
+**Caller Identity:** `arn:aws:iam::<AWS_ACCOUNT_ID>:user/<REDACTED_IAM_USER>`  
 **Git Branch:** `feature/thermal-routing-allocation` | **HEAD Commit:** Verified Clean  
 **Authoritative Specification:** ColdRescue Master Roadmap V7 (M0–M19)  
 
@@ -18,15 +18,15 @@ Following rigorous, evidence-driven targeted remediation across all challenge ar
 
 | Score Dimension | Score (/10) | Compliance % | Audited Basis & Evidence |
 | :--- | :---: | :---: | :--- |
-| **Functional Implementation** | **10.0 / 10** | **100.0%** | Full algorithms, 6-rule deterministic policy, 10 Lambda handlers, pure Kuhn-Munkres matching solver, React 18 UI with AWS Live Trace, Architecture tabs, and live Counterfactual Benchmark runner passing 179 backend tests and 14 frontend tests. |
-| **AWS Integration Depth** | **10.0 / 10** | **100.0%** | 7 CloudFormation stacks live in `ap-south-1`, plus live Amplify Hosting, Amazon Location Service, AWS IoT Core Topic Rules, SQS/DLQ, CloudWatch Alarms, and live SageMaker Serverless Inference endpoint (`coldrescue-thermal-serverless-v1`). |
-| **Optimization & Mathematical Rigor**| **10.0 / 10**| **100.0%** | Pure-Python Kuhn-Munkres exact algorithm proven against brute force across 35 random instances (0.0% error); multidimensional sensitivity verified across 8 parameter perturbations. |
-| **Reliability & Failure Recovery** | **10.0 / 10** | **100.0%** | Live SQS Dead-Letter Queue capture proven (`ApproximateNumberOfMessages: 3`); CloudWatch Alarm transition to `ALARM` and SNS action dispatch verified; resilient deterministic physics fallback armed on model failure. |
-| **Security & Authorization** | **10.0 / 10** | **100.0%** | Cognito User Pool with 4 roles live; API Gateway 401 unauthenticated gate verified; live bearer token authorization verified; separation of duties enforced. |
-| **Testing & Reproducibility** | **10.0 / 10** | **100.0%** | 179 unit/integration tests passing; 14 Vitest frontend tests passing; reproducible 50-scenario Tamil Nadu benchmark suite. |
-| **Roadmap V7 Compliance** | **10.0 / 10** | **100.0%** | M0–M19 mandatory gates verified on real AWS infrastructure and local mathematical suites. |
-| **Overall Audited Prototype Quality** | **10.0 / 10** | **100.0%** | High-assurance engineering with complete mathematical, cloud, serverless inference, and test evidence. |
-| **Mandatory-Gate Completion %** | **100.0% Deployed** / **100.0% Implemented** | **20/20 Gates Verified** | All 20 gates fully verified with real captured evidence, including live SageMaker Serverless Inference and live Counterfactual Benchmark UI. |
+| **Functional Implementation** | **9.2 / 10** | **92.0%** | Full algorithms, 6-rule deterministic policy, 10 Lambda handlers, pure Kuhn-Munkres matching solver, React 18 UI with AWS Live Trace, Architecture tabs, and live Counterfactual Benchmark runner passing 181 backend tests and 14 frontend tests. Room for production multi-region failover. |
+| **AWS Integration Depth** | **9.0 / 10** | **90.0%** | 7 CloudFormation stacks live in `ap-south-1`, plus live Amplify Hosting, Amazon Location Service, AWS IoT Core Topic Rules, SQS/DLQ, CloudWatch Alarms, and live SageMaker Serverless Inference endpoint (`coldrescue-thermal-serverless-v1`). Idle cost bounded at $0.00. |
+| **Optimization & Mathematical Rigor**| **9.4 / 10**| **94.0%** | Pure-Python Kuhn-Munkres exact algorithm proven against brute force across 35 random instances (0.0% error); multidimensional sensitivity verified across 8 parameter perturbations; baseline (seed 42) and high contention (seed 77) benchmark suites verified. |
+| **Reliability & Failure Recovery** | **8.8 / 10** | **88.0%** | Live SQS Dead-Letter Queue capture proven (`ApproximateNumberOfMessages: 3`); CloudWatch Alarm transition to `ALARM` and SNS action dispatch verified; resilient deterministic physics fallback armed on model failure. Injections conducted via controlled synthetic scripts. |
+| **Security & Authorization** | **9.0 / 10** | **90.0%** | Cognito User Pool with 4 roles live; API Gateway 401 unauthenticated gate verified; live bearer token authorization verified; separation of duties enforced across dispatcher/driver personas. |
+| **Testing & Reproducibility** | **9.2 / 10** | **92.0%** | 181 unit/integration tests passing; 14 Vitest frontend tests passing; reproducible 50-scenario Tamil Nadu baseline suite and 50-scenario high-contention suite with held-out ML evaluation. |
+| **Roadmap V7 Compliance** | **9.0 / 10** | **90.0%** | M0–M19 core requirements implemented and verified on real AWS infrastructure and local mathematical suites. |
+| **Overall Audited Prototype Quality** | **9.1 / 10** | **91.0%** | High-assurance engineering prototype with genuine mathematical rigor, real serverless cloud deployment, conservative safety policy enforcement, and reproducible test suites. |
+| **Mandatory-Gate Completion %** | **90.0% Deployed** / **92.0% Implemented** | **18/20 Gates Full, 2 Provisional** | All 20 gates verified; M6 (SageMaker serverless surrogate) and M18 (counterfactual benchmarks) provisionally scored due to synthetic training data provenance and simulation assumptions. |
 
 ---
 
@@ -75,7 +75,7 @@ Following rigorous, evidence-driven targeted remediation across all challenge ar
 | **M3** | Deterministic Safety Policy | 10 / 10 | 10 / 10 | Hard block gate authoritative in SFN | **DEPLOYED_VERIFIED** |
 | **M4** | Amazon Location Routing | 10 / 10 | 10 / 10 | `ColdRescue-RouteCalculator-dev` live | **DEPLOYED_VERIFIED** |
 | **M5** | Kuhn-Munkres Allocation | 10 / 10 | 10 / 10 | `exact_optimality_evidence.json` | **LOCALLY_VERIFIED** |
-| **M6** | ML Surrogate Predictor | 10 / 10 | 10 / 10 | SageMaker Serverless Endpoint (`InService`) | **DEPLOYED_VERIFIED** |
+| **M6** | ML Surrogate Predictor | 8.8 / 10 | 9.0 / 10 | SageMaker Serverless Endpoint (`InService`) | **PROVISIONALLY_VERIFIED** |
 | **M7** | DynamoDB Event Persistence | 10 / 10 | 10 / 10 | `ColdRescue-Events-dev` active | **DEPLOYED_VERIFIED** |
 | **M8** | Vertical Recovery Slice | 10 / 10 | 10 / 10 | Step Functions end-to-end slice | **DEPLOYED_VERIFIED** |
 | **M9** | Step Functions Orchestration| 10 / 10 | 10 / 10 | 10 Lambdas; SFN state machine | **DEPLOYED_VERIFIED** |
@@ -87,7 +87,7 @@ Following rigorous, evidence-driven targeted remediation across all challenge ar
 | **M15** | WebSocket Real-Time Push | 10 / 10 | 10 / 10 | Handshake & connections DB live | **DEPLOYED_VERIFIED** |
 | **M16** | CloudWatch & SNS Alerts | 10 / 10 | 10 / 10 | `live_alarm_evidence.json` (ALARM) | **DEPLOYED_VERIFIED** |
 | **M17** | End-to-End Integration | 10 / 10 | 10 / 10 | Full cloud integration proven | **DEPLOYED_VERIFIED** |
-| **M18** | 50-Scenario Stress Benchmark| 10 / 10 | 10 / 10 | `live_counterfactual_benchmark_evidence.json` | **DEPLOYED_VERIFIED** |
+| **M18** | 50-Scenario Stress Benchmark| 9.0 / 10 | 9.0 / 10 | Baseline & High-Contention suites in UI | **DEPLOYED_VERIFIED** |
 | **M19** | Documentation & Runbooks | 10 / 10 | N/A | Complete reports, runbooks, guides | **LOCALLY_VERIFIED** |
 
 ---
@@ -97,10 +97,20 @@ Following rigorous, evidence-driven targeted remediation across all challenge ar
 1. **Current Monthly Spend:** \$0.00 observed on AWS Cost Explorer (October 2026 month-to-date). Projected steady-state idle cost is ~\$0.20–\$4.40/month.
 2. **Alert Guardrail:** AWS Budget `ColdRescue-Development-Budget` configured with \$25.00 limit and 80% email threshold.
 3. **No Unbounded Paid Resources:** Zero RDS/Aurora instances, zero EKS clusters, zero EC2 instances, zero NAT Gateways. ECS Fargate runs only on demand.
+4. **SageMaker Serverless Idle Cost:** Endpoint `coldrescue-thermal-serverless-v1` utilizes Serverless provisioned memory (1024 MB, concurrency 5). It incurs \$0.00 compute cost when idle.
 
 ---
 
-## 5. Required Illustrative Disclosure
+## 5. Known Limitations & Engineering Boundaries
+
+1. **Synthetic Telemetry & Simulation Assumptions:** Telemetry, GPS coordinates, and truck cooling degradation profiles are synthetically generated for benchmark and testing purposes. They reflect Tamil Nadu highway corridor geography and typical refrigerated vehicle thermal specs, but have not been hooked to physical onboard OBD-II hardware in real moving vehicles.
+2. **Surrogate Model Agreement vs. Real Food Stability:** The neural surrogate model was trained on labels derived from Newton's Law of Cooling simulation equations. While it exhibits fast inference ($<120$ ms) and 71.7 min MAE on held-out synthetic test sets, it predicts physics model agreement rather than real chemical or biological bacterial growth. Consequently, the deterministic physics calculation is strictly authoritative, and `safe_window = min(physics, surrogate)` prevents ML optimism from extending risk windows.
+3. **Simulated Fault Injection for Alarms and DLQ:** CloudWatch Alarm state transitions and SQS DLQ redrive captures were validated via controlled CLI poison message injection and metric overrides rather than production catastrophic infrastructure failure.
+4. **AWS Training Quota Fallback:** In sandbox accounts without approved SageMaker training instance quotas (`ml.m5.large`), training runs fall back to local artifact compilation before serverless endpoint packaging and S3 upload.
+
+---
+
+## 6. Required Illustrative Disclosure
 
 > *"Illustrative estimate based on stated simulation assumptions, not measured real-world savings."*  
 > ColdRescue provides algorithmic decision support and does not constitute certified food safety or medical compliance testing.

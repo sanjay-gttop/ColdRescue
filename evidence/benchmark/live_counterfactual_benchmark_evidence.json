@@ -1,5 +1,5 @@
 {
-  "benchmark_timestamp": "2026-10-11T04:09:39.282617+00:00",
+  "benchmark_timestamp": "2026-10-11T04:37:21.806141+00:00",
   "total_scenarios": 50,
   "total_cargo_evaluated_kg": 139081.1,
   "total_greedy_diverted_kg": 75449.3,
@@ -11,8 +11,8 @@
   "greedy_wins": 1,
   "win_rate_global_pct": 2.0,
   "tie_rate_pct": 96.0,
-  "avg_greedy_decision_time_ms": 116.25,
-  "avg_global_decision_time_ms": 174.37,
+  "avg_greedy_decision_time_ms": 98.57,
+  "avg_global_decision_time_ms": 147.86,
   "energy_viability_policy_violations": 0,
   "illustrative_emissions_avoided_kg_co2e": 181832.6,
   "scenarios": [
@@ -24,7 +24,7 @@
       "greedy_diverted_kg": 0,
       "global_diverted_kg": 0,
       "outcome": "TIE",
-      "decision_time_ms": 59.6
+      "decision_time_ms": 38.51
     },
     {
       "scenario_id": "scenario_002",
@@ -34,7 +34,7 @@
       "greedy_diverted_kg": 3256.8,
       "global_diverted_kg": 3256.8,
       "outcome": "TIE",
-      "decision_time_ms": 348.92
+      "decision_time_ms": 221.32
     },
     {
       "scenario_id": "scenario_003",
@@ -44,7 +44,7 @@
       "greedy_diverted_kg": 1353.1,
       "global_diverted_kg": 1353.1,
       "outcome": "TIE",
-      "decision_time_ms": 48.47
+      "decision_time_ms": 32.29
     },
     {
       "scenario_id": "scenario_004",
@@ -54,7 +54,7 @@
       "greedy_diverted_kg": 414.0,
       "global_diverted_kg": 414.0,
       "outcome": "TIE",
-      "decision_time_ms": 147.66
+      "decision_time_ms": 99.07
     },
     {
       "scenario_id": "scenario_005",
@@ -64,7 +64,7 @@
       "greedy_diverted_kg": 2662.4,
       "global_diverted_kg": 2662.4,
       "outcome": "TIE",
-      "decision_time_ms": 289.29
+      "decision_time_ms": 156.9
     },
     {
       "scenario_id": "scenario_006",
@@ -74,7 +74,7 @@
       "greedy_diverted_kg": 2294.4,
       "global_diverted_kg": 2294.4,
       "outcome": "TIE",
-      "decision_time_ms": 183.45
+      "decision_time_ms": 119.99
     },
     {
       "scenario_id": "scenario_007",
@@ -84,7 +84,7 @@
       "greedy_diverted_kg": 381.3,
       "global_diverted_kg": 381.3,
       "outcome": "TIE",
-      "decision_time_ms": 98.67
+      "decision_time_ms": 68.13
     },
     {
       "scenario_id": "scenario_008",
@@ -94,7 +94,7 @@
       "greedy_diverted_kg": 3065.0,
       "global_diverted_kg": 3065.0,
       "outcome": "TIE",
-      "decision_time_ms": 227.05
+      "decision_time_ms": 141.68
     },
     {
       "scenario_id": "scenario_009",
@@ -104,7 +104,7 @@
       "greedy_diverted_kg": 543.8,
       "global_diverted_kg": 543.8,
       "outcome": "TIE",
-      "decision_time_ms": 108.34
+      "decision_time_ms": 71.56
     },
     {
       "scenario_id": "scenario_010",
@@ -114,7 +114,7 @@
       "greedy_diverted_kg": 3495.2,
       "global_diverted_kg": 3495.2,
       "outcome": "TIE",
-      "decision_time_ms": 417.57
+      "decision_time_ms": 268.4
     },
     {
       "scenario_id": "scenario_011",
@@ -124,7 +124,7 @@
       "greedy_diverted_kg": 319.6,
       "global_diverted_kg": 319.6,
       "outcome": "TIE",
-      "decision_time_ms": 167.08
+      "decision_time_ms": 116.62
     },
     {
       "scenario_id": "scenario_012",
@@ -134,7 +134,7 @@
       "greedy_diverted_kg": 1247.2,
       "global_diverted_kg": 1247.2,
       "outcome": "TIE",
-      "decision_time_ms": 178.27
+      "decision_time_ms": 116.05
     },
     {
       "scenario_id": "scenario_013",
@@ -144,7 +144,7 @@
       "greedy_diverted_kg": 0,
       "global_diverted_kg": 0,
       "outcome": "TIE",
-      "decision_time_ms": 100.54
+      "decision_time_ms": 66.94
     },
     {
       "scenario_id": "scenario_014",
@@ -154,7 +154,7 @@
       "greedy_diverted_kg": 0,
       "global_diverted_kg": 0,
       "outcome": "TIE",
-      "decision_time_ms": 59.32
+      "decision_time_ms": 41.42
     },
     {
       "scenario_id": "scenario_015",
@@ -164,7 +164,7 @@
       "greedy_diverted_kg": 1396.4,
       "global_diverted_kg": 1396.4,
       "outcome": "TIE",
-      "decision_time_ms": 393.84
+      "decision_time_ms": 134.93
     },
     {
       "scenario_id": "scenario_016",
@@ -174,7 +174,7 @@
       "greedy_diverted_kg": 1299.0,
       "global_diverted_kg": 1299.0,
       "outcome": "TIE",
-      "decision_time_ms": 212.6
+      "decision_time_ms": 61.87
     },
     {
       "scenario_id": "scenario_017",
@@ -184,7 +184,7 @@
       "greedy_diverted_kg": 2231.7,
       "global_diverted_kg": 1638.4,
       "outcome": "GREEDY_WIN",
-      "decision_time_ms": 325.41
+      "decision_time_ms": 97.78
     },
     {
       "scenario_id": "scenario_018",
@@ -194,7 +194,7 @@
       "greedy_diverted_kg": 1040.0,
       "global_diverted_kg": 1040.0,
       "outcome": "TIE",
-      "decision_time_ms": 237.11
+      "decision_time_ms": 71.44
     },
     {
       "scenario_id": "scenario_019",
@@ -204,7 +204,7 @@
       "greedy_diverted_kg": 0,
       "global_diverted_kg": 0,
       "outcome": "TIE",
-      "decision_time_ms": 512.81
+      "decision_time_ms": 140.31
     },
     {
       "scenario_id": "scenario_020",
@@ -214,7 +214,7 @@
       "greedy_diverted_kg": 1483.5,
       "global_diverted_kg": 1483.5,
       "outcome": "TIE",
-      "decision_time_ms": 123.31
+      "decision_time_ms": 38.92
     },
     {
       "scenario_id": "scenario_021",
@@ -224,7 +224,7 @@
       "greedy_diverted_kg": 3355.6,
       "global_diverted_kg": 3355.6,
       "outcome": "TIE",
-      "decision_time_ms": 465.04
+      "decision_time_ms": 142.45
     },
     {
       "scenario_id": "scenario_022",
@@ -234,7 +234,7 @@
       "greedy_diverted_kg": 1345.6,
       "global_diverted_kg": 1345.6,
       "outcome": "TIE",
-      "decision_time_ms": 215.82
+      "decision_time_ms": 69.23
     },
     {
       "scenario_id": "scenario_023",
@@ -244,7 +244,7 @@
       "greedy_diverted_kg": 876.8,
       "global_diverted_kg": 876.8,
       "outcome": "TIE",
-      "decision_time_ms": 143.97
+      "decision_time_ms": 47.14
     },
     {
       "scenario_id": "scenario_024",
@@ -254,7 +254,7 @@
       "greedy_diverted_kg": 409.1,
       "global_diverted_kg": 409.1,
       "outcome": "TIE",
-      "decision_time_ms": 218.6
+      "decision_time_ms": 63.0
     },
     {
       "scenario_id": "scenario_025",
@@ -264,7 +264,7 @@
       "greedy_diverted_kg": 1648.9,
       "global_diverted_kg": 1648.9,
       "outcome": "TIE",
-      "decision_time_ms": 133.03
+      "decision_time_ms": 38.33
     },
     {
       "scenario_id": "scenario_026",
@@ -274,7 +274,7 @@
       "greedy_diverted_kg": 1937.5,
       "global_diverted_kg": 1937.5,
       "outcome": "TIE",
-      "decision_time_ms": 323.9
+      "decision_time_ms": 98.63
     },
     {
       "scenario_id": "scenario_027",
@@ -284,7 +284,7 @@
       "greedy_diverted_kg": 2577.9,
       "global_diverted_kg": 2577.9,
       "outcome": "TIE",
-      "decision_time_ms": 645.56
+      "decision_time_ms": 477.96
     },
     {
       "scenario_id": "scenario_028",
@@ -294,7 +294,7 @@
       "greedy_diverted_kg": 5632.8,
       "global_diverted_kg": 5632.8,
       "outcome": "TIE",
-      "decision_time_ms": 402.56
+      "decision_time_ms": 478.8
     },
     {
       "scenario_id": "scenario_029",
@@ -304,7 +304,7 @@
       "greedy_diverted_kg": 1451.9,
       "global_diverted_kg": 1451.9,
       "outcome": "TIE",
-      "decision_time_ms": 296.96
+      "decision_time_ms": 269.25
     },
     {
       "scenario_id": "scenario_030",
@@ -314,7 +314,7 @@
       "greedy_diverted_kg": 280.3,
       "global_diverted_kg": 280.3,
       "outcome": "TIE",
-      "decision_time_ms": 354.93
+      "decision_time_ms": 434.66
     },
     {
       "scenario_id": "scenario_031",
@@ -324,7 +324,7 @@
       "greedy_diverted_kg": 0,
       "global_diverted_kg": 0,
       "outcome": "TIE",
-      "decision_time_ms": 177.39
+      "decision_time_ms": 205.12
     },
     {
       "scenario_id": "scenario_032",
@@ -334,7 +334,7 @@
       "greedy_diverted_kg": 1599.9,
       "global_diverted_kg": 1599.9,
       "outcome": "TIE",
-      "decision_time_ms": 295.76
+      "decision_time_ms": 345.59
     },
     {
       "scenario_id": "scenario_033",
@@ -344,7 +344,7 @@
       "greedy_diverted_kg": 537.4,
       "global_diverted_kg": 537.4,
       "outcome": "TIE",
-      "decision_time_ms": 552.63
+      "decision_time_ms": 613.89
     },
     {
       "scenario_id": "scenario_034",
@@ -354,7 +354,7 @@
       "greedy_diverted_kg": 0,
       "global_diverted_kg": 0,
       "outcome": "TIE",
-      "decision_time_ms": 43.49
+      "decision_time_ms": 46.91
     },
     {
       "scenario_id": "scenario_035",
@@ -364,7 +364,7 @@
       "greedy_diverted_kg": 1453.5,
       "global_diverted_kg": 1453.5,
       "outcome": "TIE",
-      "decision_time_ms": 67.92
+      "decision_time_ms": 78.97
     },
     {
       "scenario_id": "scenario_036",
@@ -374,7 +374,7 @@
       "greedy_diverted_kg": 3301.4,
       "global_diverted_kg": 3301.4,
       "outcome": "TIE",
-      "decision_time_ms": 527.36
+      "decision_time_ms": 561.98
     },
     {
       "scenario_id": "scenario_037",
@@ -384,7 +384,7 @@
       "greedy_diverted_kg": 1930.6,
       "global_diverted_kg": 1930.6,
       "outcome": "TIE",
-      "decision_time_ms": 375.21
+      "decision_time_ms": 347.25
     },
     {
       "scenario_id": "scenario_038",
@@ -394,7 +394,7 @@
       "greedy_diverted_kg": 2890.2,
       "global_diverted_kg": 2890.2,
       "outcome": "TIE",
-      "decision_time_ms": 172.96
+      "decision_time_ms": 148.93
     },
     {
       "scenario_id": "scenario_039",
@@ -404,7 +404,7 @@
       "greedy_diverted_kg": 2335.9,
       "global_diverted_kg": 2335.9,
       "outcome": "TIE",
-      "decision_time_ms": 704.07
+      "decision_time_ms": 650.51
     },
     {
       "scenario_id": "scenario_040",
@@ -414,7 +414,7 @@
       "greedy_diverted_kg": 1311.1,
       "global_diverted_kg": 1311.1,
       "outcome": "TIE",
-      "decision_time_ms": 503.92
+      "decision_time_ms": 560.23
     },
     {
       "scenario_id": "scenario_041",
@@ -424,7 +424,7 @@
       "greedy_diverted_kg": 2504.6,
       "global_diverted_kg": 2504.6,
       "outcome": "TIE",
-      "decision_time_ms": 776.75
+      "decision_time_ms": 837.02
     },
     {
       "scenario_id": "scenario_042",
@@ -434,7 +434,7 @@
       "greedy_diverted_kg": 1888.6,
       "global_diverted_kg": 1888.6,
       "outcome": "TIE",
-      "decision_time_ms": 454.24
+      "decision_time_ms": 548.3
     },
     {
       "scenario_id": "scenario_043",
@@ -444,7 +444,7 @@
       "greedy_diverted_kg": 305.9,
       "global_diverted_kg": 305.9,
       "outcome": "TIE",
-      "decision_time_ms": 338.5
+      "decision_time_ms": 404.24
     },
     {
       "scenario_id": "scenario_044",
@@ -454,7 +454,7 @@
       "greedy_diverted_kg": 713.9,
       "global_diverted_kg": 713.9,
       "outcome": "TIE",
-      "decision_time_ms": 108.3
+      "decision_time_ms": 121.71
     },
     {
       "scenario_id": "scenario_045",
@@ -464,7 +464,7 @@
       "greedy_diverted_kg": 541.9,
       "global_diverted_kg": 541.9,
       "outcome": "TIE",
-      "decision_time_ms": 123.24
+      "decision_time_ms": 155.36
     },
     {
       "scenario_id": "scenario_046",
@@ -474,7 +474,7 @@
       "greedy_diverted_kg": 3699.3,
       "global_diverted_kg": 3699.3,
       "outcome": "TIE",
-      "decision_time_ms": 322.29
+      "decision_time_ms": 425.64
     },
     {
       "scenario_id": "scenario_047",
@@ -484,7 +484,7 @@
       "greedy_diverted_kg": 1236.9,
       "global_diverted_kg": 1236.9,
       "outcome": "TIE",
-      "decision_time_ms": 347.23
+      "decision_time_ms": 515.03
     },
     {
       "scenario_id": "scenario_048",
@@ -494,7 +494,7 @@
       "greedy_diverted_kg": 2198.0,
       "global_diverted_kg": 3105.6,
       "outcome": "GLOBAL_WIN",
-      "decision_time_ms": 637.27
+      "decision_time_ms": 1001.38
     },
     {
       "scenario_id": "scenario_049",
@@ -504,7 +504,7 @@
       "greedy_diverted_kg": 1000.4,
       "global_diverted_kg": 1000.4,
       "outcome": "TIE",
-      "decision_time_ms": 447.19
+      "decision_time_ms": 403.92
     },
     {
       "scenario_id": "scenario_050",
@@ -514,7 +514,9 @@
       "greedy_diverted_kg": 0,
       "global_diverted_kg": 0,
       "outcome": "TIE",
-      "decision_time_ms": 115.77
+      "decision_time_ms": 125.88
     }
-  ]
+  ],
+  "suite_name": "baseline",
+  "seed": 42
 }

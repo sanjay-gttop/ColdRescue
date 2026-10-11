@@ -1,5 +1,5 @@
 # ColdRescue Deployment & Resource Cleanup Runbook
-**Target Environment:** AWS Account `494110627063` | Region `ap-south-1` (Mumbai)  
+**Target Environment:** AWS Account `<AWS_ACCOUNT_ID>` | Region `ap-south-1` (Mumbai)  
 **CDK App Root:** `c:\Users\SANJAY M.S\OneDrive\Documents\ColdRescue`
 
 ---

@@ -117,3 +117,53 @@ def test_transit_duration_predicts_arrival_temp():
     )
     assert assessment.predicted_temperature_after_transit_c is not None
     assert assessment.predicted_temperature_after_transit_c > 4.0
+
+
+def test_surrogate_optimism_cannot_override_physics_safety_window(monkeypatch):
+    """Safety-First Regression: A surrogate prediction of 440 min cannot override a 47 min physics window."""
+    cargo = _make_cargo(current_temperature_c=4.0, backup_runtime_min=0.0)
+
+    # Simulate an optimistic surrogate prediction
+    import unittest.mock as mock
+    mock_sm = mock.MagicMock()
+    mock_resp = mock.MagicMock()
+    mock_resp.read.return_value = b'{"predicted_breach_minutes": 440.0, "model_version": "1.0.1"}'
+    mock_sm.invoke_endpoint.return_value = {"Body": mock_resp}
+
+    monkeypatch.setenv("ENABLE_SAGEMAKER_INFERENCE", "true")
+    with mock.patch("boto3.client", return_value=mock_sm):
+        assessment = ThermalRiskService.evaluate_cargo_thermal_risk(
+            cargo=cargo,
+            ambient_temperature_c=35.0,
+            cooling_status=CoolingStatus.FAILED,
+        )
+
+    # Raw surrogate is 440, but physics window is ~30-40 min; effective window must be conservative
+    assert assessment.raw_surrogate_window_min == 440.0
+    assert assessment.raw_physics_window_min < 50.0
+    assert assessment.estimated_safe_window_min == assessment.raw_physics_window_min
+    assert assessment.estimated_safe_window_min < 50.0
+
+
+def test_surrogate_endpoint_failure_falls_back_to_physics(monkeypatch):
+    """Verify endpoint failure automatically arms physics fallback without compromising safety."""
+    cargo = _make_cargo(current_temperature_c=4.0, backup_runtime_min=0.0)
+
+    import unittest.mock as mock
+    from botocore.exceptions import ClientError
+    mock_sm = mock.MagicMock()
+    mock_sm.invoke_endpoint.side_effect = ClientError({"Error": {"Code": "ResourceNotFoundException", "Message": "Endpoint missing"}}, "invoke_endpoint")
+
+    monkeypatch.setenv("ENABLE_SAGEMAKER_INFERENCE", "true")
+    with mock.patch("boto3.client", return_value=mock_sm):
+        assessment = ThermalRiskService.evaluate_cargo_thermal_risk(
+            cargo=cargo,
+            ambient_temperature_c=35.0,
+            cooling_status=CoolingStatus.FAILED,
+        )
+
+    assert assessment.is_fallback is True
+    assert assessment.prediction_source == "physics_fallback"
+    assert "ClientError" in assessment.fallback_reason
+    assert assessment.estimated_safe_window_min > 0.0
+

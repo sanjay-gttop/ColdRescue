@@ -1,7 +1,7 @@
 # ColdRescue Roadmap Traceability Matrix (M0–M19)
 **Authoritative Reference:** COLDRESCUE MASTER ROADMAP V7 (M0–M19) — Track 03: Waste and Energy  
 **Audit & Verification Date:** 2026-10-11T00:23:00+05:30  
-**Target Environment:** AWS Account `494110627063` | Region `ap-south-1` | IAM Identity `arn:aws:iam::494110627063:user/Death`
+**Target Environment:** AWS Account `<AWS_ACCOUNT_ID>` | Region `ap-south-1` | IAM Identity `arn:aws:iam::<AWS_ACCOUNT_ID>:user/<REDACTED_IAM_USER>`
 
 ---
 
@@ -11,7 +11,7 @@
 - **BROKEN**: Implementation fails a mandatory requirement or regression test.
 - **LOCAL**: Fully implemented and validated by local unit, mock, and integration test suites.
 - **SYNTHESIZED**: CloudFormation template exists, passes CDK synthesis, but is not deployed to the target AWS account.
-- **DEPLOYED**: Verified as provisioned and active in AWS account `494110627063` (`ap-south-1`).
+- **DEPLOYED**: Verified as provisioned and active in AWS account `<AWS_ACCOUNT_ID>` (`ap-south-1`).
 - **INTEGRATED**: Connected components tested together across architectural boundaries.
 - **DEMO-VERIFIED**: Complete workflow demonstrated against deployed infrastructure with preserved evidence.
 - **BLOCKED**: Progress halted due to external dependency, missing credentials, or pending deployment approval.

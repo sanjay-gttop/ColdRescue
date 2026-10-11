@@ -1,0 +1,44 @@
+{
+  "evaluation_split": "Held-Out Independent Evaluation (Seed 999)",
+  "sample_count": 250,
+  "metrics": {
+    "mae_minutes": 71.7,
+    "rmse_minutes": 93.49,
+    "median_absolute_error_minutes": 52.3,
+    "p95_absolute_error_minutes": 188.1,
+    "signed_bias_minutes": 3.54,
+    "false_safe_count": 87,
+    "false_safe_rate_percentage": 34.8
+  },
+  "governing_policy_rule": "Deterministic physics model is authoritative. Effective safe window = min(physics, surrogate).",
+  "top_3_worst_cases": [
+    {
+      "cargo_type": "dairy",
+      "ambient_temp_c": 33.26,
+      "cooling_status": "active",
+      "physics_reference_min": 139.0,
+      "predicted_min": 510.1,
+      "error_min": 371.1,
+      "abs_error_min": 371.1
+    },
+    {
+      "cargo_type": "dairy",
+      "ambient_temp_c": 40.09,
+      "cooling_status": "active",
+      "physics_reference_min": 223.0,
+      "predicted_min": 483.5,
+      "error_min": 260.5,
+      "abs_error_min": 260.5
+    },
+    {
+      "cargo_type": "perishable_food",
+      "ambient_temp_c": 37.32,
+      "cooling_status": "active",
+      "physics_reference_min": 222.0,
+      "predicted_min": 445.7,
+      "error_min": 223.7,
+      "abs_error_min": 223.7
+    }
+  ],
+  "provenance_disclosure": "Training labels originate from the same physics simulation formulations. Metrics reflect agreement with the physics surrogate model, not measured real-world food/medicine stability."
+}

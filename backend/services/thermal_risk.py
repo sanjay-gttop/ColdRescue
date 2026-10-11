@@ -244,6 +244,8 @@ class ThermalRiskAssessment(BaseModel):
     estimated_safe_window_min: float
     predicted_temperature_after_transit_c: Optional[float] = None
     spoilage_breached: bool = False
+    raw_physics_window_min: float = 0.0
+    raw_surrogate_window_min: Optional[float] = None
     prediction_source: str = "physics_fallback"
     model_version: str = THERMAL_MODEL_VERSION
     is_fallback: bool = True
@@ -382,7 +384,8 @@ class ThermalRiskService:
             physics_safe_window = float(DEFAULT_SIMULATION_HORIZON_MINUTES)
 
         # Attempt real SageMaker Serverless Inference when enabled
-        safe_window = physics_safe_window
+        raw_physics_window = physics_safe_window
+        raw_surrogate_window = None
         prediction_source = "physics_fallback"
         model_version = THERMAL_MODEL_VERSION
         is_fallback = True
@@ -409,17 +412,26 @@ class ThermalRiskService:
                 )
                 resp_body = json.loads(response["Body"].read().decode("utf-8"))
                 if "predicted_breach_minutes" in resp_body:
-                    safe_window = float(resp_body["predicted_breach_minutes"])
+                    surrogate_val = float(resp_body["predicted_breach_minutes"])
+                    raw_surrogate_window = surrogate_val
                     prediction_source = "sagemaker_serverless"
-                    model_version = resp_body.get("model_version", "1.0.0")
+                    model_version = resp_body.get("model_version", "1.0.1")
                     is_fallback = False
                     fallback_reason = None
             except (ClientError, BotoCoreError, Exception) as sm_err:
                 fallback_reason = f"SageMaker unavailable ({type(sm_err).__name__}); deterministic physics fallback armed."
                 logger.warning("SageMaker endpoint invocation fell back to physics: %s", sm_err)
-                safe_window = physics_safe_window
                 prediction_source = "physics_fallback"
                 is_fallback = True
+
+        # Safety-First Reconciliation:
+        # The physics model remains authoritative for physical stability.
+        # When surrogate prediction is available, conservative safe window = min(physics, surrogate)
+        # to ensure ML optimism never extends the safe rescue window.
+        if raw_surrogate_window is not None:
+            safe_window = min(raw_physics_window, raw_surrogate_window)
+        else:
+            safe_window = raw_physics_window
 
         predicted_arrival_temp = current_temp
 
@@ -471,6 +483,8 @@ class ThermalRiskService:
                 else None
             ),
             spoilage_breached=False,
+            raw_physics_window_min=round(raw_physics_window, 1),
+            raw_surrogate_window_min=round(raw_surrogate_window, 1) if raw_surrogate_window is not None else None,
             prediction_source=prediction_source,
             model_version=model_version,
             is_fallback=is_fallback,

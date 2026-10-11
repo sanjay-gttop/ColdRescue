@@ -1,7 +1,7 @@
 # ColdRescue AWS Service Utilization Matrix
 **Project:** ColdRescue — AWS-Powered Cold-Chain Resilience and Waste Prevention (Track 03: Waste and Energy)  
 **Evaluation Date:** 2026-10-11T00:23:00+05:30  
-**Target AWS Account:** `494110627063` | **Region:** `ap-south-1` (Mumbai)
+**Target AWS Account:** `<AWS_ACCOUNT_ID>` | **Region:** `ap-south-1` (Mumbai)
 
 ---
 
@@ -19,7 +19,7 @@
 
 | AWS Service | Roadmap Requirement | Intended Architectural Purpose | Resource Identifier / Stack | Deployed Status | Integration Depth | Success / Failure Tests | Cost & Security Notes |
 | :--- | :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| **Amazon S3** | Required (M0, M6) | Encrypted, versioned immutable audit log archive & ML model artifacts. | `coldrescue-audit-dev-494110627063` (`ColdRescue-Foundation-dev`) | **DEPLOYED** | **DEEP** | Tested put/get with server-side encryption; lifecycle transition enabled. | KMS encrypted; public access blocked; minimal cost (<$0.10/mo). |
+| **Amazon S3** | Required (M0, M6) | Encrypted, versioned immutable audit log archive & ML model artifacts. | `coldrescue-audit-dev-<AWS_ACCOUNT_ID>` (`ColdRescue-Foundation-dev`) | **DEPLOYED** | **DEEP** | Tested put/get with server-side encryption; lifecycle transition enabled. | KMS encrypted; public access blocked; minimal cost (<$0.10/mo). |
 | **Amazon DynamoDB** | Required (M7, M15) | Single application database for event log, idempotency deduplication, and WebSocket connections. | `ColdRescue-Events-dev`, `WebSocketConnectionsTable` | **DEPLOYED (Events)** / **SYNTHESIZED (WS)** | **DEEP** | Atomic conditional writes tested; duplicate event replays suppressed via GSI. | Pay-per-request billing; point-in-time recovery; single table architecture. |
 | **Amazon CloudWatch** | Required (M0, M16) | Structured application logging, custom operational dashboard, and metric alarms. | `/coldrescue/audit-dev`, `ColdRescue-Operations-dev` | **DEPLOYED (Logs)** / **SYNTHESIZED (Dashboard)** | **INTEGRATED** | DLQ depth alarm and workflow failure alarm trigger SNS actions. | 14-day retention to prevent runaway log storage charges. |
 | **AWS Step Functions** | Required (M9) | 10-stage state machine orchestrating incident triage, safety gating, and human approval. | `ColdRescueWorkflow` (`ColdRescue-Orchestration-dev`) | **SYNTHESIZED** | **SYNTHESIZED** | Handlers tested locally with success, policy block, and failure paths. | Express/Standard workflow; pay-per-state transition; fail-safe timeouts. |
