@@ -7,6 +7,7 @@ interface TraceStep {
   timestamp: string;
   durationMs?: number;
   status: 'SUCCESS' | 'BLOCKED' | 'FAILED' | 'RETRYING' | 'DEGRADED';
+  observationType: 'OBSERVED' | 'SIMULATED' | 'INFERRED' | 'UNAVAILABLE';
   arnOrId: string;
   summary: string;
   evidenceSource: string;
@@ -20,8 +21,9 @@ const LIVE_RESCUE_STEPS: TraceStep[] = [
     timestamp: '2026-10-11T03:03:07Z',
     durationMs: 42,
     status: 'SUCCESS',
+    observationType: 'SIMULATED',
     arnOrId: 'iot-msg-1791668587',
-    summary: 'MQTT telemetry received: Reefer power failure, current temp 5.4°C, ambient 38.0°C',
+    summary: 'MQTT telemetry received: Reefer power failure, current temp 5.4°C, ambient 38.0°C (Synthetic simulation profile)',
     evidenceSource: 'IoT Core Message Broker / Data ATS Endpoint',
   },
   {
@@ -31,7 +33,8 @@ const LIVE_RESCUE_STEPS: TraceStep[] = [
     timestamp: '2026-10-11T03:03:07Z',
     durationMs: 18,
     status: 'SUCCESS',
-    arnOrId: 'rule-exec-494110627063-dev',
+    observationType: 'OBSERVED',
+    arnOrId: 'rule-exec-coldrescue-dev',
     summary: 'SQL pattern matched; routed to SQS buffer queue',
     evidenceSource: 'AWS IoT Rules Engine SQS Action',
   },
@@ -42,20 +45,22 @@ const LIVE_RESCUE_STEPS: TraceStep[] = [
     timestamp: '2026-10-11T03:03:08Z',
     durationMs: 16,
     status: 'SUCCESS',
+    observationType: 'OBSERVED',
     arnOrId: 'msg-c1ff12f0-fb8a-4690-94d1-5944a7c5c40e',
     summary: 'Payload buffered with SQS managed encryption; batch item failures reported',
     evidenceSource: 'Amazon SQS Queue Attributes',
   },
   {
     operation: 'Surrogate Thermal Risk Prediction',
-    service: 'AWS Lambda & Amazon S3',
-    resource: 's3://.../models/thermal-surrogate-v1.0.0/model.tar.gz',
+    service: 'SageMaker & Lambda',
+    resource: 'coldrescue-thermal-serverless-v1',
     timestamp: '2026-10-11T03:03:08Z',
     durationMs: 8,
     status: 'SUCCESS',
-    arnOrId: 'model-thermal-surrogate-v1.0.0',
-    summary: 'Predicted safe preservation window: 84.5 min (MAE 3.42 min, R2 0.941); deterministic physics fallback armed',
-    evidenceSource: 'Lambda CloudWatch Logs / S3 Model Archive',
+    observationType: 'OBSERVED',
+    arnOrId: 'arn:aws:sagemaker:ap-south-1:<AWS_ACCOUNT_ID>:endpoint/coldrescue-thermal-serverless-v1',
+    summary: 'SageMaker serverless surrogate prediction reconciled: raw surrogate 605.1m clamped to physics 47.0m safe window',
+    evidenceSource: 'SageMaker Runtime InvokeEndpoint / Lambda CloudWatch Logs',
   },
   {
     operation: 'Real-World Road Routing Calculation',
@@ -64,7 +69,8 @@ const LIVE_RESCUE_STEPS: TraceStep[] = [
     timestamp: '2026-10-11T03:03:09Z',
     durationMs: 145,
     status: 'SUCCESS',
-    arnOrId: 'arn:aws:geo:ap-south-1:494110627063:route-calculator/ColdRescue-RouteCalculator-dev',
+    observationType: 'OBSERVED',
+    arnOrId: 'arn:aws:geo:ap-south-1:<AWS_ACCOUNT_ID>:route-calculator/ColdRescue-RouteCalculator-dev',
     summary: 'Calculated truck route: 13.27 km, 33.3 min transit time using Esri road network',
     evidenceSource: 'Amazon Location Service API (geo:CalculateRoute)',
   },
@@ -75,6 +81,7 @@ const LIVE_RESCUE_STEPS: TraceStep[] = [
     timestamp: '2026-10-11T03:03:09Z',
     durationMs: 12,
     status: 'SUCCESS',
+    observationType: 'OBSERVED',
     arnOrId: 'solver-kuhn-munkres-exact',
     summary: 'Exact Hungarian matching (0.0% gap vs brute force); assigned Tiruppur Dairy Cooperative Hub',
     evidenceSource: 'Lambda Execution Logs / test_allocation_rigor.py',
@@ -86,8 +93,9 @@ const LIVE_RESCUE_STEPS: TraceStep[] = [
     timestamp: '2026-10-11T03:03:10Z',
     durationMs: 4,
     status: 'SUCCESS',
+    observationType: 'OBSERVED',
     arnOrId: 'policy-v1.2.0-verified',
-    summary: '6-rule safety gate passed: transit 33.3m < deadline 84.5m; capacity 1200kg <= 3500kg available',
+    summary: '6-rule safety gate passed: transit 33.3m < deadline 47.0m; capacity 1200kg <= 3500kg available',
     evidenceSource: 'Authoritative SafetyPolicyEngine Assessment',
   },
   {
@@ -97,7 +105,8 @@ const LIVE_RESCUE_STEPS: TraceStep[] = [
     timestamp: '2026-10-11T03:03:10Z',
     durationMs: 6661,
     status: 'SUCCESS',
-    arnOrId: 'arn:aws:states:ap-south-1:494110627063:execution:ColdRescue-IncidentRecovery-dev:TRUCK-104-LIVE-1791662747',
+    observationType: 'OBSERVED',
+    arnOrId: 'arn:aws:states:ap-south-1:<AWS_ACCOUNT_ID>:execution:ColdRescue-IncidentRecovery-dev:TRUCK-104-LIVE-1791662747',
     summary: 'All 10 stages executed cleanly; diverted 1,200 kg high-risk dairy to safety',
     evidenceSource: 'AWS Step Functions Execution History',
   },
@@ -108,6 +117,7 @@ const LIVE_RESCUE_STEPS: TraceStep[] = [
     timestamp: '2026-10-11T03:03:11Z',
     durationMs: 7,
     status: 'SUCCESS',
+    observationType: 'OBSERVED',
     arnOrId: 'stream_truck_104_1791662747#1',
     summary: 'Atomic conditional write persisted; stream replay prevented',
     evidenceSource: 'DynamoDB Events Table Scan',
@@ -145,7 +155,7 @@ export const AwsLiveTraceView: React.FC = () => {
         <div style={{ padding: '14px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '6px' }}>
           <div style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: 'var(--text-secondary)' }}>AWS Region & Identity</div>
           <div style={{ fontSize: '1.05rem', fontWeight: 600, color: 'var(--text-primary)', marginTop: '4px' }}>ap-south-1 (Mumbai)</div>
-          <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '2px' }}>arn:aws:iam::494110627063:user/Death</div>
+          <div style={{ fontSize: '0.75rem', color: '#10b981', marginTop: '2px' }}>arn:aws:iam::&lt;AWS_ACCOUNT_ID&gt;:user/&lt;REDACTED_IAM_USER&gt;</div>
         </div>
 
         <div style={{ padding: '14px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '6px' }}>
@@ -224,6 +234,18 @@ export const AwsLiveTraceView: React.FC = () => {
                     >
                       {step.service}
                     </span>
+                    <span
+                      style={{
+                        padding: '2px 6px',
+                        fontSize: '0.65rem',
+                        fontWeight: 700,
+                        borderRadius: '3px',
+                        backgroundColor: step.observationType === 'OBSERVED' ? '#1e3a8a' : '#78350f',
+                        color: step.observationType === 'OBSERVED' ? '#93c5fd' : '#fde68a',
+                      }}
+                    >
+                      {step.observationType}
+                    </span>
                     <span style={{ fontSize: '0.9rem', fontWeight: 600, color: 'var(--text-primary)' }}>
                       {step.operation}
                     </span>
@@ -268,6 +290,24 @@ export const AwsLiveTraceView: React.FC = () => {
               <div>
                 <strong style={{ color: 'var(--text-secondary)' }}>AWS Service:</strong>
                 <div style={{ color: 'var(--text-primary)', marginTop: '2px' }}>{selectedStep.service}</div>
+              </div>
+
+              <div>
+                <strong style={{ color: 'var(--text-secondary)' }}>Observation Mode:</strong>
+                <div style={{ marginTop: '2px' }}>
+                  <span
+                    style={{
+                      padding: '2px 8px',
+                      fontSize: '0.75rem',
+                      fontWeight: 700,
+                      borderRadius: '3px',
+                      backgroundColor: selectedStep.observationType === 'OBSERVED' ? '#1e3a8a' : '#78350f',
+                      color: selectedStep.observationType === 'OBSERVED' ? '#93c5fd' : '#fde68a',
+                    }}
+                  >
+                    {selectedStep.observationType}
+                  </span>
+                </div>
               </div>
 
               <div>

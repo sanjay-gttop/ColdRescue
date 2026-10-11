@@ -195,7 +195,7 @@ export const AllocationComparisonView: React.FC<AllocationComparisonViewProps> =
             </div>
 
             <div style={{ marginTop: '12px', padding: '8px 12px', backgroundColor: '#1e293b', borderLeft: '3px solid #38bdf8', borderRadius: '4px', fontSize: '0.75rem', color: '#cbd5e1' }}>
-              <strong>Scope & Limits Disclosure:</strong> Illustrative estimate based on stated simulation assumptions, not measured real-world savings. Both Greedy and Hungarian algorithms obey identical deterministic safety hard blocks.
+              <strong>Execution Provenance & Disclosure:</strong> Pre-recorded verification run loaded directly from reproducible benchmark suite (executed via <code>scripts/run_stress_benchmark.py</code>; evidence preserved in <code>evidence/benchmark/</code>). Illustrative estimate based on stated simulation assumptions, not measured real-world savings. Both Greedy and Hungarian algorithms obey identical deterministic safety hard blocks.
             </div>
           </div>
         )}

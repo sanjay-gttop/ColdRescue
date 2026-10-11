@@ -172,3 +172,54 @@ def test_allocation_service_direct_comparison():
     assert comparison.greedy_plan.strategy == "greedy"
     assert comparison.global_plan.strategy == "global"
     assert comparison.recommended_strategy in ["global", "greedy"]
+
+
+@pytest.mark.asyncio
+async def test_rbac_unauthenticated_returns_401():
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # Request with no Authorization header
+        resp_no_token = await client.post(
+            "/api/v1/incidents/inc_sample/approve",
+            json={"decision": "APPROVED"},
+        )
+        assert resp_no_token.status_code == 401
+        assert "Authentication required" in resp_no_token.json()["detail"]
+
+        # Request with forged / malformed Bearer token
+        resp_bad_token = await client.post(
+            "/api/v1/incidents/inc_sample/approve",
+            json={"decision": "APPROVED"},
+            headers={"Authorization": "Bearer forged.invalid.token"},
+        )
+        assert resp_bad_token.status_code == 401
+
+
+@pytest.mark.asyncio
+async def test_rbac_insufficient_role_returns_403_and_audits():
+    from backend.auth.security import create_token
+    from backend.auth.models import UserRole
+
+    driver_token = create_token("user_driver_01", "driver@coldrescue.io", UserRole.DRIVER)
+    approver_token = create_token("user_approver_01", "approver@coldrescue.io", UserRole.APPROVER)
+
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # Driver attempting to approve recovery -> 403 Forbidden (Separation of duties)
+        resp_driver = await client.post(
+            "/api/v1/incidents/inc_sample/approve",
+            json={"decision": "APPROVED"},
+            headers={"Authorization": f"Bearer {driver_token}"},
+        )
+        assert resp_driver.status_code == 403
+        assert "Forbidden" in resp_driver.json()["detail"]
+
+        # Approver attempting to approve recovery -> 200 OK
+        resp_approver = await client.post(
+            "/api/v1/incidents/inc_sample/approve",
+            json={"decision": "APPROVED"},
+            headers={"Authorization": f"Bearer {approver_token}"},
+        )
+        assert resp_approver.status_code == 200
+        assert resp_approver.json()["decision"] == "APPROVED"
+
