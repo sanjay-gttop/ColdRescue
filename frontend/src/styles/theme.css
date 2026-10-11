@@ -1,64 +1,73 @@
-/* ColdRescue Design Tokens & Global Styles */
+/* ColdRescue Design Tokens & Global Styles — Premium Light Theme ("Cold Meets Harvest") */
 :root {
-  /* Color-blind safe operational palette (WCAG AAA contrast verified) */
-  --bg-primary: #0a0f1d;
-  --bg-secondary: #111827;
-  --bg-card: #162032;
-  --bg-card-hover: #1e293b;
-  --bg-elevated: #1f2d44;
-  --bg-input: #0e1626;
+  /* Premium Light-Themed Palette (WCAG AA compliant contrast) */
+  --bg-primary: #F3FBFA;
+  --bg-secondary: #E8F7F5;
+  --bg-card: #FFFFFF;
+  --bg-card-hover: #F8FCFB;
+  --bg-elevated: #F0F9F8;
+  --bg-input: #FFFFFF;
 
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --text-muted: #64748b;
-  --text-inverse: #020617;
+  --text-primary: #0C2B3A;
+  --text-secondary: #2C4A5A;
+  --text-muted: #5B7584;
+  --text-inverse: #FFFFFF;
 
-  --border-subtle: #1e293b;
-  --border-strong: #334155;
-  --border-focus: #38bdf8;
+  --border-subtle: #D8ECE9;
+  --border-strong: #B4DDD7;
+  --border-focus: #19D3C5;
 
-  /* Status Colors (paired with text + icon + border) */
-  --status-critical: #ef4444;
-  --status-critical-bg: rgba(239, 68, 68, 0.15);
-  --status-critical-border: #dc2626;
+  /* Harvest & Cold Brand Colors */
+  --frost-base: #F3FBFA;
+  --aqua-primary: #19D3C5;
+  --ice-blue: #6EC8FF;
+  --tomato-flare: #FF5A36;
+  --citrus-gold: #FFB627;
+  --lime-safe: #10b981;
+  --ink-heading: #0C2B3A;
 
-  --status-warning: #f59e0b;
-  --status-warning-bg: rgba(245, 158, 11, 0.15);
-  --status-warning-border: #d97706;
+  /* Status Colors */
+  --status-critical: #FF5A36;
+  --status-critical-bg: rgba(255, 90, 54, 0.12);
+  --status-critical-border: #FF5A36;
 
-  --status-safe: #10b981;
-  --status-safe-bg: rgba(16, 185, 129, 0.15);
-  --status-safe-border: #059669;
+  --status-warning: #D97706;
+  --status-warning-bg: rgba(245, 158, 11, 0.14);
+  --status-warning-border: #F59E0B;
 
-  --status-blocked: #e11d48;
-  --status-blocked-bg: rgba(225, 29, 72, 0.15);
-  --status-blocked-border: #be123c;
+  --status-safe: #059669;
+  --status-safe-bg: rgba(5, 150, 105, 0.12);
+  --status-safe-border: #10B981;
 
-  --status-pending: #3b82f6;
-  --status-pending-bg: rgba(59, 130, 246, 0.15);
-  --status-pending-border: #2563eb;
+  --status-blocked: #E11D48;
+  --status-blocked-bg: rgba(225, 29, 72, 0.12);
+  --status-blocked-border: #BE123C;
 
-  --status-unknown: #8b5cf6;
-  --status-unknown-bg: rgba(139, 92, 246, 0.15);
-  --status-unknown-border: #7c3aed;
+  --status-pending: #0284C7;
+  --status-pending-bg: rgba(2, 132, 199, 0.12);
+  --status-pending-border: #38BDF8;
 
-  --status-stale: #d97706;
-  --status-stale-bg: rgba(217, 119, 6, 0.15);
-  --status-stale-border: #b45309;
+  --status-unknown: #7C3AED;
+  --status-unknown-bg: rgba(124, 58, 237, 0.12);
+  --status-unknown-border: #8B5CF6;
 
-  --status-offline: #64748b;
-  --status-offline-bg: rgba(100, 116, 139, 0.2);
-  --status-offline-border: #475569;
+  --status-stale: #B45309;
+  --status-stale-bg: rgba(217, 119, 6, 0.12);
+  --status-stale-border: #D97706;
+
+  --status-offline: #475569;
+  --status-offline-bg: rgba(100, 116, 139, 0.14);
+  --status-offline-border: #64748B;
 
   /* UI Accents */
-  --accent-cyan: #06b6d4;
-  --accent-cyan-bg: rgba(6, 182, 212, 0.12);
-  --accent-blue: #0284c7;
+  --accent-cyan: #0D9488;
+  --accent-cyan-bg: rgba(13, 148, 136, 0.12);
+  --accent-blue: #0284C7;
 
   /* Sizing and Spacing */
-  --radius-sm: 4px;
-  --radius-md: 8px;
-  --radius-lg: 12px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
   --radius-full: 9999px;
 
   --touch-target: 44px;
@@ -141,7 +150,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
   padding: 18px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px -2px rgba(12, 43, 58, 0.06);
 }
 
 .card-header {

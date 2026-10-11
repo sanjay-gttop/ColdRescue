@@ -7,7 +7,6 @@ import {
   CheckCircleIcon,
   XCircleIcon,
 } from '../common/Icons';
-import { AwsContextChip, AwsServiceDrawer } from '../common/AwsContextChips';
 
 interface ApprovalDetailViewProps {
   approval: ApprovalRequest;
@@ -30,7 +29,6 @@ export const ApprovalDetailView: React.FC<ApprovalDetailViewProps> = ({
   onRequestReassessment,
   onSelectAlternative,
 }) => {
-  const [selectedAwsService, setSelectedAwsService] = useState<string | null>(null);
   const [approverName, setApproverName] = useState<string>('OpsManager_SarahJ');
   const [rejectReason, setRejectReason] = useState<string>('');
   const [showConfirmApprove, setShowConfirmApprove] = useState<boolean>(false);
@@ -58,25 +56,16 @@ export const ApprovalDetailView: React.FC<ApprovalDetailViewProps> = ({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      <AwsServiceDrawer
-        serviceKey={selectedAwsService}
-        onClose={() => setSelectedAwsService(null)}
-      />
-
       {/* Top Banner */}
       <div className="card" style={{ borderLeft: `6px solid ${isHardBlocked ? 'var(--status-blocked-border)' : 'var(--status-pending-border)'}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
               <span style={{ fontSize: '0.85rem', fontFamily: 'monospace', color: 'var(--text-muted)' }}>
                 {approval.approval_id}
               </span>
               <StatusBadge status={approval.status} />
               {isHardBlocked && <span className="badge badge-blocked">POLICY HARD-BLOCKED</span>}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-                <AwsContextChip serviceKey="stepfunctions" onClick={() => setSelectedAwsService('stepfunctions')} />
-                <AwsContextChip serviceKey="dynamodb" onClick={() => setSelectedAwsService('dynamodb')} />
-              </div>
             </div>
             <h2 style={{ fontSize: '1.35rem', fontWeight: 800, marginTop: '6px' }}>
               Recovery Dispatch Review: {incident.incident_id} → {receiver.name}

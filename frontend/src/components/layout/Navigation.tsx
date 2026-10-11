@@ -1,6 +1,7 @@
 import React from 'react';
 
 export type ActiveTab =
+  | 'story'
   | 'dashboard'
   | 'live-trace'
   | 'incidents'
@@ -27,7 +28,8 @@ export const Navigation: React.FC<NavigationProps> = ({
   pendingApprovalsCount,
   criticalIncidentsCount,
 }) => {
-  const tabs: Array<{ id: ActiveTab; label: string; badge?: number; badgeType?: 'critical' | 'pending' }> = [
+  const tabs: Array<{ id: ActiveTab; label: string; badge?: number | string; badgeType?: 'critical' | 'pending' | 'story' }> = [
+    { id: 'story', label: '✨ 3D Rescue Experience', badge: 'LIVE', badgeType: 'story' },
     { id: 'dashboard', label: 'Operator Dashboard' },
     { id: 'live-trace', label: 'AWS Live Trace' },
     { id: 'incidents', label: 'Incident & Cargo Details', badge: criticalIncidentsCount, badgeType: 'critical' },
@@ -83,14 +85,19 @@ export const Navigation: React.FC<NavigationProps> = ({
               aria-current={isActive ? 'page' : undefined}
             >
               <span>{tab.label}</span>
-              {typeof tab.badge === 'number' && tab.badge > 0 && (
+              {tab.badge !== undefined && (
                 <span
                   style={{
                     fontSize: '0.7rem',
                     padding: '1px 6px',
                     borderRadius: 'var(--radius-full)',
-                    backgroundColor: tab.badgeType === 'critical' ? 'var(--status-critical)' : 'var(--accent-blue)',
-                    color: '#ffffff',
+                    backgroundColor:
+                      tab.badgeType === 'story'
+                        ? '#0C2B3A'
+                        : tab.badgeType === 'critical'
+                        ? 'var(--status-critical)'
+                        : 'var(--accent-blue)',
+                    color: tab.badgeType === 'story' ? '#19D3C5' : '#ffffff',
                     fontWeight: 700,
                   }}
                 >

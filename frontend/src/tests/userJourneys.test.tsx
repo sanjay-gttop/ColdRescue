@@ -89,4 +89,17 @@ describe('UI Component and Journey Tests', () => {
     expect(screen.queryByText('Telemetry Service Unreachable')).toBeNull();
     expect(screen.getByText('Active Incident Queue')).toBeDefined();
   });
+
+  it('renders 3D Rescue Experience tab with narrative hero and feature showcase', () => {
+    render(<App />);
+    const storyTab = screen.getByRole('button', { name: /3D Rescue Experience/i });
+    fireEvent.click(storyTab);
+
+    // Verify key narrative copy from the experience
+    expect(screen.getAllByText('ColdRescue').length).toBeGreaterThanOrEqual(1);
+    expect(screen.getByText(/Keep the cold chain powered. Keep food and medicine out of the bin./i)).toBeDefined();
+    expect(screen.getByText(/TRUCK-104/i)).toBeDefined();
+    expect(screen.getByText(/Kuhn-Munkres Rescue Allocation/i)).toBeDefined();
+    expect(screen.getByText(/Deterministic Safety Policy Gate/i)).toBeDefined();
+  });
 });

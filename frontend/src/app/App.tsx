@@ -29,8 +29,8 @@ import { AwsLiveTraceView } from '../components/audit/AwsLiveTraceView';
 import { ArchitectureOverviewView } from '../components/audit/ArchitectureOverviewView';
 import { PolicyBlockDetailView } from '../components/policy/PolicyBlockDetailView';
 import { ActionMatrixView } from '../components/common/ActionMatrixView';
-import { GoldenPathStepper } from '../components/common/GoldenPathStepper';
 import { evaluateColdChainPolicy } from '../utils/policyEngine';
+import { AnimatedMarketingHero } from '../components/hero/AnimatedMarketingHero';
 
 export const App: React.FC = () => {
   // App Domain State
@@ -42,7 +42,7 @@ export const App: React.FC = () => {
 
   // Navigation State
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
-  const [selectedIncidentId, setSelectedIncidentId] = useState<string>('TRUCK-104');
+  const [selectedIncidentId, setSelectedIncidentId] = useState<string>('INC-2026-081');
   const [selectedBlockedReceiverId, setSelectedBlockedReceiverId] = useState<string>('RCV-APEX-03');
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>('ASN-8801');
 
@@ -336,16 +336,6 @@ export const App: React.FC = () => {
         criticalIncidentsCount={incidents.filter((i) => i.severity === 'critical').length}
       />
 
-      {/* Golden Path Guided Workflow Stepper */}
-      <GoldenPathStepper
-        activeTab={activeTab}
-        incidentId={selectedIncidentId}
-        onNavigate={(tab) => {
-          setActiveTab(tab);
-          setSimulatedError(null);
-        }}
-      />
-
       {/* Main Content Area */}
       <main className="container" style={{ flex: 1, padding: '20px 16px' }}>
         {/* Toast Notification */}
@@ -394,6 +384,36 @@ export const App: React.FC = () => {
         ) : (
           <>
             {/* View Switching */}
+            {activeTab === 'story' && (
+              <AnimatedMarketingHero
+                onNavigateToFeature={(tab, title) => {
+                  setActiveTab(tab);
+                  if (title) showToast(`Navigated to ${title}`);
+                }}
+              />
+            )}
+
+            {activeTab !== 'story' && (
+              <div style={{ marginBottom: '16px', display: 'flex', justifyContent: 'flex-end' }}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => setActiveTab('story')}
+                  style={{
+                    fontSize: '0.82rem',
+                    fontWeight: 700,
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    borderColor: 'var(--accent-cyan)',
+                    color: 'var(--text-primary)',
+                  }}
+                >
+                  <span>✨ Experience 3D Story</span>
+                  <span style={{ fontSize: '0.75rem', opacity: 0.8 }}>→</span>
+                </button>
+              </div>
+            )}
+
             {activeTab === 'dashboard' && (
               <OperatorDashboard
                 incidents={incidents}

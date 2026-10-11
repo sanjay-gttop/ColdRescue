@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Incident } from '../../types';
 import { StatusBadge } from '../common/StatusBadge';
 import { CountdownTimer } from '../common/CountdownTimer';
@@ -10,9 +10,7 @@ import {
   ClockIcon,
   WarehouseIcon,
   ArrowLeftIcon,
-  ShieldAlertIcon,
 } from '../common/Icons';
-import { AwsContextChip, AwsServiceDrawer } from '../common/AwsContextChips';
 
 interface IncidentDetailViewProps {
   incident: Incident;
@@ -27,33 +25,15 @@ export const IncidentDetailView: React.FC<IncidentDetailViewProps> = ({
   onSelectReceiverForIncident,
   onCompareAllocation,
 }) => {
-  const [selectedAwsService, setSelectedAwsService] = useState<string | null>(null);
   const cargo = incident.cargo;
-
-  const isBlocked = incident.cooling_status === 'failed' || incident.power_state === 'failed';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-      {/* AWS Service Inspection Drawer */}
-      <AwsServiceDrawer
-        serviceKey={selectedAwsService}
-        onClose={() => setSelectedAwsService(null)}
-      />
-
       {/* Top action header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <button className="btn btn-secondary" onClick={onBack}>
           <ArrowLeftIcon size={16} /> Back to Incidents
         </button>
-
-        {/* AWS Service Context Chips */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-          <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>AWS Cloud Stack:</span>
-          <AwsContextChip serviceKey="iot" onClick={() => setSelectedAwsService('iot')} />
-          <AwsContextChip serviceKey="sagemaker" onClick={() => setSelectedAwsService('sagemaker')} />
-          <AwsContextChip serviceKey="location" onClick={() => setSelectedAwsService('location')} />
-          <AwsContextChip serviceKey="stepfunctions" onClick={() => setSelectedAwsService('stepfunctions')} />
-        </div>
 
         <div style={{ display: 'flex', gap: '10px' }}>
           <button className="btn btn-secondary" onClick={onCompareAllocation}>
@@ -75,9 +55,6 @@ export const IncidentDetailView: React.FC<IncidentDetailViewProps> = ({
               </span>
               <StatusBadge status={incident.severity} />
               <StatusBadge status={incident.status} />
-              {incident.incident_id === 'TRUCK-104' && (
-                <span className="badge badge-success">SIMULATED GOLDEN PATH SCENARIO</span>
-              )}
             </div>
             <h2 style={{ fontSize: '1.4rem', fontWeight: 800, marginTop: '6px' }}>{incident.title}</h2>
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginTop: '6px', fontSize: '0.85rem', color: 'var(--text-secondary)' }}>
@@ -98,98 +75,6 @@ export const IncidentDetailView: React.FC<IncidentDetailViewProps> = ({
           </div>
         </div>
       </div>
-
-      {/* HOLD SAFETY POLICY SCREEN / BANNER (When Blocked) */}
-      {isBlocked && (
-        <div
-          className="card"
-          style={{
-            backgroundColor: 'rgba(239, 68, 68, 0.12)',
-            border: '2px solid var(--status-critical-border)',
-            padding: '16px 20px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-            <ShieldAlertIcon size={24} className="pulse-icon" style={{ color: 'var(--status-critical)', marginTop: '2px' }} />
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <strong style={{ fontSize: '1.05rem', color: '#fca5a5' }}>
-                  DISPATCH BLOCKED BY SAFETY POLICY — HOLD STATE ACTIVE
-                </strong>
-                <span className="badge badge-critical">POLICY PRECEDENCE</span>
-              </div>
-              <p style={{ fontSize: '0.88rem', color: '#fecaca', margin: '6px 0 0 0', lineHeight: 1.4 }}>
-                Active reefer cooling plant is unrecoverable ({incident.cooling_status.toUpperCase()}). Under ColdRescue Deterministic Safety Rules, automatic dispatch authorization is strictly locked until a certified receiver with available cryogenic/cold storage capacity is explicitly validated by a Human Operator.
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Deterministic Thermal Reconciliation: Physics vs SageMaker Surrogate */}
-      <section className="card" style={{ borderLeft: '6px solid var(--accent-cyan)' }}>
-        <div className="card-header">
-          <div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ThermometerIcon size={18} /> Deterministic Thermal Risk Reconciliation
-            </h3>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Deterministic Precedence Rule: safe_window = min(physics, surrogate). ML inference is purely advisory.
-            </span>
-          </div>
-          <AwsContextChip serviceKey="sagemaker" label="SageMaker AI (Advisory)" onClick={() => setSelectedAwsService('sagemaker')} />
-        </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '12px' }}>
-          {/* Box 1: Physics Engine */}
-          <div style={{ padding: '12px 14px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: '#94a3b8', fontWeight: 700 }}>
-              Deterministic Newton Physics
-            </div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#38bdf8', marginTop: '4px', fontFamily: 'monospace' }}>
-              {cargo.physics_safe_window_min !== undefined ? `${cargo.physics_safe_window_min} min` : '47 min'}
-            </div>
-            <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '4px' }}>
-              Newton exponential cooling law (ambient 38.0°C, mass {cargo.cargo_kg}kg)
-            </div>
-            <div style={{ marginTop: '6px' }}>
-              <span className="badge badge-success" style={{ fontSize: '0.65rem' }}>AUTHORITATIVE BOUND</span>
-            </div>
-          </div>
-
-          {/* Box 2: SageMaker Surrogate */}
-          <div style={{ padding: '12px 14px', borderRadius: 'var(--radius-sm)', backgroundColor: 'var(--bg-elevated)', border: '1px solid var(--border-subtle)' }}>
-            <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: '#94a3b8', fontWeight: 700 }}>
-              SageMaker Serverless Surrogate
-            </div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: '#c084fc', marginTop: '4px', fontFamily: 'monospace' }}>
-              {cargo.surrogate_safe_window_min !== undefined ? `${cargo.surrogate_safe_window_min} min` : '440 min'}
-            </div>
-            <div style={{ fontSize: '0.72rem', color: '#94a3b8', marginTop: '4px' }}>
-              Linear thermal surrogate (advisory only, $0.00 idle compute)
-            </div>
-            <div style={{ marginTop: '6px' }}>
-              <span className="badge badge-warning" style={{ fontSize: '0.65rem' }}>ADVISORY INFERENCE</span>
-            </div>
-          </div>
-
-          {/* Box 3: Effective Safety Policy Window */}
-          <div style={{ padding: '12px 14px', borderRadius: 'var(--radius-sm)', backgroundColor: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.4)' }}>
-            <div style={{ fontSize: '0.72rem', textTransform: 'uppercase', color: 'var(--accent-cyan)', fontWeight: 700 }}>
-              Enforced Policy Window
-            </div>
-            <div style={{ fontSize: '1.6rem', fontWeight: 800, color: 'var(--accent-cyan)', marginTop: '4px', fontFamily: 'monospace' }}>
-              {cargo.effective_safe_window_min !== undefined ? `${cargo.effective_safe_window_min} min` : '47 min'}
-            </div>
-            <div style={{ fontSize: '0.72rem', color: '#cbd5e1', marginTop: '4px' }}>
-              {cargo.fallback_reason || 'Surrogate overprediction safely clamped: min(47, 440) = 47 min.'}
-            </div>
-            <div style={{ marginTop: '6px' }}>
-              <span className="badge badge-safe" style={{ fontSize: '0.65rem' }}>ZERO FALSE-SAFE RATE</span>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Thermal & Spoilage Countdown Card */}
       <CountdownTimer
