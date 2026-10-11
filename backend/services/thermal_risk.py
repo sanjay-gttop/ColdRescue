@@ -7,9 +7,11 @@ import json
 import logging
 import math
 import os
+import time
 from typing import Any, Optional
 
 import boto3
+from botocore.config import Config
 from botocore.exceptions import ClientError, BotoCoreError
 from pydantic import BaseModel
 
@@ -17,6 +19,41 @@ logger = logging.getLogger(__name__)
 
 SAGEMAKER_ENDPOINT_NAME = os.environ.get("COLDRESCUE_SAGEMAKER_ENDPOINT", "coldrescue-thermal-serverless-v1")
 AWS_REGION = os.environ.get("AWS_REGION", "ap-south-1")
+
+
+def record_thermal_cloudwatch_metric(
+    metric_name: str,
+    value: float = 1.0,
+    unit: str = "Count",
+    extra_dimensions: dict[str, str] | None = None,
+) -> None:
+    """Best-effort emission of custom CloudWatch metrics under ColdRescue/Thermal namespace."""
+    if not (
+        os.environ.get("ENABLE_SAGEMAKER_INFERENCE", "false").lower() in ("true", "1", "yes")
+        or os.environ.get("AWS_INTEGRATIONS_ENABLED", "false").lower() in ("true", "1", "yes")
+    ):
+        return
+
+    try:
+        cw_client = boto3.client("cloudwatch", region_name=AWS_REGION)
+        dimensions = [{"Name": "Environment", "Value": os.environ.get("COLDRESCUE_ENV", "dev")}]
+        if extra_dimensions:
+            for k, v in extra_dimensions.items():
+                dimensions.append({"Name": k, "Value": v})
+        cw_client.put_metric_data(
+            Namespace="ColdRescue/Thermal",
+            MetricData=[
+                {
+                    "MetricName": metric_name,
+                    "Value": float(value),
+                    "Unit": unit,
+                    "Dimensions": dimensions,
+                    "Timestamp": datetime.now(timezone.utc),
+                }
+            ],
+        )
+    except Exception as exc:
+        logger.debug("CloudWatch metric emission skipped/failed: %s", exc)
 
 
 THERMAL_MODEL_VERSION = "thermal-simulation-v1.2.0"
@@ -392,8 +429,10 @@ class ThermalRiskService:
         fallback_reason = None
 
         if os.environ.get("ENABLE_SAGEMAKER_INFERENCE", "false").lower() in ("true", "1", "yes"):
+            start_time = time.perf_counter()
             try:
-                sm_runtime = boto3.client("sagemaker-runtime", region_name=AWS_REGION)
+                sm_config = Config(connect_timeout=3, read_timeout=4, retries={"max_attempts": 0})
+                sm_runtime = boto3.client("sagemaker-runtime", region_name=AWS_REGION, config=sm_config)
                 cargo_kg = float(getattr(cargo, "cargo_kg", 500.0) or 500.0)
                 payload_dict = {
                     "cargo_type": cargo_type,
@@ -410,25 +449,32 @@ class ThermalRiskService:
                     ContentType="application/json",
                     Body=json.dumps(payload_dict),
                 )
+                latency_ms = (time.perf_counter() - start_time) * 1000.0
                 resp_body = json.loads(response["Body"].read().decode("utf-8"))
                 if "predicted_breach_minutes" in resp_body:
                     surrogate_val = float(resp_body["predicted_breach_minutes"])
                     raw_surrogate_window = surrogate_val
                     prediction_source = "sagemaker_serverless"
-                    model_version = resp_body.get("model_version", "1.0.1")
+                    resp_v = resp_body.get("model_version", "1.0.1")
+                    model_version = "1.0.1" if resp_v in ("1.0.0", "1.0.1") else str(resp_v)
                     is_fallback = False
                     fallback_reason = None
+                    record_thermal_cloudwatch_metric("SageMakerEndpointInvocations", 1.0, "Count")
+                    record_thermal_cloudwatch_metric("SageMakerInferenceLatencyMs", latency_ms, "Milliseconds")
             except (ClientError, BotoCoreError, Exception) as sm_err:
                 fallback_reason = f"SageMaker unavailable ({type(sm_err).__name__}); deterministic physics fallback armed."
                 logger.warning("SageMaker endpoint invocation fell back to physics: %s", sm_err)
                 prediction_source = "physics_fallback"
                 is_fallback = True
+                record_thermal_cloudwatch_metric("SageMakerFallbackInvocations", 1.0, "Count")
 
         # Safety-First Reconciliation:
         # The physics model remains authoritative for physical stability.
         # When surrogate prediction is available, conservative safe window = min(physics, surrogate)
         # to ensure ML optimism never extends the safe rescue window.
         if raw_surrogate_window is not None:
+            if raw_surrogate_window > raw_physics_window:
+                record_thermal_cloudwatch_metric("ThermalSurrogateClampedCount", 1.0, "Count")
             safe_window = min(raw_physics_window, raw_surrogate_window)
         else:
             safe_window = raw_physics_window

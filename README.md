@@ -31,52 +31,68 @@ ColdRescue attacks this dual crisis of **waste prevention** and **energy efficie
 
 ## AWS Cloud Architecture
 
-ColdRescue is deployed on **AWS (ap-south-1 Mumbai)** via **AWS CDK (Python)** across modular, least-privilege CloudFormation stacks:
+ColdRescue is deployed on **AWS (ap-south-1 Mumbai)** via **AWS CDK (Python)** across modular, least-privilege CloudFormation stacks connecting 11 AWS services:
 
 ```mermaid
 flowchart TD
-    subgraph "Ingestion & Telemetry"
-        Fargate["ECS Fargate Telemetry Simulator\n(Milestone 14)"] -->|"HTTP / Events"| APIGW["Amazon API Gateway REST API\n(Cognito Authorizer)"]
-        Fargate -->|"Events"| EventBridge["Amazon EventBridge Bus\n(Milestone 13)"]
-        EventBridge --> SQS["Amazon SQS Processing Buffer\n(Redrive to DLQ)"]
-        SQS --> ConsumerLambda["Queue Consumer Lambda\n(Idempotent Ingestion)"]
+    subgraph "Vehicle Telemetry & Ingestion"
+        Fargate["ECS Fargate Telemetry Simulator\n(ColdRescue-SimulatorService-dev, desired=0)\n(Synthetic Scenario Profiles)"] -->|"MQTT / Telemetry"| IoTCore["AWS IoT Core Topic Rule\n(ColdRescue_Telemetry_Rule_dev)"]
+        IoTCore -->|"SQL Route"| SQS["Amazon SQS Processing Buffer\n(ColdRescue-ProcessingQueue-dev)"]
+        SQS -->|"Batch item failures"| DLQ["Amazon SQS Dead-Letter Queue\n(ColdRescue-DLQ-dev)"]
+        SQS --> QueueConsumer["Idempotent Queue Consumer Lambda\n(Active X-Ray Tracing)"]
     end
 
-    subgraph "Storage & Idempotency"
-        ConsumerLambda --> DDB["Amazon DynamoDB EventsTable\n(PK: stream_id, SK: seq, GSI: IdempotencyKey)"]
-        APIGW --> DDB
+    subgraph "Storage, Streams & Archival"
+        QueueConsumer --> DDB["Amazon DynamoDB Events Table\n(ColdRescue-Events-dev)"]
+        DDB --> DDBStream["DynamoDB Streams\n(Batch Size 10)"]
+        DDBStream --> StreamConsumer["Stream Consumer Lambda\n(Emits EventsPersistedCount)"]
+        DDB --> S3["Amazon S3 Audit Vault\n(AuditLogsBucket)"]
+        S3 -->|"30-Day Lifecycle Rule"| Glacier["Amazon S3 Glacier Instant Retrieval\n(ColdRescue Archival Policy)"]
     end
 
     subgraph "Recovery Orchestration (Step Functions)"
-        APIGW -->|"StartExecution"| SFN["Step Functions State Machine\n(ColdRescue-IncidentRecovery-dev)"]
+        QueueConsumer -->|"StartExecution"| SFN["AWS Step Functions State Machine\n(ColdRescue-IncidentRecovery-dev)\n(Active X-Ray Tracing)"]
         SFN --> T1["1. Validate & Ingest Task"]
-        T1 --> T2["2. Predict Thermal Risk Task\n(Physics Engine + ML Surrogate)"]
-        T2 --> T3["3. Retrieve Routes Task\n(Amazon Location Service / Haversine)"]
-        T3 --> T4["4. Solve Allocation Task\n(Greedy vs. Global Solvers)"]
-        T4 --> T5["5. Evaluate Safety Policy Gate\n(6 Deterministic Rules)"]
-        T5 -->|"Hard Blocked"| BranchBlocked["Policy Blocked Branch\n(Zero False Diversion)"]
+        T1 --> T2["2. Predict Thermal Risk Task"]
+        T2 <-->|"Serverless Inference\n(108 ms warm latency)"| SageMaker["Amazon SageMaker AI Endpoint\n(coldrescue-thermal-serverless-v1)\n(Invariant: tau_eff = min(tau_phys, tau_ML))"]
+        T2 --> T3["3. Retrieve Road Routes Task"]
+        T3 <-->|"CalculateRoute (Esri)"| Location["Amazon Location Service\n(ColdRescue-RouteCalculator-dev)"]
+        T3 --> T4["4. Solve Allocation Task\n(Kuhn-Munkres Exact Matching)"]
+        T4 --> T5["5. Evaluate Safety Policy Gate\n(6 Deterministic Invariants)"]
+        T5 -->|"Policy Blocked"| BranchBlocked["Policy Blocked Branch\n(SafetyPolicyBlockedState: POLICY_BLOCKED)"]
         T5 -->|"Passed"| T6["6. Operator Approval Task"]
         T6 --> T7["7. Driver Acknowledgement Task"]
         T7 --> T8["8. Receiver Intake Acceptance Task"]
         T8 --> T9["9. Finalize Audit & Waste Accounting"]
+        SFN -.->|"Transient Exception\n(Exponential Backoff)"| Retries["Transient Retry Policy (Max 3)"]
+        SFN -.->|"Unhandled Error Catch"| SNS["Amazon SNS Alerts Topic\n(ColdRescue-Alerts-dev)"]
     end
 
-    subgraph "Real-Time Push & Observability"
-        SFN --> WS["API Gateway WebSocket API\n(Milestone 15 Real-Time Push)"]
-        WS --> UI["React / Vite Frontend\n(Amplify Hosting)"]
-        SFN --> CW["CloudWatch Dashboard & Metric Alarms\n(Milestone 16)"]
-        CW --> SNS["Amazon SNS Topic Alerts\n(Urgent Spoilage Warning)"]
+    subgraph "Observability & Frontend Hosting"
+        SFN --> CW["Amazon CloudWatch Dashboard\n(ColdRescue-Operations-dev)"]
+        SFN --> XRay["AWS X-Ray Distributed Tracing\n(19 Segments Aggregated)"]
+        Amplify["AWS Amplify Hosting\n(ColdRescue-Frontend-dev)"] --> UI["React 18 Operator Web Application\n(Frame.io / Aceternity Cinema UI)"]
     end
 ```
 
-### AWS CDK Stacks Overview
-1. `ColdRescue-Foundation-dev`: Encrypted S3 audit log bucket (SSL enforced, versioned), CloudWatch application log groups (`/coldrescue/application/dev`), DynamoDB Events Table (`ColdRescue-Events-dev`).
-2. `ColdRescue-Auth-dev`: Cognito User Pool (`ColdRescue-Users-dev`), Web Client, and RBAC User Groups (`OPERATOR`, `APPROVER`, `DRIVER`, `RECEIVER`).
-3. `ColdRescue-Orchestration-dev`: AWS Step Functions state machine with 10 lifecycle stages, Choice branching, Lambda tasks, and API Gateway REST authorizer.
-4. `ColdRescue-EventPipeline-dev`: EventBridge custom bus (`ColdRescue-Bus-dev`), SQS buffer queue with dead-letter queue (DLQ), and idempotent consumer.
-5. `ColdRescue-Simulator-dev`: Amazon ECS cluster and Fargate task definition for continuous, containerized cold-chain telemetry generation.
-6. `ColdRescue-WebSocket-dev`: API Gateway WebSocket API for live UI push and DynamoDB connection tracking table.
-7. `ColdRescue-Monitoring-dev`: Amazon SNS alerts topic, CloudWatch Operations Dashboard, and automated metric alarms.
+### Real vs. Simulated System Boundaries (Strict Disclosure)
+
+| System Component | Execution Status | Operational Reality & Provenance | Evidence Artifact |
+|---|---|---|---|
+| **Truck Temperature Telemetry** | **SYNTHETIC** | Generated via synthetic profile models (NH-44 Krishnagiri corridor, ambient 32–42°C) | [`simulator/engine.py`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/simulator/engine.py) |
+| **AWS IoT Core Ingestion** | **LIVE-DEPLOYED** | Topic Rule `ColdRescue_Telemetry_Rule_dev` matches `coldrescue/telemetry/#` and routes to SQS | [`iot_telemetry_live_evidence.json`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/evidence/monitoring/iot_telemetry_live_evidence.json) |
+| **Amazon SQS & DLQ** | **LIVE-VERIFIED** | Buffer queue and poison message DLQ verified with live redrive attributes | [`event_pipeline_verification.json`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/data/evidence/live/event_pipeline_verification.json) |
+| **Amazon SageMaker AI** | **LIVE-VERIFIED** | Real Serverless Endpoint `coldrescue-thermal-serverless-v1`, 107.8 ms warm latency | [`sagemaker_verification.json`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/data/evidence/live/sagemaker_verification.json) |
+| **Amazon Location Service** | **LIVE-VERIFIED** | Real route calculator on Esri road network (`ColdRescue-RouteCalculator-dev`) | [`location_verification.json`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/data/evidence/live/location_verification.json) |
+| **AWS Step Functions** | **LIVE-VERIFIED** | 10-stage state machine with Choice branching and X-Ray active tracing | [`orchestration_verification.json`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/data/evidence/live/orchestration_verification.json) |
+| **Amazon DynamoDB & Streams** | **LIVE-VERIFIED** | ACID event store with DynamoDB Streams consumer Lambda emitting metrics | [`stream_consumer.py`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/backend/handlers/stream_consumer.py) |
+| **Amazon S3 Glacier IR** | **LIVE-VERIFIED** | 30-day archival lifecycle policy and EventBridge notifications | [`infrastructure/stacks/foundation_stack.py`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/infrastructure/stacks/foundation_stack.py) |
+| **AWS X-Ray Tracing** | **LIVE-VERIFIED** | 19 segments captured across Step Functions, Lambdas, and API Gateway | [`xray_verification.json`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/data/evidence/live/xray_verification.json) |
+| **Amazon CloudWatch** | **LIVE-VERIFIED** | Operations Dashboard `ColdRescue-Operations-dev` displaying live metrics | [`dashboard_verification.json`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/data/evidence/live/dashboard_verification.json) |
+| **Amazon ECS Fargate** | **LIVE-DEPLOYED** | Cluster and service deployed with 0 NAT gateways, default `desiredCount=0` | [`scripts/start_demo.py`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/scripts/start_demo.py) |
+| **AWS Amplify Hosting** | **LIVE-VERIFIED** | Live deployed at `https://dev.d1pwxznhg8jq0u.amplifyapp.com` (HTTP 200 OK) | [`amplify_verification.json`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/data/evidence/live/amplify_verification.json) |
+| **Benchmark Spoilage Lift** | **SIMULATED** | Counterfactual benchmark simulation (+314.3 kg lift on seed 42) across synthetic incidents | [`STRESS_BENCHMARK_REPORT.md`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/data/benchmarks/STRESS_BENCHMARK_REPORT.md) |
+
 
 ---
 
@@ -183,14 +199,31 @@ Role-based access control is enforced via AWS Cognito User Pool groups and FastA
 
 ---
 
+## Live Deployment & 60-Second Demo
+
+- **Live Production URL:** [https://dev.d1pwxznhg8jq0u.amplifyapp.com](https://dev.d1pwxznhg8jq0u.amplifyapp.com)
+- **AWS Region:** `ap-south-1` (Mumbai)
+- **UI Design System:** Frame.io Midnight Cinema theme. Interactive UI animations (Spotlight, Moving Border, Tracing Beam, 3D card tilt) are **Aceternity-inspired, implemented in pure CSS** in `frontend/src/styles/theme.css` without external runtime animation dependencies.
+- **Data Fidelity:** Telemetry is labeled `SYNTHETIC` everywhere. Benchmark lift (+314.3 kg on seed 42) is labeled `SIMULATED BENCHMARK`. If live AWS endpoints are unreachable, the UI transparently runs in `DEMO / REPLAY` mode labeled `"REPLAY of a recorded real run"`.
+
+### 60-Second Judge Walkthrough
+
+1. **0:00–0:10 (Dashboard):** Open [https://dev.d1pwxznhg8jq0u.amplifyapp.com](https://dev.d1pwxznhg8jq0u.amplifyapp.com). Observe active reefer failure `TRUCK-104` with 47 min safe window. Click **"Review recommendation (TRUCK-104)"**.
+2. **0:10–0:25 (Thermal Reconciliation):** View Incident Details. Notice deterministic reconciliation: Newton physics bound (47 min) vs advisory SageMaker surrogate (440 min). The enforced safe window is strictly clamped to `min(physics, ML) = 47 min` (never exceeds the physics bound).
+3. **0:25–0:40 (Allocation Benchmark):** Navigate to **"Greedy vs Global Fleet"**. Observe the multi-seed table across 6 seeds (300 scenarios) and Seed 77 high contention (+475.8 kg lift). Open **"How we modelled this"** in the Impact Calculator.
+4. **0:40–0:55 (AWS Live Trace):** Click **"AWS Live Trace"** in the sidebar. Inspect all 10 AWS services (Core vs Supporting roles, execution durations, ARNs). Toggle **"Data Flow View"** to inspect the pipeline from IoT Core/EventBridge through Step Functions to S3 Glacier.
+5. **0:55–1:00 (Approvals & Handoff):** Navigate to **"Approval Decisions"**. Click **"Approve & Dispatch"** (with moving border). Observe dispatch notification routed to Driver portal and handoff verified in Audit Timeline.
+
+---
+
 ## Local Verification & Test Execution
 
-### 1. Run Complete Python Suite (173 Tests)
+### 1. Run Complete Python Suite (187 Tests)
 ```powershell
-.venv\Scripts\python -m pytest tests/ backend/tests/ -v
+.venv\Scripts\python.exe -m pytest tests/ backend/tests/ -q
 ```
 
-### 2. Run Frontend Vitest Suite (14 Tests)
+### 2. Run Frontend Vitest Suite (17 Tests)
 ```powershell
 cd frontend
 npm test -- --run
@@ -198,50 +231,41 @@ npm test -- --run
 
 ### 3. Run Milestone 18 Stress Benchmark
 ```powershell
-.venv\Scripts\python scripts/run_stress_benchmark.py --count 50 --seed 42
+.venv\Scripts\python.exe scripts/run_stress_benchmark.py --count 50 --seed 42
 ```
 
-### 4. Run Milestone 17 Full Deployment Verification
+### 4. Teardown All Extra Demo Resources (Single Command)
+To immediately scale ECS Fargate to 0 and delete SageMaker endpoints to avoid extra spend:
 ```powershell
-.venv\Scripts\python scripts/verify_deployment_readiness.py
+.venv\Scripts\python.exe scripts/teardown_demo.py
 ```
-
-### 5. Synthesize All AWS CDK Stacks
-```powershell
-$env:PYTHONPATH="."
-npx cdk --app ".venv\Scripts\python.exe infrastructure/app.py" synth
-```
+See [`TEARDOWN.md`](file:///c:/Users/SANJAY%20M.S/OneDrive/Documents/ColdRescue/TEARDOWN.md) for full audit and manual verification instructions.
 
 ---
 
 ## AWS Deployment Instructions
 
-When ready to deploy into AWS account `<AWS_ACCOUNT_ID>` (`ap-south-1`):
+When ready to deploy into AWS account `494110627063` (`ap-south-1`):
 
 ```powershell
 $env:PYTHONPATH="."
-# 1. Foundation Stack (S3, CloudWatch Logs, DynamoDB Table)
+# 1. Foundation Stack (S3, CloudWatch Logs, DynamoDB Table & Streams)
 npx cdk --app ".venv\Scripts\python.exe infrastructure/app.py" deploy ColdRescue-Foundation-dev
 
 # 2. Auth Stack (Cognito User Pool, App Client, RBAC Groups)
 npx cdk --app ".venv\Scripts\python.exe infrastructure/app.py" deploy ColdRescue-Auth-dev
 
-# 3. Step Functions Orchestration Stack (Lambdas, SFN, REST API)
+# 3. Step Functions Orchestration Stack (Lambdas, SFN, REST API, X-Ray)
 npx cdk --app ".venv\Scripts\python.exe infrastructure/app.py" deploy ColdRescue-Orchestration-dev
 
-# 4. Event Pipeline Stack (EventBridge, SQS Buffer, DLQ)
+# 4. Event Pipeline Stack (EventBridge Bus, SQS Buffer, DLQ)
 npx cdk --app ".venv\Scripts\python.exe infrastructure/app.py" deploy ColdRescue-EventPipeline-dev
 
-# 5. Real-Time WebSocket & Observability Stacks
-npx cdk --app ".venv\Scripts\python.exe infrastructure/app.py" deploy ColdRescue-WebSocket-dev
+# 5. Monitoring & Dashboard Stack
 npx cdk --app ".venv\Scripts\python.exe infrastructure/app.py" deploy ColdRescue-Monitoring-dev
-```
 
-### Resource Cleanup
-To tear down all resources and avoid ongoing AWS costs:
-```powershell
-$env:PYTHONPATH="."
-npx cdk --app ".venv\Scripts\python.exe infrastructure/app.py" destroy --all
+# 6. Simulator Stack (ECS Fargate, desiredCount=0)
+npx cdk --app ".venv\Scripts\python.exe infrastructure/app.py" deploy ColdRescue-Simulator-dev
 ```
 
 ---

@@ -153,18 +153,18 @@ export const ReceiverDirectoryView: React.FC<ReceiverDirectoryViewProps> = ({
           const isFeasible = policy ? !policy.is_hard_blocked : r.operational_availability === 'available';
 
           return (
-            <article
-              key={r.receiver_id}
-              className="card"
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'space-between',
-                borderLeft: `4px solid ${
-                  !isFeasible ? 'var(--status-blocked-border)' : 'var(--status-safe-border)'
-                }`,
-              }}
-            >
+            <div key={r.receiver_id} className="card-3d-wrap">
+              <article
+                className="card card-3d"
+                style={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  borderLeft: `4px solid ${
+                    !isFeasible ? 'var(--status-blocked-border)' : 'var(--status-safe-border)'
+                  }`,
+                }}
+              >
               <div>
                 <div className="card-header">
                   <div>
@@ -316,9 +316,10 @@ export const ReceiverDirectoryView: React.FC<ReceiverDirectoryViewProps> = ({
                 )}
               </div>
             </article>
-          );
-        })}
-      </div>
+          </div>
+        );
+      })}
+    </div>
     </div>
   );
 };

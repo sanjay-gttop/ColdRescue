@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { DataSourceMode } from '../../types';
-import { ShieldAlertIcon, RefreshCwIcon, WifiIcon, WifiOffIcon } from '../common/Icons';
+import { RefreshCwIcon, WifiIcon, WifiOffIcon } from '../common/Icons';
 
 interface HeaderProps {
   dataSource: DataSourceMode;
@@ -10,6 +10,8 @@ interface HeaderProps {
   onToggleOffline: () => void;
   onToggleStale: () => void;
   onToggleDataSource: () => void;
+  onToggleReplay?: () => void;
+  isReplayMode?: boolean;
 }
 
 export const Header: React.FC<HeaderProps> = ({
@@ -20,157 +22,246 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleOffline,
   onToggleStale,
   onToggleDataSource,
+  onToggleReplay,
+  isReplayMode = false,
 }) => {
+  const [isSimMenuOpen, setIsSimMenuOpen] = useState(false);
+
   return (
     <header
       style={{
-        backgroundColor: 'var(--bg-secondary)',
-        borderBottom: '1px solid var(--border-strong)',
-        padding: '12px 20px',
+        backgroundColor: 'rgba(7, 9, 14, 0.95)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        borderBottom: '1px solid var(--border-subtle)',
         position: 'sticky',
         top: 0,
         zIndex: 40,
+        height: '56px',
+        display: 'flex',
+        alignItems: 'center',
       }}
     >
       <div
+        className="container"
         style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          flexWrap: 'wrap',
           gap: '12px',
+          padding: '0 20px',
         }}
       >
+        {/* Left: Mobile Title / Skip Link */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-          <div
+          <a
+            href="#main-content-target"
+            className="skip-link"
             style={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: '36px',
-              height: '36px',
-              borderRadius: 'var(--radius-md)',
-              backgroundColor: 'var(--status-critical-bg)',
-              color: 'var(--status-critical)',
-              border: '1px solid var(--status-critical-border)',
+              position: 'absolute',
+              top: '-40px',
+              left: '20px',
+              backgroundColor: '#38bdf8',
+              color: '#07090e',
+              padding: '6px 12px',
+              borderRadius: '4px',
+              fontWeight: 700,
+              fontSize: '0.8rem',
+              zIndex: 100,
+              transition: 'top 0.2s',
             }}
+            onFocus={(e) => (e.currentTarget.style.top = '10px')}
+            onBlur={(e) => (e.currentTarget.style.top = '-40px')}
           >
-            <ShieldAlertIcon size={22} />
-          </div>
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h1 style={{ fontSize: '1.2rem', fontWeight: 800, letterSpacing: '-0.02em', margin: 0 }}>
-                ColdRescue
-              </h1>
-              <span
-                style={{
-                  fontSize: '0.7rem',
-                  padding: '2px 6px',
-                  borderRadius: 'var(--radius-sm)',
-                  backgroundColor: 'var(--bg-elevated)',
-                  border: '1px solid var(--border-strong)',
-                  color: 'var(--accent-cyan)',
-                  fontWeight: 700,
-                }}
-              >
-                M1 PROTOTYPE
-              </span>
-            </div>
-            <p style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Emergency Cold Chain Power Failure Decision Support
-            </p>
+            Skip to content
+          </a>
+
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <span style={{ fontSize: '1.05rem', fontWeight: 800, letterSpacing: '-0.02em', color: '#f8fafc' }}>
+              ColdRescue
+            </span>
+            <span
+              style={{
+                fontSize: '0.65rem',
+                padding: '2px 6px',
+                borderRadius: '4px',
+                backgroundColor: 'rgba(56, 189, 248, 0.1)',
+                border: '1px solid rgba(56, 189, 248, 0.3)',
+                color: '#38bdf8',
+                fontWeight: 700,
+              }}
+            >
+              V7 RESILIENCE
+            </span>
           </div>
         </div>
 
-        {/* Operational Telemetry & Simulation Controls */}
+        {/* Right: Controls & Status */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
-          {/* Explicit Data Source Labeling */}
+          {/* Data Mode Pill */}
           <div
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '6px',
-              padding: '6px 10px',
-              borderRadius: 'var(--radius-md)',
-              backgroundColor: dataSource === 'demo' ? 'rgba(59, 130, 246, 0.15)' : 'rgba(16, 185, 129, 0.15)',
-              border: `1px solid ${dataSource === 'demo' ? 'var(--status-pending-border)' : 'var(--status-safe-border)'}`,
-              fontSize: '0.75rem',
+              padding: '4px 10px',
+              borderRadius: '999px',
+              backgroundColor: isReplayMode ? '#3b0764' : 'rgba(59, 130, 246, 0.12)',
+              border: isReplayMode ? '1px solid #a855f7' : '1px solid var(--border-subtle)',
+              fontSize: '0.74rem',
             }}
           >
             <span
               style={{
-                width: '8px',
-                height: '8px',
+                width: '6px',
+                height: '6px',
                 borderRadius: '50%',
-                backgroundColor: dataSource === 'demo' ? '#60a5fa' : '#34d399',
+                backgroundColor: isReplayMode ? '#d8b4fe' : '#60a5fa',
               }}
             />
-            <span style={{ fontWeight: 600 }}>
-              {dataSource === 'demo' ? 'DATA: LOCAL DEMO (Synthetic Fixtures)' : 'DATA: LIVE AWS (Milestone 2)'}
+            <span style={{ fontWeight: 600, color: isReplayMode ? '#f5d0fe' : 'var(--text-primary)' }}>
+              {isReplayMode ? 'REPLAY (Recorded Real Run)' : `DATA: ${dataSource.toUpperCase()} (SYNTHETIC)`}
             </span>
             <button
               onClick={onToggleDataSource}
               style={{
-                marginLeft: '6px',
-                fontSize: '0.7rem',
+                background: 'none',
+                border: 'none',
+                fontSize: '0.68rem',
+                color: '#38bdf8',
+                cursor: 'pointer',
                 textDecoration: 'underline',
-                color: 'var(--text-secondary)',
+                padding: '0 2px',
               }}
-              title="Toggle DataSource Mode"
+              title="Toggle demo mode"
             >
               Toggle
             </button>
           </div>
 
-          {/* Connection state */}
-          <div
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.75rem',
-              color: isOffline ? 'var(--status-offline)' : 'var(--status-safe)',
-            }}
-          >
-            {isOffline ? <WifiOffIcon size={16} /> : <WifiIcon size={16} />}
-            <span style={{ fontWeight: 600 }}>{isOffline ? 'OFFLINE' : 'ONLINE'}</span>
+          {/* ONLINE Status with Moving Border */}
+          <div className="moving-border-pill">
+            <div className="moving-border-inner" style={{ padding: '3px 10px', fontSize: '0.72rem' }}>
+              <span style={{ width: '6px', height: '6px', borderRadius: '50%', backgroundColor: '#10b981' }} />
+              <span>ONLINE</span>
+            </div>
           </div>
 
-          {/* Simulation Tools for Journeys E & F */}
-          <div style={{ display: 'flex', gap: '6px' }}>
+          {/* Simulation Dropdown Menu */}
+          <div style={{ position: 'relative' }}>
             <button
+              onClick={() => setIsSimMenuOpen(!isSimMenuOpen)}
               className="btn btn-secondary"
-              onClick={onRefresh}
-              title="Refresh telemetry"
-              style={{ minHeight: '34px', padding: '4px 10px', fontSize: '0.75rem' }}
+              style={{ minHeight: '32px', padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
+              aria-expanded={isSimMenuOpen}
+              aria-label="Simulation state menu"
             >
-              <RefreshCwIcon size={14} />
-              Refresh
+              Simulation ▾
             </button>
-            <button
-              className="btn btn-secondary"
-              onClick={onToggleOffline}
-              style={{
-                minHeight: '34px',
-                padding: '4px 8px',
-                fontSize: '0.7rem',
-                borderColor: isOffline ? 'var(--status-critical)' : 'var(--border-strong)',
-              }}
-            >
-              {isOffline ? 'Restore Net' : 'Sim Offline'}
-            </button>
-            <button
-              className="btn btn-secondary"
-              onClick={onToggleStale}
-              style={{
-                minHeight: '34px',
-                padding: '4px 8px',
-                fontSize: '0.7rem',
-                borderColor: isStale ? 'var(--status-warning)' : 'var(--border-strong)',
-              }}
-            >
-              {isStale ? 'Fresh Data' : 'Sim Stale'}
-            </button>
+
+            {isSimMenuOpen && (
+              <div
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  top: '38px',
+                  backgroundColor: '#111827',
+                  border: '1px solid var(--border-strong)',
+                  borderRadius: '8px',
+                  boxShadow: '0 10px 25px rgba(0,0,0,0.6)',
+                  padding: '8px',
+                  minWidth: '180px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                  zIndex: 60,
+                }}
+              >
+                <button
+                  onClick={() => {
+                    onRefresh();
+                    setIsSimMenuOpen(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px',
+                    fontSize: '0.78rem',
+                    color: 'var(--text-primary)',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  <RefreshCwIcon size={14} /> Refresh Telemetry
+                </button>
+
+                <button
+                  onClick={() => {
+                    onToggleOffline();
+                    setIsSimMenuOpen(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px',
+                    fontSize: '0.78rem',
+                    color: isOffline ? '#f43f5e' : 'var(--text-secondary)',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  {isOffline ? <WifiOffIcon size={14} /> : <WifiIcon size={14} />}
+                  {isOffline ? 'Disable Sim Offline' : 'Simulate Offline'}
+                </button>
+
+                <button
+                  onClick={() => {
+                    onToggleStale();
+                    setIsSimMenuOpen(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px',
+                    fontSize: '0.78rem',
+                    color: isStale ? '#f59e0b' : 'var(--text-secondary)',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                  }}
+                >
+                  ⏱️ {isStale ? 'Clear Sim Stale' : 'Simulate Stale Data'}
+                </button>
+
+                {onToggleReplay && (
+                  <button
+                    onClick={() => {
+                      onToggleReplay();
+                      setIsSimMenuOpen(false);
+                    }}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '8px',
+                      fontSize: '0.78rem',
+                      color: isReplayMode ? '#c084fc' : '#a855f7',
+                      borderRadius: '4px',
+                      cursor: 'pointer',
+                      textAlign: 'left',
+                      borderTop: '1px solid var(--border-subtle)',
+                    }}
+                  >
+                    📼 {isReplayMode ? 'Exit Replay Mode' : 'Replay Recorded Run'}
+                  </button>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>

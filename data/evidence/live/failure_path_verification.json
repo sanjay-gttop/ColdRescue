@@ -1,0 +1,32 @@
+{
+  "test_name": "StepFunctions_Failure_And_Policy_Branch_Verification",
+  "forced_failure_test": {
+    "execution_arn": "arn:aws:states:ap-south-1:494110627063:execution:ColdRescue-IncidentRecovery-dev:test-fail-e91dc4",
+    "status": "FAILED",
+    "states_entered": [
+      "TaskIngestAndValidate",
+      "TaskPredictThermalRisk",
+      "TaskRetrieveRoutes",
+      "TaskSolveAllocation",
+      "TaskEvaluateSafetyPolicy",
+      "TaskFinalizeAuditBlocked"
+    ],
+    "sns_alert_published": false,
+    "verified_live": true
+  },
+  "policy_blocked_test": {
+    "execution_arn": "arn:aws:states:ap-south-1:494110627063:execution:ColdRescue-IncidentRecovery-dev:test-block-57061a",
+    "status": "FAILED",
+    "states_entered": [
+      "TaskIngestAndValidate",
+      "TaskPredictThermalRisk",
+      "TaskRetrieveRoutes",
+      "TaskSolveAllocation",
+      "TaskEvaluateSafetyPolicy",
+      "TaskFinalizeAuditBlocked"
+    ],
+    "sns_alert_published": false,
+    "terminal_state": "SafetyPolicyBlockedState",
+    "verified_live": true
+  }
+}

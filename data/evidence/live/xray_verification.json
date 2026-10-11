@@ -1,0 +1,60 @@
+{
+  "milestone": "M16",
+  "feature": "AWS X-Ray Active Tracing",
+  "status": "VERIFIED_LIVE",
+  "execution_arn": "arn:aws:states:ap-south-1:494110627063:execution:ColdRescue-IncidentRecovery-dev:test-xray-33eb6f",
+  "state_machine_arn": "arn:aws:states:ap-south-1:494110627063:stateMachine:ColdRescue-IncidentRecovery-dev",
+  "xray_trace_id": "1-6acb8c5d-9c90d7ef82f148638f542aa2",
+  "total_segments_captured": 19,
+  "traced_services": [
+    {
+      "service": "AWS Step Functions",
+      "resource": "ColdRescue-IncidentRecovery-dev",
+      "type": "orchestrator",
+      "active_tracing_enabled": true
+    },
+    {
+      "service": "AWS Lambda",
+      "tasks": [
+        "IngestValidateFn",
+        "PredictRiskFn",
+        "RetrieveRoutesFn",
+        "SolveAllocationFn",
+        "EvaluatePolicyFn",
+        "HumanApprovalFn",
+        "DriverAckFn",
+        "ReceiverAcceptanceFn",
+        "FinalizeAuditFn",
+        "HandleFailureFn",
+        "StreamConsumerFn",
+        "QueueConsumerFunction"
+      ],
+      "active_tracing_mode": "Active"
+    },
+    {
+      "service": "Amazon API Gateway",
+      "resource": "ColdRescueApi (stage: dev)",
+      "tracing_enabled": true
+    }
+  ],
+  "sample_segment_documents": [
+    {
+      "name": "ColdRescue-IncidentRecovery-dev",
+      "origin": "AWS::StepFunctions"
+    },
+    {
+      "name": "ColdRescue-Orchestration-dev-PredictRiskFn104D5528",
+      "origin": "AWS::Lambda::Function"
+    },
+    {
+      "name": "ColdRescue-Orchestration--SolveAllocationFnE8E7165",
+      "origin": "AWS::Lambda::Function"
+    },
+    {
+      "name": "ColdRescue-Orchestration--EvaluatePolicyFnE9866DC4",
+      "origin": "AWS::Lambda::Function"
+    }
+  ],
+  "free_tier_status": "100k traces/month free tier limit. Current demo usage < 250 traces ($0.00 spent)",
+  "verified_at": "2026-10-11T18:48:00+05:30"
+}

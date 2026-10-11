@@ -95,24 +95,18 @@ class ColdRescueSimulatorStack(Stack):
         )
 
         # 5. Container Definition
+        # 5. Container Definition (Using existing bootstrapped ECR asset image)
+        import aws_cdk.aws_ecr as ecr
+        asset_repo = ecr.Repository.from_repository_name(
+            self,
+            "SimulatorAssetRepo",
+            repository_name=f"cdk-hnb659fds-container-assets-{self.account}-{self.region}",
+        )
         self.container = self.task_definition.add_container(
             "TelemetryEmitterContainer",
-            image=ecs.ContainerImage.from_asset(
-                ".",
-                file="simulator/Dockerfile",
-                exclude=[
-                    ".venv",
-                    "venv",
-                    "frontend",
-                    "node_modules",
-                    ".git",
-                    "cdk.out",
-                    "__pycache__",
-                    "tests",
-                    "docs",
-                    "data",
-                    "infrastructure/layers",
-                ],
+            image=ecs.ContainerImage.from_ecr_repository(
+                asset_repo,
+                tag="c6e0fa57d027c90b5c3d01ff026ecf673a6a55dc3a3b6250c19accdcd7106cb1",
             ),
             logging=ecs.LogDrivers.aws_logs(
                 stream_prefix="telemetry",
@@ -125,6 +119,18 @@ class ColdRescueSimulatorStack(Stack):
             },
         )
 
+        # 6. Fargate Service (Cost-optimized: default desired_count=0, public subnets, assign_public_ip=True)
+        self.service = ecs.FargateService(
+            self,
+            "SimulatorFargateService",
+            service_name=f"ColdRescue-SimulatorService-{environment_name}",
+            cluster=self.cluster,
+            task_definition=self.task_definition,
+            desired_count=0,
+            assign_public_ip=True,
+            vpc_subnets=ec2.SubnetSelection(subnet_type=ec2.SubnetType.PUBLIC),
+        )
+
         # Outputs
         CfnOutput(
             self,
@@ -132,6 +138,13 @@ class ColdRescueSimulatorStack(Stack):
             value=self.cluster.cluster_name,
             description="ECS Cluster Name for ColdRescue Simulator",
             export_name=f"ColdRescue-{environment_name}-ClusterName",
+        )
+        CfnOutput(
+            self,
+            "ServiceNameOutput",
+            value=self.service.service_name,
+            description="ECS Service Name for ColdRescue Simulator",
+            export_name=f"ColdRescue-{environment_name}-ServiceName",
         )
         CfnOutput(
             self,

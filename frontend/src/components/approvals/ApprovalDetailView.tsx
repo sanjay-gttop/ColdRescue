@@ -64,7 +64,13 @@ export const ApprovalDetailView: React.FC<ApprovalDetailViewProps> = ({
       />
 
       {/* Top Banner */}
-      <div className="card" style={{ borderLeft: `6px solid ${isHardBlocked ? 'var(--status-blocked-border)' : 'var(--status-pending-border)'}` }}>
+      <div
+        className="card"
+        style={{
+          border: `1px solid ${isHardBlocked ? 'var(--status-blocked-border)' : 'var(--status-pending-border)'}`,
+          boxShadow: `0 8px 30px rgba(0, 0, 0, 0.5), 0 0 24px -6px ${isHardBlocked ? 'rgba(244, 63, 94, 0.2)' : 'rgba(56, 189, 248, 0.15)'}`,
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
@@ -87,7 +93,7 @@ export const ApprovalDetailView: React.FC<ApprovalDetailViewProps> = ({
             </p>
           </div>
 
-          <div style={{ display: 'flex', gap: '10px' }}>
+          <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
             <button
               className="btn btn-secondary"
               onClick={() => onRequestReassessment(approval.approval_id)}
@@ -102,14 +108,27 @@ export const ApprovalDetailView: React.FC<ApprovalDetailViewProps> = ({
             >
               Reject Proposal
             </button>
-            <button
-              className="btn btn-primary"
-              onClick={() => setShowConfirmApprove(true)}
-              disabled={isDecided || isHardBlocked || isSubmitting}
-              title={isHardBlocked ? 'Cannot approve: Hard safety rules violated' : 'Review and approve dispatch'}
-            >
-              <UserCheckIcon size={16} /> Approve & Dispatch
-            </button>
+            {isHardBlocked ? (
+              <button
+                className="btn btn-primary"
+                disabled={true}
+                title="Cannot approve: Hard safety rules violated"
+                style={{ opacity: 0.5, cursor: 'not-allowed' }}
+              >
+                <UserCheckIcon size={16} /> Approve & Dispatch (Blocked)
+              </button>
+            ) : (
+              <button
+                className="moving-border-btn"
+                onClick={() => setShowConfirmApprove(true)}
+                disabled={isDecided || isSubmitting}
+                title="Review and approve recovery dispatch"
+              >
+                <div className="moving-border-btn-inner">
+                  <UserCheckIcon size={16} /> Approve & Dispatch
+                </div>
+              </button>
+            )}
           </div>
         </div>
 

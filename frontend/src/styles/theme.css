@@ -1,69 +1,89 @@
-/* ColdRescue — Frame.io-Inspired Dark Minimal Cinematic Visual Language */
 :root {
-  /* Frame.io Core Palette: Midnight Navy / Deep Black / Slate Hierarchy */
-  --bg-primary: #07090e;           /* Deepest cinematic canvas */
-  --bg-secondary: #0d121f;         /* Section base */
-  --bg-card: #111827;              /* Elevate 1: Card surface */
-  --bg-card-hover: #162032;        /* Elevate 1 hover */
-  --bg-elevated: #1a253a;          /* Elevate 2: Highlight surfaces / active tabs */
-  --bg-input: #0a0e17;             /* Recessed input background */
+  /* ==========================================================================
+     ColdRescue Design Tokens — Frame.io Midnight Cinema Specification
+     Reference: styles.refero.design/style/30c3aa18-4323-4448-8ddd-3ca933fe5780
+     ========================================================================== */
 
-  /* Text hierarchy: Crisp stark white to muted steel */
-  --text-primary: #f8fafc;         /* Stark high-contrast header/value text */
-  --text-secondary: #94a3b8;       /* Slate body text */
-  --text-muted: #64748b;           /* Metadata / labels */
-  --text-inverse: #020617;
+  /* Surface Hierarchy (Midnight Navy to Near-Black) */
+  --bg-primary: #07090e;              /* Deepest cinematic canvas */
+  --bg-secondary: #0d121f;            /* Section base */
+  --bg-card: #111827;                 /* Elevate 1: Card surface */
+  --bg-card-hover: #162032;           /* Elevate 1 hover */
+  --bg-elevated: #1a253a;             /* Elevate 2: Highlight surfaces & modals */
+  --bg-input: #0a0e17;                /* Recessed input background */
 
-  /* Precision hairline borders & separators */
-  --border-subtle: rgba(148, 163, 184, 0.12); /* Subtle hair border */
-  --border-strong: rgba(148, 163, 184, 0.24); /* Medium boundary border */
-  --border-focus: #38bdf8;                     /* Electric sky focus ring */
+  /* Atmospheric Radial Spotlight Gradients */
+  --glow-spotlight: radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56, 189, 248, 0.12), transparent);
+  --glow-ambient: radial-gradient(circle 600px at 80% 10%, rgba(2, 132, 199, 0.08), transparent);
+  --glow-card-top: radial-gradient(circle at top, rgba(26, 37, 58, 0.7) 0%, rgba(17, 24, 39, 0.95) 100%);
 
-  /* ColdRescue Ice-Cyan & Cobalt Accents */
-  --accent-cyan: #38bdf8;                      /* Vibrant Ice Sky */
-  --accent-cyan-hover: #7dd3fc;
-  --accent-cyan-bg: rgba(56, 189, 248, 0.12);
-  --accent-blue: #0284c7;                      /* Deep Cobalt */
+  /* Text & Contrast Hierarchy (Crisp White to Slate Steel) */
+  --text-primary: #f8fafc;            /* Crisp stark white header/value text */
+  --text-secondary: #94a3b8;          /* Slate body text */
+  --text-muted: #8899ac;              /* Technical micro-labels & metadata */
+  --text-inverse: #020617;            /* Contrast dark on vibrant badges */
+
+  /* Precision Hairline Borders & Dividers */
+  --border-subtle: rgba(148, 163, 184, 0.12); /* 1px hairline border */
+  --border-strong: rgba(148, 163, 184, 0.24); /* Section boundary */
+  --border-focus: #38bdf8;                     /* Electric ice-cyan focus ring */
+  --border-violet: rgba(129, 140, 248, 0.18);  /* Refero subtle violet-blue border */
+  --border-violet-strong: rgba(129, 140, 248, 0.35); /* Focus/highlight boundary */
+  --surface-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.04) 0%, transparent 100%);
+  --glass-surface: rgba(13, 18, 31, 0.85);
+
+  /* ColdRescue Identity: Ice-Cyan & Cobalt Accents */
+  --accent-cyan: #38bdf8;             /* Primary ice-cyan */
+  --accent-cyan-hover: #7dd3fc;       /* Interactive hover state */
+  --accent-cyan-bg: rgba(56, 189, 248, 0.12); /* Subtle chip fill */
+  --accent-cyan-glow: rgba(56, 189, 248, 0.3); /* Spotlight border */
+  --accent-blue: #0284c7;             /* Deep cobalt auxiliary */
   --accent-blue-bg: rgba(2, 132, 199, 0.15);
 
-  /* Status Colors: Reserved strictly for operational states */
-  --status-critical: #f43f5e;
+  /* Operational State Indicators (Strict Semantic Discipline) */
+  --status-critical: #f43f5e;         /* Rose for hard breach / policy block */
   --status-critical-bg: rgba(244, 63, 94, 0.12);
   --status-critical-border: rgba(244, 63, 94, 0.4);
 
-  --status-warning: #fbbf24;
+  --status-warning: #fbbf24;          /* Amber for degraded cooling / stale telemetry */
   --status-warning-bg: rgba(251, 191, 36, 0.12);
   --status-warning-border: rgba(251, 191, 36, 0.35);
 
-  --status-safe: #10b981;
+  --status-safe: #10b981;             /* Emerald for within temperature envelope */
   --status-safe-bg: rgba(16, 185, 129, 0.12);
   --status-safe-border: rgba(16, 185, 129, 0.35);
 
-  --status-blocked: #f43f5e;
+  --status-blocked: #f43f5e;          /* Hard safety policy rejection */
   --status-blocked-bg: rgba(244, 63, 94, 0.14);
   --status-blocked-border: #e11d48;
 
-  --status-pending: #38bdf8;
+  --status-pending: #38bdf8;          /* Dispatch awaiting human approval */
   --status-pending-bg: rgba(56, 189, 248, 0.12);
   --status-pending-border: rgba(56, 189, 248, 0.35);
 
-  --status-unknown: #a855f7;
+  --status-unknown: #a855f7;          /* Missing or unverifiable telemetry */
   --status-unknown-bg: rgba(168, 85, 247, 0.12);
   --status-unknown-border: rgba(168, 85, 247, 0.35);
 
-  --status-stale: #fbbf24;
+  --status-stale: #fbbf24;            /* Stale telemetry warning */
   --status-stale-bg: rgba(251, 191, 36, 0.12);
   --status-stale-border: rgba(251, 191, 36, 0.35);
 
-  --status-offline: #64748b;
+  --status-offline: #64748b;          /* Offline simulation mode */
   --status-offline-bg: rgba(100, 116, 139, 0.15);
   --status-offline-border: rgba(100, 116, 139, 0.3);
 
-  /* Sizing and Spacing */
+  /* Layout, Radii & Spacing Geometry */
   --radius-sm: 6px;
   --radius-md: 10px;
   --radius-lg: 16px;
   --radius-full: 9999px;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
 
   --touch-target: 44px;
 }
@@ -118,14 +138,14 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .container {
   max-width: 1280px;
   margin: 0 auto;
-  padding: 0 20px;
+  padding: 0 24px;
   width: 100%;
 }
 
 /* Technical Uppercase Micro-Labels */
 .micro-label {
   font-size: 0.68rem;
-  font-weight: 700;
+  font-weight: 750;
   text-transform: uppercase;
   letter-spacing: 0.08em;
   color: var(--text-muted);
@@ -133,16 +153,23 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 /* Base Surfaces & Cards */
 .card {
+  position: relative;
   background-color: var(--bg-card);
+  background-image: var(--surface-sheen);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-md);
-  padding: 20px;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.4);
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  padding: 24px;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.45);
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
 }
 
 .card:hover {
-  border-color: var(--border-strong);
+  border-color: var(--border-violet);
+  box-shadow: 0 8px 30px -4px rgba(0, 0, 0, 0.65), 0 0 20px -5px rgba(129, 140, 248, 0.12);
+}
+
+.card-compact {
+  padding: 16px;
 }
 
 .card-spotlight {
@@ -150,6 +177,29 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   overflow: hidden;
   background: radial-gradient(circle at top, rgba(26, 37, 58, 0.7) 0%, rgba(17, 24, 39, 0.95) 100%);
   border: 1px solid rgba(56, 189, 248, 0.2);
+}
+
+/* Operational Data Table Styling */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-strong);
+  padding: 12px 10px;
+}
+
+td {
+  padding: 12px 10px;
+  border-bottom: 1px solid var(--border-subtle);
+  color: var(--text-primary);
+  font-size: 0.88rem;
 }
 
 /* Standard Buttons with Frame.io Pill Styling */
@@ -285,11 +335,217 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   }
 }
 
-/* Reduced motion preference */
+/* Bento Grid & Aceternity Polish Primitives */
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 16px;
+}
+
+.bento-col-4 {
+  grid-column: span 4;
+}
+
+.bento-col-6 {
+  grid-column: span 6;
+}
+
+.bento-col-8 {
+  grid-column: span 8;
+}
+
+.bento-col-12 {
+  grid-column: span 12;
+}
+
+@media (max-width: 1024px) {
+  .bento-col-4,
+  .bento-col-6,
+  .bento-col-8 {
+    grid-column: span 12;
+  }
+}
+
+/* Atmospheric Spotlight Card */
+.spotlight-card {
+  position: relative;
+  background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.08) 0%, rgba(17, 24, 39, 0.95) 70%);
+  border: 1px solid rgba(56, 189, 248, 0.22);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 24px -2px rgba(0, 0, 0, 0.55), 0 0 16px -4px rgba(56, 189, 248, 0.15);
+  transition: all 0.25s ease;
+}
+
+.spotlight-card:hover {
+  border-color: rgba(56, 189, 248, 0.45);
+  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.7), 0 0 24px -4px rgba(56, 189, 248, 0.25);
+  transform: translateY(-1px);
+}
+
+/* Moving Border Pill Accent */
+.moving-border-pill {
+  position: relative;
+  border-radius: var(--radius-full);
+  padding: 1px;
+  background: linear-gradient(90deg, #38bdf8, #818cf8, #34d399, #38bdf8);
+  background-size: 300% 100%;
+  animation: borderRotate 6s linear infinite;
+  display: inline-flex;
+}
+
+@keyframes borderRotate {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.moving-border-inner {
+  background: #07090e;
+  border-radius: var(--radius-full);
+  padding: 6px 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Tracing Beam Timeline Indicator */
+.tracing-beam-step {
+  position: relative;
+  padding-left: 28px;
+}
+
+.tracing-beam-step::before {
+  content: '';
+  position: absolute;
+  left: 9px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, #38bdf8 0%, rgba(56, 189, 248, 0.2) 100%);
+}
+
+.tracing-beam-bullet {
+  position: absolute;
+  left: 4px;
+  top: 14px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #38bdf8;
+  box-shadow: 0 0 10px #38bdf8;
+}
+
+/* 3D Card Effect Primitive (Pure CSS Perspective & Smooth Transform) */
+.card-3d-wrap {
+  perspective: 1000px;
+}
+
+.card-3d {
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.3s ease;
+  transform-style: preserve-3d;
+}
+
+.card-3d:hover {
+  transform: translateY(-4px) rotateX(2deg) rotateY(-2deg);
+  box-shadow: 0 12px 35px -5px rgba(0, 0, 0, 0.7), 0 0 25px -5px rgba(56, 189, 248, 0.2);
+}
+
+/* Moving Border Button */
+.moving-border-btn {
+  position: relative;
+  border-radius: var(--radius-md);
+  padding: 1.5px;
+  background: linear-gradient(90deg, #38bdf8, #818cf8, #34d399, #38bdf8);
+  background-size: 300% 100%;
+  animation: borderRotate 4s linear infinite;
+  display: inline-flex;
+  cursor: pointer;
+  border: none;
+}
+
+.moving-border-btn-inner {
+  background: #07090e;
+  border-radius: calc(var(--radius-md) - 1.5px);
+  padding: 10px 22px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #38bdf8;
+  letter-spacing: -0.01em;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.moving-border-btn:hover .moving-border-btn-inner {
+  background: #0f172a;
+  color: #ffffff;
+}
+
+/* App Shell Flex Layout with Sidebar */
+.app-shell {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar-container {
+  width: 250px;
+  background-color: #090d16;
+  border-right: 1px solid var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  flex-shrink: 0;
+  transition: width 0.2s ease;
+  z-index: 50;
+}
+
+.sidebar-collapsed {
+  width: 72px;
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  .app-shell {
+    flex-direction: column;
+  }
+  .sidebar-container {
+    display: none;
+  }
+}
+
+/* Reduced motion preference: Disables beam, spotlight, moving border, and 3D tilt */
 @media (prefers-reduced-motion: reduce) {
   *, ::before, ::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
+  .card-3d:hover {
+    transform: none !important;
+  }
+  .moving-border-pill,
+  .moving-border-btn {
+    animation: none !important;
+    background: var(--border-strong) !important;
+  }
+  .tracing-beam-step::before {
+    background: var(--border-subtle) !important;
+  }
+  .spotlight-card {
+    background: var(--bg-card) !important;
+    box-shadow: none !important;
+  }
 }
+

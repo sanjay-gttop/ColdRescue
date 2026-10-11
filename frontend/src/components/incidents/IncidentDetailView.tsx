@@ -66,7 +66,13 @@ export const IncidentDetailView: React.FC<IncidentDetailViewProps> = ({
       </div>
 
       {/* Main Incident Banner */}
-      <div className="card" style={{ borderLeft: `6px solid ${incident.severity === 'critical' ? 'var(--status-critical-border)' : 'var(--status-warning-border)'}` }}>
+      <div
+        className="card"
+        style={{
+          border: `1px solid ${incident.severity === 'critical' ? 'var(--status-critical-border)' : 'var(--status-warning-border)'}`,
+          boxShadow: `0 8px 30px rgba(0, 0, 0, 0.5), 0 0 24px -6px ${incident.severity === 'critical' ? 'rgba(244, 63, 94, 0.2)' : 'rgba(251, 191, 36, 0.15)'}`,
+        }}
+      >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
@@ -99,18 +105,22 @@ export const IncidentDetailView: React.FC<IncidentDetailViewProps> = ({
         </div>
       </div>
 
-      {/* HOLD SAFETY POLICY SCREEN / BANNER (When Blocked) */}
+      {/* HOLD SAFETY POLICY SCREEN / BANNER (When Blocked) — Moving Border Pill / Border */}
       {isBlocked && (
-        <div
-          className="card"
-          style={{
-            backgroundColor: 'rgba(239, 68, 68, 0.12)',
-            border: '2px solid var(--status-critical-border)',
-            padding: '16px 20px',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-            <ShieldAlertIcon size={24} className="pulse-icon" style={{ color: 'var(--status-critical)', marginTop: '2px' }} />
+        <div className="moving-border-btn" style={{ width: '100%', cursor: 'default' }}>
+          <div
+            className="moving-border-btn-inner"
+            style={{
+              width: '100%',
+              backgroundColor: 'rgba(239, 68, 68, 0.15)',
+              border: '1px solid var(--status-critical-border)',
+              padding: '16px 20px',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '12px',
+            }}
+          >
+            <ShieldAlertIcon size={24} className="pulse-icon" style={{ color: 'var(--status-critical)', marginTop: '2px', flexShrink: 0 }} />
             <div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <strong style={{ fontSize: '1.05rem', color: '#fca5a5' }}>
@@ -126,19 +136,21 @@ export const IncidentDetailView: React.FC<IncidentDetailViewProps> = ({
         </div>
       )}
 
-      {/* Deterministic Thermal Reconciliation: Physics vs SageMaker Surrogate */}
-      <section className="card" style={{ borderLeft: '6px solid var(--accent-cyan)' }}>
-        <div className="card-header">
-          <div>
-            <h3 style={{ fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <ThermometerIcon size={18} /> Deterministic Thermal Risk Reconciliation
-            </h3>
-            <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
-              Deterministic Precedence Rule: safe_window = min(physics, surrogate). ML inference is purely advisory.
-            </span>
+      {/* Bento Grid: Thermal Reconciliation, Spoilage Countdown, Specifications, and Power */}
+      <div className="bento-grid">
+        {/* Bento Cell 1: Deterministic Thermal Reconciliation (Span 12) */}
+        <section className="bento-col-12 card" style={{ borderLeft: '6px solid var(--accent-cyan)' }}>
+          <div className="card-header">
+            <div>
+              <h3 style={{ fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <ThermometerIcon size={18} /> Deterministic Thermal Risk Reconciliation
+              </h3>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                Deterministic Precedence Rule: safe_window = min(physics, surrogate). ML inference is purely advisory.
+              </span>
+            </div>
+            <AwsContextChip serviceKey="sagemaker" label="SageMaker AI (Advisory)" onClick={() => setSelectedAwsService('sagemaker')} />
           </div>
-          <AwsContextChip serviceKey="sagemaker" label="SageMaker AI (Advisory)" onClick={() => setSelectedAwsService('sagemaker')} />
-        </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginTop: '12px' }}>
           {/* Box 1: Physics Engine */}
@@ -191,17 +203,17 @@ export const IncidentDetailView: React.FC<IncidentDetailViewProps> = ({
         </div>
       </section>
 
-      {/* Thermal & Spoilage Countdown Card */}
-      <CountdownTimer
-        deadlineIso={cargo.spoilage_deadline}
-        estimateSource={cargo.estimate_source}
-        confidence={cargo.estimate_confidence}
-      />
+      {/* Bento Cell 2: Thermal & Spoilage Countdown (Span 12) */}
+      <div className="bento-col-12">
+        <CountdownTimer
+          deadlineIso={cargo.spoilage_deadline}
+          estimateSource={cargo.estimate_source}
+          confidence={cargo.estimate_confidence}
+        />
+      </div>
 
-      {/* Two Column Grid: Cargo Constraints & Power/Cooling State */}
-      <div className="grid-cols-2">
-        {/* Column 1: Cargo Specifications */}
-        <section className="card" aria-label="Cargo Telemetry and Thermal Limits">
+      {/* Bento Cells 3 & 4: Cargo Constraints (Span 6) & Power/Cooling (Span 6) */}
+      <section className="bento-col-6 card" aria-label="Cargo Telemetry and Thermal Limits">
           <div className="card-header">
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ThermometerIcon size={18} /> Cargo Thermal Constraints
@@ -252,8 +264,8 @@ export const IncidentDetailView: React.FC<IncidentDetailViewProps> = ({
           </div>
         </section>
 
-        {/* Column 2: Power, Cooling & Backup Power Status (Requirement 3) */}
-        <section className="card" aria-label="Reefer Power and Cooling Telemetry">
+        {/* Column 2: Power, Cooling & Backup Power Status (Bento Span 6) */}
+        <section className="bento-col-6 card" aria-label="Reefer Power and Cooling Telemetry">
           <div className="card-header">
             <h3 style={{ fontSize: '1.05rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <ZapIcon size={18} /> Electrical & Cooling Plant Status

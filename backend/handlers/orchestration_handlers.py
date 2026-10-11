@@ -15,6 +15,7 @@ Tasks in workflow:
 """
 from __future__ import annotations
 
+import os
 import json
 import uuid
 from datetime import datetime, timezone
@@ -65,8 +66,6 @@ def validate_and_ingest_handler(event: Dict[str, Any], context: Any = None) -> D
 
 def predict_thermal_risk_handler(event: Dict[str, Any], context: Any = None) -> Dict[str, Any]:
     """Lambda task: Evaluate remaining safe cooling time using ThermalMLPredictor with deterministic fallback."""
-    from ml.inference.predict import ThermalMLPredictor
-
     incident = event.get("incident", {})
     cargo = incident.get("cargo", {})
 
@@ -77,6 +76,39 @@ def predict_thermal_risk_handler(event: Dict[str, Any], context: Any = None) -> 
     cooling_status = incident.get("cooling_status", "failed")
     backup_runtime = float(cargo.get("backup_runtime_min", 30.0))
     mass_kg = float(cargo.get("mass_kg", 500.0))
+
+    if os.environ.get("ENABLE_SAGEMAKER_INFERENCE", "false").lower() in ("true", "1", "yes"):
+        from backend.services.thermal_risk import ThermalRiskService
+
+        class _CargoProxy:
+            def __init__(self) -> None:
+                self.cargo_id = cargo.get("cargo_id", "cargo_stepfn")
+                self.cargo_type = cargo_type
+                self.current_temperature_c = current_temp
+                self.safe_temperature_max_c = safe_max
+                self.safe_temperature_min_c = float(cargo.get("safe_temperature_min_c", 0.0))
+                self.backup_runtime_min = backup_runtime
+                self.cargo_kg = mass_kg
+
+        assessment = ThermalRiskService.evaluate_cargo_thermal_risk(
+            cargo=_CargoProxy(),
+            ambient_temperature_c=ambient_temp,
+            cooling_status=cooling_status,
+        )
+        breach_minutes = assessment.estimated_safe_window_min
+        return {
+            "status": "PREDICTED",
+            "predicted_breach_minutes": breach_minutes,
+            "model_version": assessment.model_version,
+            "provenance": assessment.prediction_source,
+            "is_fallback": assessment.is_fallback,
+            "fallback_reason": assessment.fallback_reason,
+            "raw_physics_window_min": assessment.raw_physics_window_min,
+            "raw_surrogate_window_min": assessment.raw_surrogate_window_min,
+            "is_breached": breach_minutes == 0 or assessment.spoilage_breached,
+        }
+
+    from ml.inference.predict import ThermalMLPredictor
 
     predictor = ThermalMLPredictor()
     prediction = predictor.predict(
@@ -93,7 +125,7 @@ def predict_thermal_risk_handler(event: Dict[str, Any], context: Any = None) -> 
     return {
         "status": "PREDICTED",
         "predicted_breach_minutes": breach_minutes,
-        "model_version": prediction.get("model_version", "1.0.0"),
+        "model_version": prediction.get("model_version", "1.0.1"),
         "provenance": prediction.get("provenance", "ml_surrogate_model"),
         "is_fallback": prediction.get("is_fallback", False),
         "is_breached": breach_minutes == 0,
@@ -271,7 +303,28 @@ def evaluate_safety_policy_handler(event: Dict[str, Any], context: Any = None) -
     candidate = event.get("allocation_result", {}).get("candidate_assignment")
     receivers_data = event.get("route_result", {}).get("receivers") or incident_data.get("receivers", [])
 
+    def _record_policy_metric(metric_name: str) -> None:
+        if os.environ.get("AWS_INTEGRATIONS_ENABLED", "false").lower() in ("true", "1", "yes"):
+            try:
+                import boto3
+                cw = boto3.client("cloudwatch", region_name=os.environ.get("AWS_REGION", "ap-south-1"))
+                cw.put_metric_data(
+                    Namespace="ColdRescue/Policy",
+                    MetricData=[
+                        {
+                            "MetricName": metric_name,
+                            "Value": 1.0,
+                            "Unit": "Count",
+                            "Dimensions": [{"Name": "Environment", "Value": os.environ.get("COLDRESCUE_ENV", "dev")}],
+                            "Timestamp": datetime.now(timezone.utc),
+                        }
+                    ],
+                )
+            except Exception:
+                pass
+
     if not candidate:
+        _record_policy_metric("PolicyBlockedCount")
         return {
             "policy_status": "POLICY_BLOCKED",
             "allowed": False,
@@ -282,6 +335,7 @@ def evaluate_safety_policy_handler(event: Dict[str, Any], context: Any = None) -
     target_receiver_id = candidate["receiver_id"]
     recv_dict = next((r for r in receivers_data if r.get("receiver_id") == target_receiver_id), None)
     if not recv_dict:
+        _record_policy_metric("PolicyBlockedCount")
         return {
             "policy_status": "POLICY_BLOCKED",
             "allowed": False,
@@ -333,6 +387,7 @@ def evaluate_safety_policy_handler(event: Dict[str, Any], context: Any = None) -
     )
 
     if assessment.is_hard_blocked:
+        _record_policy_metric("PolicyBlockedCount")
         return {
             "policy_status": "POLICY_BLOCKED",
             "allowed": False,
@@ -340,6 +395,7 @@ def evaluate_safety_policy_handler(event: Dict[str, Any], context: Any = None) -
             "warnings": assessment.warnings,
         }
 
+    _record_policy_metric("PolicyPassedCount")
     return {
         "policy_status": "POLICY_PASSED",
         "allowed": True,

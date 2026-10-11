@@ -9,7 +9,9 @@ import {
   ChevronRightIcon,
   ZapIcon,
   SnowflakeIcon,
+  RefreshCwIcon,
 } from '../common/Icons';
+import { VALIDATION_CONFIG } from '../../config/validation';
 
 interface OperatorDashboardProps {
   incidents: Incident[];
@@ -49,47 +51,42 @@ export const OperatorDashboard: React.FC<OperatorDashboardProps> = ({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Judge & Golden-Path Hero Banner */}
       <section
-        className="card"
+        className="spotlight-card card-spotlight"
         style={{
-          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
-          borderLeft: '6px solid var(--accent-cyan)',
+          border: '1px solid rgba(56, 189, 248, 0.35)',
           padding: '24px 28px',
           borderRadius: 'var(--radius-md)',
-          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+          boxShadow: '0 8px 30px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(56, 189, 248, 0.2)',
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-          <div style={{ maxWidth: '680px' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+          <div style={{ maxWidth: '720px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px', flexWrap: 'wrap' }}>
               <span className="badge badge-success">TRACK 03: WASTE & ENERGY</span>
               <span style={{ fontSize: '0.75rem', color: '#94a3b8', letterSpacing: '0.05em' }}>
-                AWS-POWERED COLD-CHAIN RESILIENCE
+                AWS-POWERED COLD-CHAIN RESILIENCE • NH-44 / NH-544
               </span>
             </div>
-            <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.25, margin: '0 0 10px 0' }}>
-              When cooling fails, ColdRescue refuses unsafe rescues and allocates scarce receivers globally.
+            {/* 5-Second Test Headline */}
+            <h1 style={{ fontSize: '1.65rem', fontWeight: 850, color: '#f8fafc', lineHeight: 1.25, margin: '0 0 8px 0' }}>
+              1 truck at risk, 47 min to spoilage, 1 reroute recommended
             </h1>
-            <p style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+            <p style={{ fontSize: '0.88rem', color: '#cbd5e1', lineHeight: 1.5, margin: '0 0 10px 0' }}>
               Real-time multi-truck emergency triage combining deterministic Newton cooling physics, advisory SageMaker AI serverless surrogate inference, Amazon Location routing, and Kuhn-Munkres global optimization.
             </p>
+            <div style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: 600 }}>
+              Built for: Fleet Logistics Dispatcher • District Health / Dairy Coordinator • Cold-Storage Owner
+            </div>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', minWidth: '240px' }}>
+            {/* Primary CTA with Standard Solid Frame.io Styling (Moving Border reserved exclusively for Approve & Dispatch, POLICY_BLOCKED, ONLINE) */}
             <button
               className="btn btn-primary"
               onClick={() => onSelectIncident('TRUCK-104')}
-              style={{
-                fontSize: '0.95rem',
-                fontWeight: 700,
-                padding: '12px 18px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                boxShadow: '0 4px 12px rgba(6, 182, 212, 0.3)',
-              }}
+              style={{ width: '100%', padding: '10px 18px', fontSize: '0.92rem', fontWeight: 700 }}
             >
-              <ZapIcon size={18} /> Run simulated scenario — TRUCK-104
+              <ZapIcon size={18} /> Review recommendation (TRUCK-104)
             </button>
             <button
               className="btn btn-secondary"
@@ -111,71 +108,97 @@ export const OperatorDashboard: React.FC<OperatorDashboardProps> = ({
             </div>
           </div>
         </div>
+
+        {/* 3-Bullet Quick Guide */}
+        <div
+          style={{
+            marginTop: '16px',
+            paddingTop: '14px',
+            borderTop: '1px solid var(--border-subtle)',
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: '12px',
+            fontSize: '0.78rem',
+            color: '#94a3b8',
+          }}
+        >
+          <div><strong>1. Invariant Precedence:</strong> Safe window is min(Physics, ML Surrogate). ML never overrules physics.</div>
+          <div><strong>2. Global Matching:</strong> Hungarian solver balances regional vaults, avoiding local hub exhaustion.</div>
+          <div><strong>3. Safety Hold:</strong> If power/cooling fails, automatic dispatch locks until human operator clearance.</div>
+        </div>
       </section>
 
-      {/* Top Level Metric Cards */}
+      {/* Top Level Metric Cards with 3D Effect */}
       <section aria-label="Key Operational Indicators" className="grid-cols-4">
         {/* Card 1: Active Incidents */}
-        <div className="card" style={{ borderLeft: '4px solid var(--status-critical-border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>ACTIVE INCIDENTS</span>
-            <ShieldAlertIcon size={18} />
-          </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginTop: '8px' }}>
-            <span style={{ fontSize: '2.2rem', fontWeight: 800 }}>{activeIncidents.length}</span>
-            <span style={{ fontSize: '0.85rem', color: 'var(--status-critical)', fontWeight: 700 }}>
-              {criticalOrHighCount} CRITICAL / HIGH
-            </span>
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Power & cooling disruptions in transit
+        <div className="card-3d-wrap">
+          <div className="card card-3d" style={{ borderLeft: '4px solid var(--status-critical-border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>ACTIVE INCIDENTS</span>
+              <ShieldAlertIcon size={18} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', marginTop: '8px' }}>
+              <span style={{ fontSize: '2.2rem', fontWeight: 800 }}>{activeIncidents.length}</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--status-critical)', fontWeight: 700 }}>
+                {criticalOrHighCount} CRITICAL / HIGH
+              </span>
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+              Power & cooling disruptions in transit
+            </div>
           </div>
         </div>
 
         {/* Card 2: Cargo at Risk */}
-        <div className="card" style={{ borderLeft: '4px solid var(--status-warning-border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>CARGO AT RISK</span>
-            <ThermometerIcon size={18} />
-          </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
-            <span style={{ fontSize: '2.2rem', fontWeight: 800 }}>{totalCargoKgAtRisk.toLocaleString()}</span>
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>KG TOTAL</span>
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-            mRNA, platelets, biologics undergoing heat ingress
+        <div className="card-3d-wrap">
+          <div className="card card-3d" style={{ borderLeft: '4px solid var(--status-warning-border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>CARGO AT RISK</span>
+              <ThermometerIcon size={18} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
+              <span style={{ fontSize: '2.2rem', fontWeight: 800 }}>{totalCargoKgAtRisk.toLocaleString()}</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', fontWeight: 600 }}>KG TOTAL</span>
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+              Perishable dairy & produce undergoing heat ingress
+            </div>
           </div>
         </div>
 
         {/* Card 3: Receiving Vault Availability */}
-        <div className="card" style={{ borderLeft: '4px solid var(--status-safe-border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>RECEIVERS ONLINE</span>
-            <WarehouseIcon size={18} />
-          </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
-            <span style={{ fontSize: '2.2rem', fontWeight: 800 }}>{availableReceiversCount}</span>
-            <span style={{ fontSize: '0.85rem', color: 'var(--status-safe)', fontWeight: 600 }}>
-              / {receivers.length} OPERATIONAL
-            </span>
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-            {totalAvailableCapKg.toLocaleString()} kg total capacity reserve
+        <div className="card-3d-wrap">
+          <div className="card card-3d" style={{ borderLeft: '4px solid var(--status-safe-border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>RECEIVERS ONLINE</span>
+              <WarehouseIcon size={18} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
+              <span style={{ fontSize: '2.2rem', fontWeight: 800 }}>{availableReceiversCount}</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--status-safe)', fontWeight: 600 }}>
+                / {receivers.length} OPERATIONAL
+              </span>
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+              {totalAvailableCapKg.toLocaleString()} kg total capacity reserve
+            </div>
           </div>
         </div>
 
         {/* Card 4: Pending Approvals */}
-        <div className="card" style={{ borderLeft: '4px solid var(--status-pending-border)' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>PENDING APPROVALS</span>
-            <UserCheckIcon size={18} />
-          </div>
-          <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
-            <span style={{ fontSize: '2.2rem', fontWeight: 800 }}>{pendingApprovalsCount}</span>
-            <span style={{ fontSize: '0.85rem', color: 'var(--status-pending)', fontWeight: 600 }}>AWAITING ACTION</span>
-          </div>
-          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Operator review needed for recovery dispatch
+        <div className="card-3d-wrap">
+          <div className="card card-3d" style={{ borderLeft: '4px solid var(--status-pending-border)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '0.8rem', fontWeight: 600, color: 'var(--text-secondary)' }}>PENDING APPROVALS</span>
+              <UserCheckIcon size={18} />
+            </div>
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px', marginTop: '8px' }}>
+              <span style={{ fontSize: '2.2rem', fontWeight: 800 }}>{pendingApprovalsCount}</span>
+              <span style={{ fontSize: '0.85rem', color: 'var(--status-pending)', fontWeight: 600 }}>AWAITING ACTION</span>
+            </div>
+            <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: '4px' }}>
+              Operator review needed for recovery dispatch
+            </div>
           </div>
         </div>
       </section>
@@ -192,7 +215,18 @@ export const OperatorDashboard: React.FC<OperatorDashboardProps> = ({
                   Click an incident row to inspect thermal telemetry and initiate recovery assignment
                 </p>
               </div>
-              <div style={{ display: 'flex', gap: '8px' }}>
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                <button
+                  className="btn btn-secondary"
+                  onClick={() => {
+                    const replayBtn = document.querySelector('button[title="Toggle demo mode"]') as HTMLButtonElement;
+                    if (replayBtn) replayBtn.click();
+                  }}
+                  style={{ fontSize: '0.8rem', padding: '6px 12px', border: '1px solid #a855f7', color: '#d8b4fe' }}
+                  title="Replay recorded run"
+                >
+                  <RefreshCwIcon size={14} /> Replay recorded run
+                </button>
                 {onNavigateToLiveTrace && (
                   <button
                     className="btn btn-primary"
@@ -389,6 +423,25 @@ export const OperatorDashboard: React.FC<OperatorDashboardProps> = ({
                   </div>
                 </div>
               ))}
+            </div>
+          </section>
+
+          {/* Validation & Evidence Bento Tile */}
+          <section className="spotlight-card" aria-label="Operational Validation Tile" style={{ padding: '16px', border: '1px solid rgba(56, 189, 248, 0.25)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <span className="badge badge-cyan" style={{ fontSize: '0.65rem' }}>AUTHORITATIVE VALIDATION</span>
+              <span style={{ fontSize: '0.7rem', color: '#10b981' }}>Pilot Status: {VALIDATION_CONFIG.pilotPlan.status}</span>
+            </div>
+            <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc', marginBottom: '4px' }}>
+              Tamil Nadu Corridor Validation
+            </div>
+            <p style={{ fontSize: '0.75rem', color: '#94a3b8', margin: '0 0 8px 0', lineHeight: 1.4 }}>
+              Planned 6-week operational evaluation on {VALIDATION_CONFIG.pilotPlan.corridor}. Success rule: {VALIDATION_CONFIG.pilotPlan.successCriterion}
+            </p>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '4px', fontSize: '0.72rem', color: '#cbd5e1' }}>
+              <div>• Partner: <em>{VALIDATION_CONFIG.pilotPlan.partner}</em></div>
+              <div>• Pricing: ₹{VALIDATION_CONFIG.pricingAssumptions.effectivePricePerKgEstimate}/kg ({VALIDATION_CONFIG.pricingAssumptions.rationale})</div>
+              <div>• Citation check: {VALIDATION_CONFIG.citations[0].sourceInstitution} ({VALIDATION_CONFIG.citations[0].status})</div>
             </div>
           </section>
         </div>

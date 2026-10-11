@@ -23,49 +23,65 @@ export const ArchitectureOverviewView: React.FC = () => {
       >
         <div style={{ padding: '16px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '6px' }}>
           <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase' }}>1. Telemetry Ingestion</div>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '6px 0 8px 0' }}>AWS IoT Core & EventBridge</h3>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '6px 0 8px 0' }}>EventBridge & SQS Buffer</h3>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
-            Reefer trucks emit MQTT telemetry to IoT topic <code>coldrescue/telemetry/#</code>. An IoT Topic Rule routes messages directly into an SQS buffer with managed encryption, processed by an idempotent consumer Lambda.
+            Synthetic telemetry flows through <code>ColdRescue-Bus-dev</code> with rules routing incidents to encrypted SQS queue <code>ColdRescue-ProcessingQueue-dev</code> and redrive DLQ <code>ColdRescue-DLQ-dev</code>.
           </p>
         </div>
 
         <div style={{ padding: '16px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '6px' }}>
-          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#10b981', textTransform: 'uppercase' }}>2. Thermal & Routing Intelligence</div>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '6px 0 8px 0' }}>S3 ML Artifacts & Amazon Location</h3>
+          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#10b981', textTransform: 'uppercase' }}>2. AI & Thermal Intelligence</div>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '6px 0 8px 0' }}>Amazon SageMaker Serverless</h3>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
-            Linear surrogate ML model archived in Amazon S3 predicts remaining safe preservation windows. Real truck routes (distance & transit time) are calculated via Amazon Location Service RouteCalculator with spherical Haversine fallback.
+            Live serverless endpoint <code>coldrescue-thermal-serverless-v1</code> delivers sub-second surrogate predictions (warm latency: 107.8 ms), strictly clamped by deterministic Newton cooling physics.
           </p>
         </div>
 
         <div style={{ padding: '16px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '6px' }}>
-          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase' }}>3. Coordinated Optimization</div>
+          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#38bdf8', textTransform: 'uppercase' }}>3. Real-World Routing</div>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '6px 0 8px 0' }}>Amazon Location Service</h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
+            Route calculator <code>ColdRescue-RouteCalculator-dev</code> calculates live commercial truck driving distances and transit durations using real Indian highway networks.
+          </p>
+        </div>
+
+        <div style={{ padding: '16px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '6px' }}>
+          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#f59e0b', textTransform: 'uppercase' }}>4. Coordinated Allocation</div>
           <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '6px 0 8px 0' }}>Kuhn-Munkres Exact Solver</h3>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
-            Pure-Python Hungarian linear sum assignment matches fleet incidents to candidate cold hubs. Formally proven to achieve a 0.0% optimality gap against exhaustive brute force with multi-parameter perturbation resilience.
+            Global bipartite matching eliminates greedy local contention. Evaluated across 50-scenario benchmark suites with +314.3 kg simulated lift and 0.0% optimality gap vs brute force.
           </p>
         </div>
 
         <div style={{ padding: '16px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '6px' }}>
-          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ef4444', textTransform: 'uppercase' }}>4. Safety & Policy Authority</div>
+          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ef4444', textTransform: 'uppercase' }}>5. Safety Authority Gate</div>
           <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '6px 0 8px 0' }}>Deterministic 6-Rule Policy</h3>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
-            Non-negotiable hard block gate. Evaluates temperature boundaries, capacity limits, backup runtimes, and transit margins. Machine learning models and optimizers can never override safety blocks.
+            Authoritative gate enforcing temperature boundaries, capacity caps, and transit buffers. Emits <code>PolicyBlockedCount</code> and <code>PolicyPassedCount</code> without triggering false incident alarms.
           </p>
         </div>
 
         <div style={{ padding: '16px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '6px' }}>
-          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#a855f7', textTransform: 'uppercase' }}>5. Orchestration & RBAC</div>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '6px 0 8px 0' }}>Step Functions & Cognito User Pool</h3>
+          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#a855f7', textTransform: 'uppercase' }}>6. Orchestration & RBAC</div>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '6px 0 8px 0' }}>Step Functions & Cognito</h3>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
-            10-stage state machine orchestrating end-to-end recovery. API Gateway secured with Cognito User Pool authorizer (4 roles: Operator, Approver, Driver, Receiver). Separation of duties strictly blocks drivers from approving recoveries.
+            10-stage state machine <code>ColdRescue-IncidentRecovery-dev</code> with X-Ray active tracing, transient error retries, and Cognito User Pool RBAC groups (Operator, Approver, Driver, Receiver).
           </p>
         </div>
 
         <div style={{ padding: '16px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '6px' }}>
-          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ec4899', textTransform: 'uppercase' }}>6. Reliability & Alarms</div>
-          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '6px 0 8px 0' }}>SQS DLQ & CloudWatch Metric Alarms</h3>
+          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#ec4899', textTransform: 'uppercase' }}>7. Storage & Streams</div>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '6px 0 8px 0' }}>DynamoDB Streams & S3 Glacier</h3>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
-            SQS redrive policy automatically routes poison messages to a dedicated Dead-Letter Queue (retention 14 days). CloudWatch Alarm monitors Step Functions execution failures and executes SNS notification actions.
+            Audit trails persist to S3 with 30-day Glacier Instant Retrieval lifecycle and EventBridge notifications. DynamoDB Streams pipe events to a passive consumer emitting <code>EventsPersistedCount</code>.
+          </p>
+        </div>
+
+        <div style={{ padding: '16px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border-subtle)', borderRadius: '6px' }}>
+          <div style={{ fontSize: '0.8rem', fontWeight: 700, color: '#3b82f6', textTransform: 'uppercase' }}>8. Telemetry Simulator</div>
+          <h3 style={{ fontSize: '1.05rem', fontWeight: 600, margin: '6px 0 8px 0' }}>Amazon ECS Fargate</h3>
+          <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', margin: 0, lineHeight: 1.4 }}>
+            Containerized continuous fleet simulator <code>ColdRescue-SimulatorService-dev</code> deployed with public subnets and zero NAT gateways for total cost containment (default desired_count=0).
           </p>
         </div>
       </div>

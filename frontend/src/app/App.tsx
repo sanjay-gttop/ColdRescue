@@ -16,6 +16,7 @@ import {
 } from '../data/mockData';
 import { Header } from '../components/layout/Header';
 import { Navigation, ActiveTab } from '../components/layout/Navigation';
+import { Sidebar } from '../components/layout/Sidebar';
 import { ReliabilityBanner, ErrorState } from '../components/common/ReliabilityView';
 import { OperatorDashboard } from '../components/dashboard/OperatorDashboard';
 import { IncidentDetailView } from '../components/incidents/IncidentDetailView';
@@ -46,6 +47,9 @@ export const App: React.FC = () => {
   const [selectedIncidentId, setSelectedIncidentId] = useState<string>('TRUCK-104');
   const [selectedBlockedReceiverId, setSelectedBlockedReceiverId] = useState<string>('RCV-APEX-03');
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>('ASN-8801');
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(false);
+  const [isReplayMode, setIsReplayMode] = useState<boolean>(false);
+  const [isMlOffline, setIsMlOffline] = useState<boolean>(false);
 
   // Reliability & Simulation State
   const [dataSource, setDataSource] = useState<DataSourceMode>('demo');
@@ -304,30 +308,9 @@ export const App: React.FC = () => {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      {/* Global Header */}
-      <Header
-        dataSource={dataSource}
-        isOffline={isOffline}
-        isStale={isStale}
-        onRefresh={handleRefresh}
-        onToggleOffline={() => {
-          setIsOffline(!isOffline);
-          showToast(!isOffline ? 'Offline Mode Active' : 'Online Mode Restored');
-        }}
-        onToggleStale={() => {
-          setIsStale(!isStale);
-          showToast(!isStale ? 'Telemetry marked stale' : 'Telemetry restored to fresh');
-        }}
-        onToggleDataSource={() => {
-          const next = dataSource === 'demo' ? 'live' : 'demo';
-          setDataSource(next);
-          showToast(`Data source switched to: ${next.toUpperCase()}`);
-        }}
-      />
-
-      {/* Primary Navigation Tabs */}
-      <Navigation
+    <div className="app-shell" style={{ backgroundColor: 'var(--bg-primary)', color: 'var(--text-primary)' }}>
+      {/* Left Collapsible Sidebar */}
+      <Sidebar
         activeTab={activeTab}
         onTabChange={(tab) => {
           setActiveTab(tab);
@@ -335,20 +318,87 @@ export const App: React.FC = () => {
         }}
         pendingApprovalsCount={approvals.filter((a) => a.status === 'pending').length}
         criticalIncidentsCount={incidents.filter((i) => i.severity === 'critical').length}
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
       />
 
-      {/* Golden Path Guided Workflow Stepper */}
-      <GoldenPathStepper
-        activeTab={activeTab}
-        incidentId={selectedIncidentId}
-        onNavigate={(tab) => {
-          setActiveTab(tab);
-          setSimulatedError(null);
-        }}
-      />
+      <div className="main-content">
+        {/* Global Header */}
+        <Header
+          dataSource={dataSource}
+          isOffline={isOffline}
+          isStale={isStale}
+          onRefresh={handleRefresh}
+          onToggleOffline={() => {
+            setIsOffline(!isOffline);
+            showToast(!isOffline ? 'Offline Mode Active' : 'Online Mode Restored');
+          }}
+          onToggleStale={() => {
+            setIsStale(!isStale);
+            showToast(!isStale ? 'Telemetry marked stale' : 'Telemetry restored to fresh');
+          }}
+          onToggleDataSource={() => {
+            const next = dataSource === 'demo' ? 'live' : 'demo';
+            setDataSource(next);
+            showToast(`Data source switched to: ${next.toUpperCase()}`);
+          }}
+          onToggleReplay={() => {
+            setIsReplayMode(!isReplayMode);
+            showToast(!isReplayMode ? 'Replay Mode: Loaded pre-recorded real run' : 'Exited Replay Mode');
+          }}
+          isReplayMode={isReplayMode}
+        />
 
-      {/* Main Content Area */}
-      <main className="container" style={{ flex: 1, padding: '20px 16px' }}>
+        {/* Fallback & ML Offline Alert Banner */}
+        {isMlOffline && (
+          <div
+            style={{
+              backgroundColor: 'rgba(245, 158, 11, 0.15)',
+              borderBottom: '1px solid rgba(245, 158, 11, 0.4)',
+              padding: '8px 24px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              fontSize: '0.82rem',
+              color: '#fef3c7',
+            }}
+          >
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span className="badge badge-warning">FALLBACK ACTIVE</span>
+              <span><strong>ML offline, physics bound in use:</strong> SageMaker surrogate degraded. Deterministic Newton cooling physics safe window enforced without interruption.</span>
+            </div>
+            <button
+              onClick={() => setIsMlOffline(false)}
+              style={{ color: '#fde68a', textDecoration: 'underline', fontSize: '0.75rem' }}
+            >
+              Dismiss
+            </button>
+          </div>
+        )}
+
+        {/* Primary Navigation Tabs */}
+        <Navigation
+          activeTab={activeTab}
+          onTabChange={(tab) => {
+            setActiveTab(tab);
+            setSimulatedError(null);
+          }}
+          pendingApprovalsCount={approvals.filter((a) => a.status === 'pending').length}
+          criticalIncidentsCount={incidents.filter((i) => i.severity === 'critical').length}
+        />
+
+        {/* Golden Path Guided Workflow Stepper */}
+        <GoldenPathStepper
+          activeTab={activeTab}
+          incidentId={selectedIncidentId}
+          onNavigate={(tab) => {
+            setActiveTab(tab);
+            setSimulatedError(null);
+          }}
+        />
+
+        {/* Main Content Area */}
+        <main id="main-content-target" className="container" style={{ flex: 1, padding: '24px' }}>
         {/* Toast Notification */}
         {toastMessage && (
           <div
@@ -521,9 +571,11 @@ export const App: React.FC = () => {
         }}
       >
         <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', flexWrap: 'wrap', marginBottom: '6px' }}>
-          <span>ColdRescue Operations v0.1.0</span>
+          <span>AWS region ap-south-1 (Mumbai)</span>
           <span>•</span>
-          <span>Milestone 1 Frontend Prototype</span>
+          <span>Route: NH-44 Krishnagiri / NH-544 Coimbatore–Salem</span>
+          <span>•</span>
+          <span>ColdRescue V7 Production Console</span>
           <span>•</span>
           <button
             onClick={() => setSimulatedError('Simulated 503 Gateway Timeout: Live AWS Endpoint unreachable.')}
@@ -532,8 +584,9 @@ export const App: React.FC = () => {
             Trigger Sim Error (Journey E)
           </button>
         </div>
-        <div>Designed for zero-compromise emergency cold-chain decision support. All safety bounds strictly enforced.</div>
+        <div>Designed for zero-compromise emergency cold-chain decision support. All safety bounds strictly enforced (never exceeds the physics bound).</div>
       </footer>
+      </div>
     </div>
   );
 };

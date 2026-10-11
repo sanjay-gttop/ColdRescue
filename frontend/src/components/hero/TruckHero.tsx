@@ -162,17 +162,19 @@ export const TruckHero: React.FC<TruckHeroProps> = ({
           </div>
         </div>
 
-        {/* Right Column: Cinematic Refrigerated Truck Showcase with Cool Industrial Lighting */}
-        <div
-          style={{
-            position: 'relative',
-            borderRadius: 'var(--radius-md)',
-            overflow: 'hidden',
-            border: '1px solid rgba(56, 189, 248, 0.22)',
-            backgroundColor: '#0a0e17',
-            boxShadow: '0 12px 30px rgba(0, 0, 0, 0.6)',
-          }}
-        >
+        {/* Right Column: Cinematic Refrigerated Truck Showcase with 3D Tilt Card and Industrial Lighting */}
+        <div className="card-3d-wrap" style={{ width: '100%' }}>
+          <div
+            className="card-3d"
+            style={{
+              position: 'relative',
+              borderRadius: 'var(--radius-md)',
+              overflow: 'hidden',
+              border: '1px solid rgba(56, 189, 248, 0.22)',
+              backgroundColor: '#0a0e17',
+              boxShadow: '0 12px 30px rgba(0, 0, 0, 0.6)',
+            }}
+          >
           {/* Stylized High-Detail SVG Reel: Peterbilt Style Reefer Truck in Cool Industrial Midnight Lighting */}
           <svg
             viewBox="0 0 540 320"
@@ -246,7 +248,7 @@ export const TruckHero: React.FC<TruckHeroProps> = ({
             <text x="110" y="145" fill="#ffffff" fontSize="20" fontWeight="900" letterSpacing="1">
               COLD<tspan fill="#38bdf8">RESCUE</tspan>
             </text>
-            <text x="110" y="165" fill="#64748b" fontSize="9" fontWeight="700" letterSpacing="1.5">
+            <text x="110" y="165" fill="#8899ac" fontSize="9" fontWeight="700" letterSpacing="1.5">
               AUTONOMOUS THERMAL RESILIENCE
             </text>
 
@@ -341,6 +343,7 @@ export const TruckHero: React.FC<TruckHeroProps> = ({
           </div>
         </div>
       </div>
-    </section>
-  );
+    </div>
+  </section>
+);
 };

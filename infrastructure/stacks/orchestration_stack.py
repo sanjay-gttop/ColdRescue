@@ -14,6 +14,7 @@ from aws_cdk import (
     aws_logs as logs,
     aws_apigateway as apigw,
     aws_iam as iam,
+    aws_sns as sns,
 )
 from constructs import Construct
 
@@ -88,6 +89,7 @@ class ColdRescueOrchestrationStack(Stack):
                 layers=layers,
                 timeout=Duration.seconds(timeout_sec),
                 memory_size=memory_mb,
+                tracing=_lambda.Tracing.ACTIVE,
                 environment={
                     "COLDRESCUE_ENV": environment_name,
                     "AWS_INTEGRATIONS_ENABLED": "true",
@@ -125,13 +127,46 @@ class ColdRescueOrchestrationStack(Stack):
             )
         )
 
-        # Retry policy for transient Lambda execution errors
+        # Configure SageMaker Serverless Inference and CloudWatch custom metrics for PredictRiskFn
+        predict_fn.add_environment("ENABLE_SAGEMAKER_INFERENCE", "true")
+        predict_fn.add_environment("COLDRESCUE_SAGEMAKER_ENDPOINT", "coldrescue-thermal-serverless-v1")
+        sagemaker_endpoint_arn = f"arn:aws:sagemaker:{self.region}:{self.account}:endpoint/coldrescue-thermal-serverless-v1"
+        predict_fn.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=["sagemaker:InvokeEndpoint"],
+                resources=[sagemaker_endpoint_arn],
+            )
+        )
+        predict_fn.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=["cloudwatch:PutMetricData"],
+                resources=["*"],
+                conditions={
+                    "StringEquals": {
+                        "cloudwatch:namespace": "ColdRescue/Thermal",
+                    }
+                },
+            )
+        )
+        policy_fn.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=["cloudwatch:PutMetricData"],
+                resources=["*"],
+                conditions={
+                    "StringEquals": {
+                        "cloudwatch:namespace": "ColdRescue/Policy",
+                    }
+                },
+            )
+        )
+
+        # Retry policy for transient Lambda execution errors (exponential backoff)
         lambda_retry_props = {
             "errors": [
-                "Lambda.ClientExecutionTimeoutException",
                 "Lambda.ServiceException",
                 "Lambda.AWSLambdaException",
                 "Lambda.SdkClientException",
+                "Lambda.TooManyRequestsException",
             ],
             "interval": Duration.seconds(2),
             "max_attempts": 3,
@@ -152,6 +187,7 @@ class ColdRescueOrchestrationStack(Stack):
             lambda_function=predict_fn,
             result_path="$.prediction_result",
             payload_response_only=True,
+            task_timeout=sfn.Timeout.duration(Duration.seconds(20)),
         )
         t_predict.add_retry(**lambda_retry_props)
 
@@ -221,12 +257,27 @@ class ColdRescueOrchestrationStack(Stack):
             payload_response_only=True,
         )
 
+        alert_topic = sns.Topic.from_topic_arn(
+            self,
+            "WorkflowAlertTopicImport",
+            f"arn:aws:sns:{self.region}:{self.account}:ColdRescue-Alerts-{environment_name}",
+        )
+
+        t_publish_failure_alert = tasks.SnsPublish(
+            self,
+            "TaskPublishFailureAlert",
+            topic=alert_topic,
+            message=sfn.TaskInput.from_json_path_at("$.workflow_error"),
+            subject=f"ColdRescue Workflow Unhandled Failure Alert ({environment_name})",
+            result_path="$.alert_publish_result",
+        )
+
         workflow_failed = sfn.Fail(
             self, "WorkflowFailedState",
             cause="ColdRescue workflow encountered an unrecoverable error or timeout",
             error="WorkflowExecutionFailed",
         )
-        t_handle_failure.next(workflow_failed)
+        t_handle_failure.next(t_publish_failure_alert).next(workflow_failed)
 
         # Catch all task failures to route to failure handler
         for task_item in [t_ingest, t_predict, t_routes, t_alloc, t_policy, t_approval, t_driver, t_receiver, t_audit_success]:
@@ -295,6 +346,7 @@ class ColdRescueOrchestrationStack(Stack):
             state_machine_name=f"ColdRescue-IncidentRecovery-{environment_name}",
             definition_body=sfn.DefinitionBody.from_chainable(definition),
             timeout=Duration.minutes(10),
+            tracing_enabled=True,
             logs=sfn.LogOptions(
                 destination=log_group,
                 level=sfn.LogLevel.ALL,
@@ -307,7 +359,10 @@ class ColdRescueOrchestrationStack(Stack):
             "ColdRescueApi",
             rest_api_name=f"ColdRescue-API-{environment_name}",
             description="ColdRescue Incident Recovery Orchestration API",
-            deploy_options=apigw.StageOptions(stage_name=environment_name),
+            deploy_options=apigw.StageOptions(
+                stage_name=environment_name,
+                tracing_enabled=True,
+            ),
             default_cors_preflight_options=apigw.CorsOptions(
                 allow_origins=apigw.Cors.ALL_ORIGINS,
                 allow_methods=apigw.Cors.ALL_METHODS,

@@ -141,6 +141,7 @@ class ColdRescueEventPipelineStack(Stack):
             layers=layers,
             timeout=Duration.seconds(30),
             memory_size=256,
+            tracing=_lambda.Tracing.ACTIVE,
             environment={
                 "COLDRESCUE_ENV": environment_name,
                 "AWS_INTEGRATIONS_ENABLED": "true",

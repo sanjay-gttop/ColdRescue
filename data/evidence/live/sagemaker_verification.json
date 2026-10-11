@@ -1,0 +1,90 @@
+{
+  "milestone": "M7",
+  "service": "Amazon SageMaker Serverless Inference",
+  "status": "VERIFIED_LIVE",
+  "endpoint_name": "coldrescue-thermal-serverless-v1",
+  "endpoint_arn": "arn:aws:sagemaker:ap-south-1:494110627063:endpoint/coldrescue-thermal-serverless-v1",
+  "endpoint_config": "coldrescue-thermal-serverless-config-v101",
+  "serverless_config": {
+    "memory_size_in_mb": 1024,
+    "max_concurrency": 5
+  },
+  "container_image": "763104351884.dkr.ecr.ap-south-1.amazonaws.com/pytorch-inference:2.1.0-cpu-py310",
+  "model_artifact": "s3://coldrescue-foundation-dev-auditlogsbucket963995a4-m5yvkigbfg3t/models/thermal-surrogate-v1.0.1/model.tar.gz",
+  "tags": {
+    "project": "coldrescue",
+    "Project": "ColdRescue"
+  },
+  "measured_latencies_ms": {
+    "cold_start_latency_ms": 15837.8,
+    "warm_inference_latency_ms": 107.8,
+    "sub_second_warm_target_met": true
+  },
+  "independent_surrogate_evaluation": {
+    "evaluation_split": "Held-out test split (Seed 999, 250 evaluation profiles)",
+    "mean_absolute_error_minutes": 71.7,
+    "root_mean_squared_error_minutes": 93.49,
+    "unclamped_surrogate_false_safe_rate_pct": 34.8,
+    "safety_reconciliation_principle": "Reconciled prediction never exceeds the physics bound (tau_effective = min(tau_physics, tau_surrogate)). If the ML surrogate is optimistic or unavailable, conservative physics bounds the decision window."
+  },
+  "live_clamped_verification_case": {
+    "input": {
+      "cargo_type": "dairy",
+      "current_temperature_c": 3.0,
+      "safe_temperature_max_c": 8.0,
+      "ambient_temperature_c": 30.0,
+      "backup_runtime_min": 5.0,
+      "cooling_status": "failed"
+    },
+    "raw_surrogate_window_min": 29.0,
+    "raw_physics_window_min": 21.0,
+    "clamped_safe_window_min": 21.0,
+    "clamp_engaged": true,
+    "cloudwatch_metric_emitted": "ThermalSurrogateClampedCount"
+  },
+  "step_functions_live_integration": {
+    "state_machine_arn": "arn:aws:states:ap-south-1:494110627063:stateMachine:ColdRescue-IncidentRecovery-dev",
+    "verified_execution_arn": "arn:aws:states:ap-south-1:494110627063:execution:ColdRescue-IncidentRecovery-dev:test-sagemaker-4cbf76",
+    "step_name": "TaskPredictThermalRisk",
+    "lambda_task": "PredictRiskFn",
+    "step_status": "SUCCEEDED",
+    "live_output": {
+      "status": "PREDICTED",
+      "predicted_breach_minutes": 0.6,
+      "model_version": "1.0.1",
+      "provenance": "sagemaker_serverless",
+      "is_fallback": false,
+      "fallback_reason": null,
+      "raw_physics_window_min": 19.0,
+      "raw_surrogate_window_min": 0.6,
+      "is_breached": false
+    }
+  },
+  "fallback_verification": {
+    "flag": "ENABLE_SAGEMAKER_INFERENCE=false",
+    "tested_behavior": "Cleanly falls back in-process to deterministic physics simulation without external network calls",
+    "verified_source": "physics_fallback",
+    "circuit_breaker": {
+      "connect_timeout_seconds": 3,
+      "read_timeout_seconds": 4,
+      "step_functions_task_timeout_seconds": 10,
+      "behavior_on_timeout": "Immediate fallback to physics simulation with SageMakerFallbackInvocations metric emitted"
+    }
+  },
+  "cloudwatch_metrics": {
+    "namespace": "ColdRescue/Thermal",
+    "metrics_emitted": [
+      "SageMakerEndpointInvocations",
+      "SageMakerInferenceLatencyMs",
+      "SageMakerFallbackInvocations",
+      "ThermalSurrogateClampedCount"
+    ],
+    "dimensions": [
+      {
+        "Name": "Environment",
+        "Value": "dev"
+      }
+    ]
+  },
+  "verified_at": "2026-10-11T18:08:00+05:30"
+}

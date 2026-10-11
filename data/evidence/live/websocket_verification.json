@@ -1,5 +1,5 @@
 {
-  "timestamp": "2026-10-11T08:20:59Z",
+  "timestamp": "2026-10-11T10:17:35Z",
   "aws_region": "ap-south-1",
   "websocket_url": "wss://lijip4qwv5.execute-api.ap-south-1.amazonaws.com/dev",
   "table_name": "ColdRescue-WebSocketConnections-dev",
@@ -7,10 +7,10 @@
   "active_connections_count": 1,
   "sample_connection": {
     "user_id": "operator@coldrescue.io",
-    "ttl_timestamp": 1791793267,
+    "ttl_timestamp": 1791800260,
     "role": "OPERATOR",
-    "connection_id": "gdLxbK81rC5gKEhliA==",
-    "connected_at": "2026-10-11T08:21:07.883281+00:00"
+    "connection_id": "gdMTkW_tEC5gKEhnxA==",
+    "connected_at": "2026-10-11T10:17:40.455666+00:00"
   },
   "message_sent": true,
   "connections_after_disconnect": 0,

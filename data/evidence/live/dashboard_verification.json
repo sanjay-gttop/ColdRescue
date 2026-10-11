@@ -1,0 +1,249 @@
+{
+  "dashboard_name": "ColdRescue-Operations-dev",
+  "verified_at": "2026-10-11T13:34:29.872347+00:00",
+  "widgets": [
+    {
+      "title": "TextWidget",
+      "type": "text",
+      "metrics": []
+    },
+    {
+      "title": "Step Functions Workflow Executions",
+      "type": "metric",
+      "metrics": [
+        {
+          "namespace": "AWS/States",
+          "metric_name": "ExecutionsSucceeded",
+          "stat": "Sum",
+          "dimensions": [
+            {
+              "Name": "StateMachineArn",
+              "Value": "arn:aws:states:ap-south-1:494110627063:stateMachine:ColdRescue-IncidentRecovery-dev"
+            }
+          ],
+          "query_id": "q_0",
+          "sample_datapoint": 1.0,
+          "datapoint_count": 9
+        },
+        {
+          "namespace": "AWS/States",
+          "metric_name": "ExecutionsFailed",
+          "stat": "Sum",
+          "dimensions": [
+            {
+              "Name": "StateMachineArn",
+              "Value": "arn:aws:states:ap-south-1:494110627063:stateMachine:ColdRescue-IncidentRecovery-dev"
+            }
+          ],
+          "query_id": "q_1",
+          "sample_datapoint": 0.0,
+          "datapoint_count": 9
+        },
+        {
+          "namespace": "AWS/States",
+          "metric_name": "ExecutionsAborted",
+          "stat": "Sum",
+          "dimensions": [
+            {
+              "Name": "StateMachineArn",
+              "Value": "arn:aws:states:ap-south-1:494110627063:stateMachine:ColdRescue-IncidentRecovery-dev"
+            }
+          ],
+          "query_id": "q_2",
+          "sample_datapoint": 0.0,
+          "datapoint_count": 9
+        }
+      ]
+    },
+    {
+      "title": "Safety Policy Decisions (Passed vs Hard Blocked)",
+      "type": "metric",
+      "metrics": [
+        {
+          "namespace": "ColdRescue/Policy",
+          "metric_name": "PolicyPassedCount",
+          "stat": "Sum",
+          "dimensions": [
+            {
+              "Name": "Environment",
+              "Value": "dev"
+            }
+          ],
+          "query_id": "q_3",
+          "sample_datapoint": 1.0,
+          "datapoint_count": 1
+        },
+        {
+          "namespace": "ColdRescue/Policy",
+          "metric_name": "PolicyBlockedCount",
+          "stat": "Sum",
+          "dimensions": [
+            {
+              "Name": "Environment",
+              "Value": "dev"
+            }
+          ],
+          "query_id": "q_4",
+          "sample_datapoint": 2.0,
+          "datapoint_count": 1
+        }
+      ]
+    },
+    {
+      "title": "Event Buffer & Dead-Letter Queue Depth",
+      "type": "metric",
+      "metrics": [
+        {
+          "namespace": "AWS/SQS",
+          "metric_name": "ApproximateNumberOfMessagesVisible",
+          "stat": "Maximum",
+          "dimensions": [
+            {
+              "Name": "QueueName",
+              "Value": "ColdRescue-ProcessingQueue-dev"
+            }
+          ],
+          "query_id": "q_5",
+          "sample_datapoint": 0.0,
+          "datapoint_count": 60
+        },
+        {
+          "namespace": "AWS/SQS",
+          "metric_name": "ApproximateNumberOfMessagesVisible",
+          "stat": "Maximum",
+          "dimensions": [
+            {
+              "Name": "QueueName",
+              "Value": "ColdRescue-DLQ-dev"
+            }
+          ],
+          "query_id": "q_6",
+          "sample_datapoint": 8.0,
+          "datapoint_count": 60
+        },
+        {
+          "namespace": "AWS/SQS",
+          "metric_name": "ApproximateNumberOfMessagesVisible",
+          "stat": "Maximum",
+          "dimensions": [
+            {
+              "Name": "QueueName",
+              "Value": "ColdRescue-Stream-DLQ-dev"
+            }
+          ],
+          "query_id": "q_7",
+          "sample_datapoint": 0.0,
+          "datapoint_count": 25
+        }
+      ]
+    },
+    {
+      "title": "SageMaker Inference Latency (ms)",
+      "type": "metric",
+      "metrics": [
+        {
+          "namespace": "ColdRescue/Thermal",
+          "metric_name": "SageMakerInferenceLatencyMs",
+          "stat": "Sum",
+          "dimensions": [
+            {
+              "Name": "Environment",
+              "Value": "dev"
+            }
+          ],
+          "query_id": "q_8",
+          "sample_datapoint": 219.12304199997834,
+          "datapoint_count": 6
+        },
+        {
+          "namespace": "ColdRescue/Thermal",
+          "metric_name": "SageMakerInferenceLatencyMs",
+          "stat": "p95",
+          "dimensions": [
+            {
+              "Name": "Environment",
+              "Value": "dev"
+            }
+          ],
+          "query_id": "q_9",
+          "sample_datapoint": 219.12304199997834,
+          "datapoint_count": 6
+        }
+      ]
+    },
+    {
+      "title": "SageMaker Invocations vs Fallback",
+      "type": "metric",
+      "metrics": [
+        {
+          "namespace": "ColdRescue/Thermal",
+          "metric_name": "SageMakerEndpointInvocations",
+          "stat": "Sum",
+          "dimensions": [
+            {
+              "Name": "Environment",
+              "Value": "dev"
+            }
+          ],
+          "query_id": "q_10",
+          "sample_datapoint": 1.0,
+          "datapoint_count": 6
+        },
+        {
+          "namespace": "ColdRescue/Thermal",
+          "metric_name": "SageMakerFallbackInvocations",
+          "stat": "Sum",
+          "dimensions": [
+            {
+              "Name": "Environment",
+              "Value": "dev"
+            }
+          ],
+          "query_id": "q_11",
+          "sample_datapoint": 2.0,
+          "datapoint_count": 3
+        }
+      ]
+    },
+    {
+      "title": "Thermal Surrogate Clamping Count",
+      "type": "metric",
+      "metrics": [
+        {
+          "namespace": "ColdRescue/Thermal",
+          "metric_name": "ThermalSurrogateClampedCount",
+          "stat": "Sum",
+          "dimensions": [
+            {
+              "Name": "Environment",
+              "Value": "dev"
+            }
+          ],
+          "query_id": "q_12",
+          "sample_datapoint": 1.0,
+          "datapoint_count": 2
+        }
+      ]
+    },
+    {
+      "title": "DynamoDB Stream Events Persisted",
+      "type": "metric",
+      "metrics": [
+        {
+          "namespace": "ColdRescue/Events",
+          "metric_name": "EventsPersistedCount",
+          "stat": "Sum",
+          "dimensions": [
+            {
+              "Name": "Environment",
+              "Value": "dev"
+            }
+          ],
+          "query_id": "q_13",
+          "sample_datapoint": 2.0,
+          "datapoint_count": 5
+        }
+      ]
+    }
+  ]
+}

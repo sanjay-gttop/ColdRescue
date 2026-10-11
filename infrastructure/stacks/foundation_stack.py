@@ -23,6 +23,11 @@ from aws_cdk import (
     aws_logs as logs,
     aws_s3 as s3,
     aws_dynamodb as dynamodb,
+    aws_lambda as _lambda,
+    aws_lambda_event_sources as lambda_sources,
+    aws_lambda_destinations as lambda_destinations,
+    aws_sqs as sqs,
+    aws_iam as iam,
 )
 from constructs import Construct
 
@@ -53,6 +58,8 @@ class ColdRescueFoundationStack(Stack):
             enforce_ssl=True,
             versioned=True,
 
+            event_bridge_enabled=True,
+
             # Preserve audit data if the CloudFormation stack is deleted.
             # No automatic deletion of bucket objects is configured.
             removal_policy=RemovalPolicy.RETAIN,
@@ -64,8 +71,8 @@ class ColdRescueFoundationStack(Stack):
                     noncurrent_version_expiration=Duration.days(90),
                     transitions=[
                         s3.Transition(
-                            storage_class=s3.StorageClass.INFREQUENT_ACCESS,
-                            transition_after=Duration.days(60),
+                            storage_class=s3.StorageClass.GLACIER_INSTANT_RETRIEVAL,
+                            transition_after=Duration.days(30),
                         )
                     ],
                 )
@@ -98,6 +105,7 @@ class ColdRescueFoundationStack(Stack):
                 name="sequence_number",
                 type=dynamodb.AttributeType.NUMBER,
             ),
+            stream=dynamodb.StreamViewType.NEW_IMAGE,
             billing_mode=dynamodb.BillingMode.PAY_PER_REQUEST,
             point_in_time_recovery=True,
             removal_policy=(
@@ -115,6 +123,86 @@ class ColdRescueFoundationStack(Stack):
                 type=dynamodb.AttributeType.STRING,
             ),
             projection_type=dynamodb.ProjectionType.ALL,
+        )
+
+        # ── 4. DynamoDB Streams Read-Only Observability Consumer ──────────────
+        self.stream_dlq = sqs.Queue(
+            self,
+            "StreamConsumerDLQ",
+            queue_name=f"ColdRescue-Stream-DLQ-{environment_name}",
+            retention_period=Duration.days(14),
+            encryption=sqs.QueueEncryption.SQS_MANAGED,
+            removal_policy=RemovalPolicy.DESTROY if not is_production else RemovalPolicy.RETAIN,
+        )
+
+        lambda_code = _lambda.Code.from_asset(
+            ".",
+            exclude=[
+                ".venv",
+                ".venv/**",
+                "venv",
+                "venv/**",
+                "frontend",
+                "frontend/**",
+                "node_modules",
+                "node_modules/**",
+                ".git",
+                ".git/**",
+                "cdk.out",
+                "cdk.out/**",
+                "__pycache__",
+                "**/__pycache__",
+                "**/*.pyc",
+                ".pytest_cache",
+                "**/.pytest_cache/**",
+                "tests",
+                "tests/**",
+                "docs",
+                "docs/**",
+                "data",
+                "data/**",
+                "infrastructure/layers",
+                "infrastructure/layers/**",
+            ],
+        )
+
+        self.stream_consumer = _lambda.Function(
+            self,
+            "StreamConsumerFn",
+            function_name=f"ColdRescue-StreamConsumer-{environment_name}",
+            runtime=_lambda.Runtime.PYTHON_3_12,
+            handler="backend.handlers.stream_consumer.dynamodb_stream_consumer_handler",
+            code=lambda_code,
+            timeout=Duration.seconds(30),
+            memory_size=256,
+            tracing=_lambda.Tracing.ACTIVE,
+            environment={
+                "COLDRESCUE_ENV": environment_name,
+                "AWS_INTEGRATIONS_ENABLED": "true",
+            },
+        )
+
+        self.stream_consumer.add_to_role_policy(
+            iam.PolicyStatement(
+                actions=["cloudwatch:PutMetricData"],
+                resources=["*"],
+                conditions={
+                    "StringEquals": {
+                        "cloudwatch:namespace": "ColdRescue/Events",
+                    }
+                },
+            )
+        )
+
+        self.stream_consumer.add_event_source(
+            lambda_sources.DynamoEventSource(
+                self.events_table,
+                starting_position=_lambda.StartingPosition.LATEST,
+                batch_size=10,
+                bisect_batch_on_error=True,
+                retry_attempts=3,
+                on_failure=lambda_destinations.SqsDestination(self.stream_dlq),
+            )
         )
 
         # ── 3. CloudFormation Outputs ────────────────────────────────────────

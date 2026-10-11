@@ -2,10 +2,10 @@
   "api_url": "https://l4bpu3mf2f.execute-api.ap-south-1.amazonaws.com/dev/incidents/recover",
   "unauthenticated_status_code": 401,
   "state_machine_arn": "arn:aws:states:ap-south-1:494110627063:stateMachine:ColdRescue-IncidentRecovery-dev",
-  "execution_arn": "arn:aws:states:ap-south-1:494110627063:execution:ColdRescue-IncidentRecovery-dev:TRUCK-104-LIVE-1791706762",
+  "execution_arn": "arn:aws:states:ap-south-1:494110627063:execution:ColdRescue-IncidentRecovery-dev:TRUCK-104-LIVE-1791713822",
   "execution_status": "RUNNING",
-  "startDate": "2026-10-11T13:49:23.568000+05:30",
-  "stopDate": "2026-10-11T13:49:23.568000+05:30",
+  "startDate": "2026-10-11T15:47:03.737000+05:30",
+  "stopDate": "2026-10-11T15:47:03.737000+05:30",
   "output": {},
   "events_count": 48
 }

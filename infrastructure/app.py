@@ -118,7 +118,7 @@ def main() -> None:
         (monitoring_stack, "M16"),
     ]
     for s, m in all_stacks:
-        Tags.of(s).add("Project", "ColdRescue")
+        Tags.of(s).add("project", "coldrescue")
         Tags.of(s).add("Environment", env_name)
         Tags.of(s).add("ManagedBy", "AWS-CDK")
         Tags.of(s).add("Milestone", m)

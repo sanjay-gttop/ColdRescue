@@ -46,7 +46,9 @@ export const Navigation: React.FC<NavigationProps> = ({
     <nav
       aria-label="Operations Navigation"
       style={{
-        backgroundColor: 'var(--bg-card)',
+        backgroundColor: 'rgba(11, 15, 25, 0.92)',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
         borderBottom: '1px solid var(--border-subtle)',
         overflowX: 'auto',
         whiteSpace: 'nowrap',
@@ -56,8 +58,8 @@ export const Navigation: React.FC<NavigationProps> = ({
         className="container"
         style={{
           display: 'flex',
-          gap: '4px',
-          padding: '6px 16px',
+          gap: '6px',
+          padding: '8px 24px',
         }}
       >
         {tabs.map((tab) => {
@@ -68,17 +70,20 @@ export const Navigation: React.FC<NavigationProps> = ({
               onClick={() => onTabChange(tab.id)}
               className="btn"
               style={{
-                minHeight: '38px',
-                padding: '6px 12px',
-                fontSize: '0.85rem',
+                minHeight: '36px',
+                padding: '6px 14px',
+                fontSize: '0.84rem',
                 borderRadius: 'var(--radius-sm)',
                 backgroundColor: isActive ? 'var(--bg-elevated)' : 'transparent',
-                color: isActive ? 'var(--accent-cyan)' : 'var(--text-secondary)',
+                color: isActive ? '#ffffff' : 'var(--text-secondary)',
+                border: isActive ? '1px solid var(--border-violet)' : '1px solid transparent',
                 borderBottom: isActive ? '2px solid var(--accent-cyan)' : '2px solid transparent',
+                boxShadow: isActive ? '0 0 16px -2px rgba(56, 189, 248, 0.2)' : 'none',
                 fontWeight: isActive ? 700 : 500,
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '8px',
+                transition: 'all 0.15s ease',
               }}
               aria-current={isActive ? 'page' : undefined}
             >

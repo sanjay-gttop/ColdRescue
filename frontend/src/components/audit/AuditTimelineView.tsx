@@ -103,7 +103,7 @@ export const AuditTimelineView: React.FC<AuditTimelineViewProps> = ({ events }) 
         </div>
       </section>
 
-      {/* Timeline Stream */}
+      {/* Timeline Stream with Tracing Beam & 3D Tilt Cards */}
       <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
         {filteredEvents.map((ev) => {
           const outcomeColor =
@@ -114,17 +114,18 @@ export const AuditTimelineView: React.FC<AuditTimelineViewProps> = ({ events }) 
               : 'var(--status-critical-border)';
 
           return (
-            <div
-              key={ev.event_id}
-              className="card"
-              style={{
-                borderLeft: `4px solid ${outcomeColor}`,
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '8px',
-                padding: '14px 18px',
-              }}
-            >
+            <div key={ev.event_id} className="card-3d-wrap">
+              <div
+                className="card card-3d tracing-beam-step"
+                style={{
+                  borderLeft: `4px solid ${outcomeColor}`,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '8px',
+                  padding: '14px 18px',
+                }}
+              >
+                <div className="tracing-beam-bullet" style={{ backgroundColor: outcomeColor, boxShadow: `0 0 10px ${outcomeColor}` }} />
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ fontSize: '0.75rem', fontFamily: 'monospace', color: 'var(--text-muted)' }}>
@@ -196,8 +197,9 @@ export const AuditTimelineView: React.FC<AuditTimelineViewProps> = ({ events }) 
                 </div>
               </div>
             </div>
-          );
-        })}
+          </div>
+        );
+      })}
       </div>
     </div>
   );

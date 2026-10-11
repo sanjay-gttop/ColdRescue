@@ -20,42 +20,42 @@ describe('UI Component and Journey Tests', () => {
 
   it('renders full App and allows navigating across main tabs', () => {
     render(<App />);
-    expect(screen.getByText('ColdRescue')).toBeDefined();
+    expect(screen.getAllByText('ColdRescue').length).toBeGreaterThan(0);
     expect(screen.getByText('Active Incident Queue')).toBeDefined();
 
     // Navigate to Receivers
-    const receiversTab = screen.getByRole('button', { name: /Receiver Directory/i });
+    const receiversTab = screen.getAllByRole('button', { name: /Receiver Directory/i })[0];
     fireEvent.click(receiversTab);
     expect(screen.getByText('St. Jude Regional Cold Vault')).toBeDefined();
 
     // Navigate to Allocation Comparison
-    const allocationTab = screen.getByRole('button', { name: /Greedy vs Global Allocation/i });
+    const allocationTab = screen.getAllByRole('button', { name: /Greedy vs Global Allocation|Greedy vs Global Fleet/i })[0];
     fireEvent.click(allocationTab);
     expect(screen.getByText('Greedy Strategy')).toBeDefined();
     expect(screen.getByText('Global Strategy')).toBeDefined();
 
     // Navigate to Approvals
-    const approvalsTab = screen.getByRole('button', { name: /Approval Decisions/i });
+    const approvalsTab = screen.getAllByRole('button', { name: /Approval Decisions/i })[0];
     fireEvent.click(approvalsTab);
     expect(screen.getByText(/Recovery Dispatch Review/i)).toBeDefined();
 
     // Navigate to Driver Portal
-    const driverTab = screen.getByRole('button', { name: /Driver Mobile Portal/i });
+    const driverTab = screen.getAllByRole('button', { name: /Driver Mobile Portal/i })[0];
     fireEvent.click(driverTab);
     expect(screen.getByText('Driver Dispatch Order')).toBeDefined();
 
     // Navigate to Receiver Portal
-    const receiverPortalTab = screen.getByRole('button', { name: /Receiver Intake Portal/i });
+    const receiverPortalTab = screen.getAllByRole('button', { name: /Receiver Intake Portal/i })[0];
     fireEvent.click(receiverPortalTab);
     expect(screen.getByText(/RECEIVING VAULT INTAKE/i)).toBeDefined();
 
     // Navigate to Audit
-    const auditTab = screen.getByRole('button', { name: /Audit Timeline/i });
+    const auditTab = screen.getAllByRole('button', { name: /Audit Timeline/i })[0];
     fireEvent.click(auditTab);
     expect(screen.getByText('Chronological Operational Audit Trail')).toBeDefined();
 
     // Navigate to Action Matrix
-    const matrixTab = screen.getByRole('button', { name: /Action Contracts Matrix/i });
+    const matrixTab = screen.getAllByRole('button', { name: /Action Contracts Matrix/i })[0];
     fireEvent.click(matrixTab);
     expect(screen.getByText('Consequential Action Contracts Matrix')).toBeDefined();
   });
@@ -63,7 +63,7 @@ describe('UI Component and Journey Tests', () => {
   it('verifies Journey B: Driver acknowledges assignment and updates delivery state', () => {
     render(<App />);
     // Navigate to Driver Portal
-    fireEvent.click(screen.getByRole('button', { name: /Driver Mobile Portal/i }));
+    fireEvent.click(screen.getAllByRole('button', { name: /Driver Mobile Portal/i })[0]);
 
     // If button "Acknowledge & Accept Assignment" is present, click it
     const ackBtn = screen.queryByRole('button', { name: /Acknowledge & Accept Assignment/i });
@@ -98,4 +98,61 @@ describe('UI Component and Journey Tests', () => {
     expect(screen.getByRole('button', { name: /Explore the workflow/i })).toBeDefined();
     expect(screen.getByText(/Surrogate Thermal Risk Engine/i)).toBeDefined();
   });
+
+  it('renders Interactive Cold-Chain Impact Calculator with verified citations', () => {
+    render(<App />);
+    // Navigate to Allocation Comparison
+    fireEvent.click(screen.getAllByRole('button', { name: /Greedy vs Global Allocation|Greedy vs Global Fleet/i })[0]);
+    expect(screen.getByText(/National Cold-Chain Spoilage & Carbon Mitigation Calculator/i)).toBeDefined();
+    expect(screen.getByText(/300 Multi-Seed Scenarios/i)).toBeDefined();
+    expect(screen.getAllByText(/-1,206\.2 kg \(-1\.61%\)/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/182\.3 kg CO₂e/i)).toBeDefined();
+    expect(screen.getByText(/16–22% Post-Harvest Loss Baseline \(NCCD\)/i)).toBeDefined();
+  });
+
+  it('renders AWS Live Trace view with end-to-end 10-service telemetry mapping and data flow view', () => {
+    render(<App />);
+    // Navigate to Live Trace
+    fireEvent.click(screen.getAllByRole('button', { name: /AWS Live Trace/i })[0]);
+    expect(screen.getByText('AWS Live Trace & System Health')).toBeDefined();
+    expect(screen.getByText('ap-south-1 (Mumbai)')).toBeDefined();
+    expect(screen.getAllByText(/ColdRescue-IncidentRecovery-dev/i).length).toBeGreaterThan(0);
+    expect(screen.getByText(/Surrogate Thermal Risk Prediction/i)).toBeDefined();
+    expect(screen.getByText(/AWS X-Ray Distributed Trace Aggregation/i)).toBeDefined();
+    expect(screen.getByText(/Durable Audit Record & DynamoDB Streams/i)).toBeDefined();
+
+    // Toggle Data Flow View
+    const dataFlowBtn = screen.getByRole('button', { name: /Data Flow View/i });
+    fireEvent.click(dataFlowBtn);
+    expect(screen.getByText(/Data Flow Pipeline: Telemetry Ingestion/i)).toBeDefined();
+  });
+
+  it('verifies Fix 2.5: Replay button is explicitly labeled REPLAY of a recorded real run', () => {
+    render(<App />);
+    const replayButtons = screen.getAllByRole('button', { name: /Replay recorded run/i });
+    expect(replayButtons.length).toBeGreaterThan(0);
+  });
+
+  it('verifies nav reachability for all primary views without dead ends', () => {
+    render(<App />);
+    const views = [
+      'Operator Dashboard',
+      'Incident & Cargo Details',
+      'Receiver Directory',
+      'Greedy vs Global Fleet',
+      'Approval Decisions',
+      'Driver Mobile Portal',
+      'Receiver Intake Portal',
+      'AWS Live Trace',
+      'AWS Cloud Architecture',
+      'Audit Timeline',
+      'Action Contracts Matrix',
+    ];
+    views.forEach((v) => {
+      const btn = screen.getAllByRole('button', { name: new RegExp(v, 'i') })[0];
+      expect(btn).toBeDefined();
+      fireEvent.click(btn);
+    });
+  });
 });
+

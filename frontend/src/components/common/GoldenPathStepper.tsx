@@ -116,8 +116,9 @@ export const GoldenPathStepper: React.FC<GoldenPathStepperProps> = ({
           </span>
         </div>
 
-        {/* Stepper Nodes */}
+        {/* Stepper Nodes with Tracing Beam Connected Path */}
         <div
+          className="tracing-beam-stepper-wrap"
           style={{
             display: 'flex',
             alignItems: 'center',
