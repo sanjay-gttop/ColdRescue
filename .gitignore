@@ -50,3 +50,6 @@ cdk.out/
 .cdk.staging/
 cdk.context.json
 infrastructure/layers/
+
+/frontend/amplify-dist-preflight.zip
+/frontend/amplify-dist-release-candidate.zip
