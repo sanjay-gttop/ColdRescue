@@ -4,7 +4,7 @@ import { Incident, Receiver } from '../types';
 import { INITIAL_INCIDENTS, INITIAL_RECEIVERS } from '../data/mockData';
 
 describe('ColdChain Policy Engine', () => {
-  const baseIncident: Incident = INITIAL_INCIDENTS[0]; // mRNA Vaccines, 2400kg, -80 to -60C
+  const baseIncident: Incident = INITIAL_INCIDENTS.find((i) => i.incident_id === 'INC-2026-081') || INITIAL_INCIDENTS[0]; // mRNA Vaccines, 2400kg, -80 to -60C
   const validReceiver: Receiver = INITIAL_RECEIVERS[0]; // St Jude, 8500kg avail, -85 to 10C, active cooling
 
   it('passes all critical safety checks when receiver is compatible and has sufficient capacity', () => {

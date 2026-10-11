@@ -47,6 +47,72 @@ export const OperatorDashboard: React.FC<OperatorDashboardProps> = ({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      {/* Judge & Golden-Path Hero Banner */}
+      <section
+        className="card"
+        style={{
+          background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+          borderLeft: '6px solid var(--accent-cyan)',
+          padding: '24px 28px',
+          borderRadius: 'var(--radius-md)',
+          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+        }}
+      >
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
+          <div style={{ maxWidth: '680px' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '8px' }}>
+              <span className="badge badge-success">TRACK 03: WASTE & ENERGY</span>
+              <span style={{ fontSize: '0.75rem', color: '#94a3b8', letterSpacing: '0.05em' }}>
+                AWS-POWERED COLD-CHAIN RESILIENCE
+              </span>
+            </div>
+            <h1 style={{ fontSize: '1.6rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.25, margin: '0 0 10px 0' }}>
+              When cooling fails, ColdRescue refuses unsafe rescues and allocates scarce receivers globally.
+            </h1>
+            <p style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.5, margin: 0 }}>
+              Real-time multi-truck emergency triage combining deterministic Newton cooling physics, advisory SageMaker AI serverless surrogate inference, Amazon Location routing, and Kuhn-Munkres global optimization.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px', minWidth: '240px' }}>
+            <button
+              className="btn btn-primary"
+              onClick={() => onSelectIncident('TRUCK-104')}
+              style={{
+                fontSize: '0.95rem',
+                fontWeight: 700,
+                padding: '12px 18px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                boxShadow: '0 4px 12px rgba(6, 182, 212, 0.3)',
+              }}
+            >
+              <ZapIcon size={18} /> Run simulated scenario — TRUCK-104
+            </button>
+            <button
+              className="btn btn-secondary"
+              onClick={onNavigateToLiveTrace || onNavigateToAllocation}
+              style={{
+                fontSize: '0.85rem',
+                fontWeight: 600,
+                padding: '8px 14px',
+                textAlign: 'center',
+                backgroundColor: 'rgba(30, 41, 59, 0.8)',
+                color: '#93c5fd',
+                borderColor: '#3b82f6',
+              }}
+            >
+              Enter as judge (read-only audit)
+            </button>
+            <div style={{ fontSize: '0.7rem', color: '#94a3b8', textAlign: 'center' }}>
+              SIMULATED / PRE-RECORDED Tamil Nadu Highway Corridor
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Top Level Metric Cards */}
       <section aria-label="Key Operational Indicators" className="grid-cols-4">
         {/* Card 1: Active Incidents */}

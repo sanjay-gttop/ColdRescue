@@ -8,6 +8,7 @@ import {
   RefreshCwIcon,
   ArrowRightIcon,
 } from '../common/Icons';
+import { AwsContextChip, AwsServiceDrawer } from '../common/AwsContextChips';
 
 interface AllocationComparisonViewProps {
   incidents: Incident[];
@@ -20,6 +21,7 @@ export const AllocationComparisonView: React.FC<AllocationComparisonViewProps> =
   receivers,
   onSelectProposedAssignment,
 }) => {
+  const [selectedAwsService, setSelectedAwsService] = useState<string | null>(null);
   const [selectedScenario, setSelectedScenario] = useState<string>('Standard Multi-Incident Fleet');
 
   const greedyPlan = runGreedyAllocation(incidents, receivers, selectedScenario);
@@ -92,10 +94,21 @@ export const AllocationComparisonView: React.FC<AllocationComparisonViewProps> =
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+      <AwsServiceDrawer
+        serviceKey={selectedAwsService}
+        onClose={() => setSelectedAwsService(null)}
+      />
+
       {/* Overview & Scenario Controls */}
       <section className="card" aria-label="Allocation Optimizer Configuration">
         <div className="card-header">
           <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
+              <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>Solver Cloud Stack:</span>
+              <AwsContextChip serviceKey="location" onClick={() => setSelectedAwsService('location')} />
+              <AwsContextChip serviceKey="sagemaker" onClick={() => setSelectedAwsService('sagemaker')} />
+              <AwsContextChip serviceKey="stepfunctions" onClick={() => setSelectedAwsService('stepfunctions')} />
+            </div>
             <h2 style={{ fontSize: '1.25rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '8px' }}>
               <LayersIcon size={22} /> Greedy vs. Global Fleet Recovery Allocation
             </h2>

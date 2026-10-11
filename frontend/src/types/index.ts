@@ -29,6 +29,10 @@ export interface Cargo {
   spoilage_deadline: string | null; // ISO UTC
   estimate_source: string;
   estimate_confidence: 'high' | 'medium' | 'approximate' | 'unknown';
+  physics_safe_window_min?: number;
+  surrogate_safe_window_min?: number;
+  effective_safe_window_min?: number;
+  fallback_reason?: string;
 }
 
 export type PowerState = 'operational' | 'failed' | 'degraded' | 'unknown' | 'stale';

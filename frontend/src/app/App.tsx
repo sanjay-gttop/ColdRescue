@@ -29,6 +29,7 @@ import { AwsLiveTraceView } from '../components/audit/AwsLiveTraceView';
 import { ArchitectureOverviewView } from '../components/audit/ArchitectureOverviewView';
 import { PolicyBlockDetailView } from '../components/policy/PolicyBlockDetailView';
 import { ActionMatrixView } from '../components/common/ActionMatrixView';
+import { GoldenPathStepper } from '../components/common/GoldenPathStepper';
 import { evaluateColdChainPolicy } from '../utils/policyEngine';
 
 export const App: React.FC = () => {
@@ -41,7 +42,7 @@ export const App: React.FC = () => {
 
   // Navigation State
   const [activeTab, setActiveTab] = useState<ActiveTab>('dashboard');
-  const [selectedIncidentId, setSelectedIncidentId] = useState<string>('INC-2026-081');
+  const [selectedIncidentId, setSelectedIncidentId] = useState<string>('TRUCK-104');
   const [selectedBlockedReceiverId, setSelectedBlockedReceiverId] = useState<string>('RCV-APEX-03');
   const [selectedAssignmentId, setSelectedAssignmentId] = useState<string>('ASN-8801');
 
@@ -333,6 +334,16 @@ export const App: React.FC = () => {
         }}
         pendingApprovalsCount={approvals.filter((a) => a.status === 'pending').length}
         criticalIncidentsCount={incidents.filter((i) => i.severity === 'critical').length}
+      />
+
+      {/* Golden Path Guided Workflow Stepper */}
+      <GoldenPathStepper
+        activeTab={activeTab}
+        incidentId={selectedIncidentId}
+        onNavigate={(tab) => {
+          setActiveTab(tab);
+          setSimulatedError(null);
+        }}
       />
 
       {/* Main Content Area */}
