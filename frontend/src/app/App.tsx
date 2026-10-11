@@ -337,7 +337,14 @@ export const App: React.FC = () => {
       />
 
       {/* Main Content Area */}
-      <main className="container" style={{ flex: 1, padding: '20px 16px' }}>
+      <main
+        className={activeTab === 'story' ? '' : 'container'}
+        style={{
+          flex: 1,
+          padding: activeTab === 'story' ? 0 : '20px 16px',
+          width: '100%',
+        }}
+      >
         {/* Toast Notification */}
         {toastMessage && (
           <div
@@ -363,13 +370,15 @@ export const App: React.FC = () => {
         )}
 
         {/* Reliability Banner (Stale / Offline Notices) */}
-        <ReliabilityBanner
-          isStale={isStale}
-          isOffline={isOffline}
-          lastUpdated={lastSyncTime}
-          onRefresh={handleRefresh}
-          onReconnect={() => setIsOffline(false)}
-        />
+        {activeTab !== 'story' && (
+          <ReliabilityBanner
+            isStale={isStale}
+            isOffline={isOffline}
+            lastUpdated={lastSyncTime}
+            onRefresh={handleRefresh}
+            onReconnect={() => setIsOffline(false)}
+          />
+        )}
 
         {/* Simulated Failure State for Journey E Testing */}
         {simulatedError ? (
