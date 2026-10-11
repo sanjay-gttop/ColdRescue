@@ -1,0 +1,11 @@
+{
+  "timestamp": "2026-10-10T21:20:30.257431+00:00",
+  "url": "https://dev.d1pwxznhg8jq0u.amplifyapp.com",
+  "http_status": 200,
+  "content_type": "text/html",
+  "content_length": 841,
+  "title_present": true,
+  "assets_present": true,
+  "html_snippet": "<!DOCTYPE html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\" />\n    <title>ColdRescue \u2014 Emergency Cold Chain Decision Support</title>\n    <meta name=\"description\" content=\"Operational decision-support interface for t",
+  "verdict": "DEPLOYED_FRONTEND_VERIFIED"
+}

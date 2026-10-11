@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-10-11T03:06:46.813918+00:00",
+  "url": "https://dev.d1pwxznhg8jq0u.amplifyapp.com",
+  "deployment_job_id": "2",
+  "status": "SUCCEED",
+  "http_status": 200,
+  "verified_bundle": "index-B5deyG5-.js",
+  "features_live": [
+    "AWS Live Trace",
+    "AWS Architecture & Deep Integration",
+    "Operator Dashboard"
+  ],
+  "verdict": "LIVE_AMPLIFY_FRONTEND_WITH_TRACE_VERIFIED"
+}

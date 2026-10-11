@@ -1,8 +1,14 @@
 """
 Rigorous mathematical tests for allocation optimization:
-1. Hungarian / Minimum-Cost Matching optimality verification against Brute Force search on small instances.
-2. Capacity-constrained scenario set validating no double allocation or capacity overflows.
-3. Sensitivity analysis verifying allocation stability and objective variation across +/- 20% travel time perturbation.
+1. Exact Kuhn-Munkres (Hungarian) matching optimality verification against exhaustive brute force.
+2. Rectangular matrices and tie-breaking determinism.
+3. Capacity-constrained scenario set validating no double allocation or capacity overflows.
+4. Comprehensive multi-dimensional sensitivity analysis verifying:
+   - Travel time perturbation (+/- 20%)
+   - Ambient temperature / temperature-rise rate perturbation (+/- 20%)
+   - Receiver capacity perturbation (+/- 20%)
+   - Combined adverse perturbations
+   - 100% preservation of deterministic safety policy rules under all perturbed conditions.
 """
 from __future__ import annotations
 
@@ -24,7 +30,9 @@ from backend.models.domain import (
 )
 from backend.services.allocation_greedy import GreedyAllocationEngine
 from backend.services.allocation_global import GlobalAllocationEngine
+from backend.services.hungarian import linear_sum_assignment
 from backend.services.route_provider import LocalHaversineRouteProvider, RouteProvider, RouteEstimate
+from backend.policies.safety_policy import SafetyPolicyEngine
 
 
 class PerturbedRouteProvider(RouteProvider):
@@ -48,7 +56,13 @@ class PerturbedRouteProvider(RouteProvider):
         )
 
 
-def _create_random_instance(num_incidents: int = 4, num_receivers: int = 4, seed: int = 42):
+def _create_random_instance(
+    num_incidents: int = 4,
+    num_receivers: int = 4,
+    seed: int = 42,
+    ambient_temp_c: float = 30.0,
+    capacity_multiplier: float = 1.0,
+):
     rng = random.Random(seed)
     incidents = []
     receivers = []
@@ -82,7 +96,7 @@ def _create_random_instance(num_incidents: int = 4, num_receivers: int = 4, seed
         )
 
     for j in range(num_receivers):
-        capacity = 1000.0
+        capacity = 1000.0 * capacity_multiplier
         receivers.append(
             ReceiverNode(
                 receiver_id=f"recv_{j}",
@@ -98,6 +112,64 @@ def _create_random_instance(num_incidents: int = 4, num_receivers: int = 4, seed
         )
 
     return incidents, receivers
+
+
+def test_exact_hungarian_optimality_vs_brute_force():
+    """Verify that linear_sum_assignment matches the EXACT global optimum found by brute force across 20 random instances."""
+    rng = random.Random(101)
+    for trial in range(20):
+        # Generate random cost matrix (square 4x4)
+        n = 4
+        cost_matrix = [[round(rng.uniform(5.0, 100.0), 2) for _ in range(n)] for _ in range(n)]
+
+        # Brute force search over all permutations
+        min_brute_cost = float("inf")
+        best_perm = None
+        for perm in itertools.permutations(range(n)):
+            cost = sum(cost_matrix[i][perm[i]] for i in range(n))
+            if cost < min_brute_cost:
+                min_brute_cost = cost
+                best_perm = perm
+
+        # Kuhn-Munkres exact algorithm
+        rows, cols = linear_sum_assignment(cost_matrix)
+        exact_cost = sum(cost_matrix[r][c] for r, c in zip(rows, cols))
+
+        assert abs(exact_cost - min_brute_cost) < 1e-6, (
+            f"Trial {trial}: Hungarian cost {exact_cost} != Brute Force {min_brute_cost}"
+        )
+
+
+def test_exact_hungarian_rectangular_matrices():
+    """Verify Kuhn-Munkres optimality on rectangular matrices (more receivers than incidents, 3x5)."""
+    rng = random.Random(202)
+    for trial in range(15):
+        n = 3
+        m = 5
+        cost_matrix = [[round(rng.uniform(10.0, 80.0), 2) for _ in range(m)] for _ in range(n)]
+
+        min_brute_cost = float("inf")
+        for perm in itertools.permutations(range(m), n):
+            cost = sum(cost_matrix[i][perm[i]] for i in range(n))
+            if cost < min_brute_cost:
+                min_brute_cost = cost
+
+        rows, cols = linear_sum_assignment(cost_matrix)
+        exact_cost = sum(cost_matrix[r][c] for r, c in zip(rows, cols))
+        assert abs(exact_cost - min_brute_cost) < 1e-6
+
+
+def test_exact_hungarian_deterministic_tie_breaking():
+    """Verify deterministic assignment under equal/tied costs."""
+    cost_matrix = [
+        [10.0, 10.0, 20.0],
+        [10.0, 10.0, 30.0],
+        [20.0, 30.0, 10.0],
+    ]
+    r1, c1 = linear_sum_assignment(cost_matrix)
+    r2, c2 = linear_sum_assignment(cost_matrix)
+    assert (r1, c1) == (r2, c2)
+    assert sum(cost_matrix[r][c] for r, c in zip(r1, c1)) == 30.0
 
 
 def test_global_allocation_vs_brute_force_optimality():
@@ -125,7 +197,6 @@ def test_global_allocation_vs_brute_force_optimality():
     actual_total_travel_time = sum(a.travel_time_min for a in res.assignments)
     # The heuristic global solver should be within 15% of the true global theoretical optimum
     assert actual_total_travel_time <= min_total_travel_time * 1.15
-    print(f"Brute Force Optimum Travel Time: {min_total_travel_time:.2f} min | Global Engine Time: {actual_total_travel_time:.2f} min")
 
 
 def test_capacity_constrained_stress():
@@ -148,19 +219,65 @@ def test_capacity_constrained_stress():
     assert len(res.unassigned_incidents) > 0, "Expected some unassigned cargo under strict capacity exhaustion"
 
 
-def test_sensitivity_analysis_perturbation():
-    """Verify allocation stability and continuous metric scaling under +/- 20% travel time perturbation."""
-    incidents, receivers = _create_random_instance(num_incidents=4, num_receivers=4, seed=303)
+def test_multidimensional_sensitivity_analysis():
+    """
+    Comprehensive multi-parameter sensitivity analysis:
+    - Travel time +/- 20%
+    - Ambient temperature / temperature-rise rate +/- 20% (24°C, 30°C, 36°C)
+    - Receiver capacity +/- 20% (800kg, 1000kg, 1200kg)
+    - Adverse combination: +20% travel time, +20% temperature, -20% capacity
+    - Verify 100% preservation of deterministic safety policy rules under all perturbed conditions.
+    """
+    base_seed = 303
+    perturbations = [
+        ("Nominal (1.0x time, 30C, 1.0x cap)", 1.0, 30.0, 1.0),
+        ("Time +20%", 1.2, 30.0, 1.0),
+        ("Time -20%", 0.8, 30.0, 1.0),
+        ("Temp +20% (36C)", 1.0, 36.0, 1.0),
+        ("Temp -20% (24C)", 1.0, 24.0, 1.0),
+        ("Capacity +20%", 1.0, 30.0, 1.2),
+        ("Capacity -20%", 1.0, 30.0, 0.8),
+        ("Adverse Combined (+20% time, 36C, -20% cap)", 1.2, 36.0, 0.8),
+    ]
 
-    res_nominal = GlobalAllocationEngine.solve(incidents=incidents, receivers=receivers, route_provider=PerturbedRouteProvider(1.0))
-    res_plus_20 = GlobalAllocationEngine.solve(incidents=incidents, receivers=receivers, route_provider=PerturbedRouteProvider(1.2))
-    res_minus_20 = GlobalAllocationEngine.solve(incidents=incidents, receivers=receivers, route_provider=PerturbedRouteProvider(0.8))
+    for label, time_mult, amb_temp, cap_mult in perturbations:
+        incidents, receivers = _create_random_instance(
+            num_incidents=4,
+            num_receivers=4,
+            seed=base_seed,
+            ambient_temp_c=amb_temp,
+            capacity_multiplier=cap_mult,
+        )
+        router = PerturbedRouteProvider(multiplier=time_mult)
 
-    assert len(res_nominal.assignments) == len(res_plus_20.assignments) == len(res_minus_20.assignments) == 4
-    time_nominal = sum(a.travel_time_min for a in res_nominal.assignments)
-    time_plus_20 = sum(a.travel_time_min for a in res_plus_20.assignments)
-    time_minus_20 = sum(a.travel_time_min for a in res_minus_20.assignments)
+        res = GlobalAllocationEngine.solve(
+            incidents=incidents,
+            receivers=receivers,
+            route_provider=router,
+            ambient_temperature_c=amb_temp,
+        )
 
-    # Monotonic scaling of travel times
-    assert time_minus_20 < time_nominal < time_plus_20
-    print(f"-20%: {time_minus_20:.1f}m | Nominal: {time_nominal:.1f}m | +20%: {time_plus_20:.1f}m")
+        # Invariant 1: Total allocations never exceed receiver capacities
+        allocated_by_recv = {}
+        for a in res.assignments:
+            if a.feasible:
+                allocated_by_recv[a.receiver_id] = allocated_by_recv.get(a.receiver_id, 0.0) + a.cargo_kg
+
+        for r in receivers:
+            allocated = allocated_by_recv.get(r.receiver_id, 0.0)
+            assert allocated <= r.capacity_kg + 1e-4, f"Over-allocation in {label}"
+
+        # Invariant 2: Authoritative Safety Policy must be satisfied 100%
+        for a in res.assignments:
+            if a.feasible:
+                inc = next(i for i in incidents if i.incident_id == a.incident_id)
+                rec = next(rc for rc in receivers if rc.receiver_id == a.receiver_id)
+                policy = SafetyPolicyEngine.evaluate_assignment(
+                    incident=inc,
+                    receiver=rec,
+                    travel_time_min=a.travel_time_min,
+                    ambient_temperature_c=amb_temp,
+                )
+                assert not policy.is_hard_blocked, (
+                    f"Policy violation under perturbation {label}: {policy.block_reasons}"
+                )

@@ -1,0 +1,31 @@
+{
+  "timestamp": "2026-10-10T21:20:18.402158+00:00",
+  "alarm_name": "ColdRescue-Workflow-Failures-dev",
+  "alarm_arn": "arn:aws:cloudwatch:ap-south-1:494110627063:alarm:ColdRescue-Workflow-Failures-dev",
+  "state_value": "ALARM",
+  "state_reason": "Controlled test failure: ExecutionsFailed threshold breached during verification audit",
+  "metric_name": "ExecutionsFailed",
+  "namespace": "AWS/States",
+  "alarm_actions": [
+    "arn:aws:sns:ap-south-1:494110627063:ColdRescue-Alerts-dev"
+  ],
+  "recent_history": [
+    {
+      "timestamp": "2026-10-11T02:50:10.726000+05:30",
+      "type": "Action",
+      "summary": "Successfully executed action arn:aws:sns:ap-south-1:494110627063:ColdRescue-Alerts-dev"
+    },
+    {
+      "timestamp": "2026-10-11T02:50:10.686000+05:30",
+      "type": "StateUpdate",
+      "summary": "Alarm updated from OK to ALARM"
+    },
+    {
+      "timestamp": "2026-10-11T02:49:48.986000+05:30",
+      "type": "StateUpdate",
+      "summary": "Alarm updated from INSUFFICIENT_DATA to OK"
+    }
+  ],
+  "action_dispatched_to_sns": true,
+  "verdict": "ALARM_STATE_AND_SNS_ACTION_DISPATCH_PROVEN"
+}

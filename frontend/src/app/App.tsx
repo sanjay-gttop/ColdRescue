@@ -25,6 +25,8 @@ import { ApprovalDetailView } from '../components/approvals/ApprovalDetailView';
 import { DriverMobilePortal } from '../components/driver/DriverMobilePortal';
 import { ReceiverIntakePortal } from '../components/receiver-portal/ReceiverIntakePortal';
 import { AuditTimelineView } from '../components/audit/AuditTimelineView';
+import { AwsLiveTraceView } from '../components/audit/AwsLiveTraceView';
+import { ArchitectureOverviewView } from '../components/audit/ArchitectureOverviewView';
 import { PolicyBlockDetailView } from '../components/policy/PolicyBlockDetailView';
 import { ActionMatrixView } from '../components/common/ActionMatrixView';
 import { evaluateColdChainPolicy } from '../utils/policyEngine';
@@ -392,6 +394,7 @@ export const App: React.FC = () => {
                 onNavigateToReceivers={() => setActiveTab('receivers')}
                 onNavigateToAllocation={() => setActiveTab('allocation')}
                 onNavigateToAudit={() => setActiveTab('audit')}
+                onNavigateToLiveTrace={() => setActiveTab('live-trace')}
               />
             )}
 
@@ -457,6 +460,10 @@ export const App: React.FC = () => {
                 onRejectDelivery={handleReceiverReject}
               />
             )}
+
+            {activeTab === 'live-trace' && <AwsLiveTraceView />}
+
+            {activeTab === 'architecture' && <ArchitectureOverviewView />}
 
             {activeTab === 'audit' && <AuditTimelineView events={auditEvents} />}
 

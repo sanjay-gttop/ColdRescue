@@ -1,0 +1,15 @@
+{
+  "timestamp": "2026-10-10T21:14:50Z",
+  "test_suite": "tests/test_allocation_rigor.py::test_multidimensional_sensitivity_analysis",
+  "perturbation_dimensions": [
+    "Travel Time (+/- 20%)",
+    "Ambient Temperature / Temperature-Rise (+/- 20%: 24C, 30C, 36C)",
+    "Receiver Capacity (+/- 20%: 800kg, 1000kg, 1200kg)",
+    "Adverse Combined: +20% travel time, +20% ambient temp, -20% capacity"
+  ],
+  "evaluated_conditions": 8,
+  "capacity_violations": 0,
+  "safety_policy_violations": 0,
+  "safety_policy_preservation_rate": 1.0,
+  "verdict": "SAFETY_PRESERVED_100_PERCENT"
+}

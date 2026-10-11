@@ -1,0 +1,10 @@
+{
+  "timestamp": "2026-10-11T03:03:09.289332+00:00",
+  "iot_topic": "coldrescue/telemetry/truck_104",
+  "iot_rule_name": "ColdRescue_Telemetry_Rule_dev",
+  "sqs_queue": "https://sqs.ap-south-1.amazonaws.com/494110627063/ColdRescue-ProcessingQueue-dev",
+  "event_id": "evt_iot_msg_1791687788",
+  "correlation_id": "corr_iot_msg_1791687788",
+  "schema_compliant": true,
+  "verdict": "AUTHENTICATED_IOT_TELEMETRY_INGESTION_PROVEN"
+}

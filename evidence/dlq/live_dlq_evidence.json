@@ -1,0 +1,20 @@
+{
+  "timestamp": "2026-10-10T21:19:57.103748+00:00",
+  "dlq_url": "https://sqs.ap-south-1.amazonaws.com/494110627063/ColdRescue-DLQ-dev",
+  "processing_queue_url": "https://sqs.ap-south-1.amazonaws.com/494110627063/ColdRescue-ProcessingQueue-dev",
+  "approximate_number_of_messages": 3,
+  "approximate_number_of_messages_not_visible": 0,
+  "queue_arn": "arn:aws:sqs:ap-south-1:494110627063:ColdRescue-DLQ-dev",
+  "sample_dlq_message": {
+    "message_id": "85a4df82-eb55-4119-840d-8a77616a9ac3",
+    "md5_of_body": "01b35006398b56f099746074872c2f10",
+    "attributes": {
+      "SenderId": "AIDAJTF7AZVMQ7GZYMYRS",
+      "ApproximateFirstReceiveTimestamp": "1791664476943",
+      "ApproximateReceiveCount": "5",
+      "SentTimestamp": "1791664476939",
+      "DeadLetterQueueSourceArn": "arn:aws:sqs:ap-south-1:494110627063:ColdRescue-ProcessingQueue-dev"
+    }
+  },
+  "verdict": "DLQ_CAPTURE_AND_DEPTH_PROVEN"
+}

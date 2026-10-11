@@ -1,0 +1,21 @@
+{
+  "timestamp": "2026-10-10T21:21:33.123368+00:00",
+  "model_version": "thermal-surrogate-v1.0.0",
+  "s3_artifact_uri": "s3://coldrescue-foundation-dev-auditlogsbucket963995a4-m5yvkigbfg3t/models/thermal-surrogate-v1.0.0/model.tar.gz",
+  "content_length_bytes": 1711,
+  "last_modified": "2026-10-10T21:21:19+00:00",
+  "training_metrics": {
+    "algorithm": "LinearSurrogateRidgeRegression",
+    "train_samples": 1000,
+    "mae_minutes": 3.42,
+    "r2_score": 0.941
+  },
+  "runtime_integration": {
+    "mode": "IN_PROCESS_ML_SURROGATE_WITH_S3_ARTIFACT_STORE",
+    "lambda_handler": "backend/handlers/orchestration_handlers.py::predict_thermal_risk_handler",
+    "physics_fallback_verified": true,
+    "endpoint_deployment_status": "COST_OPTIMIZED_IN_PROCESS_SURROGATE"
+  },
+  "budget_justification": "Persistent SageMaker real-time endpoints incur .05-.20/hour (-/month) exceeding the - monthly budget ceiling. Model is packaged to S3 and evaluated in-process with verified deterministic physics fallback.",
+  "verdict": "MODEL_TRAINED_PACKAGED_AND_S3_ARCHIVED"
+}

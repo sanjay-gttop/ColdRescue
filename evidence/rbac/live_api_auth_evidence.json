@@ -1,0 +1,50 @@
+{
+  "timestamp": "2026-10-10T21:19:03.597132+00:00",
+  "user_pool_id": "ap-south-1_G0kvEfnGO",
+  "client_id": "69oabefdctnfb7agpq26sr3mql",
+  "api_gateway_url": "https://l4bpu3mf2f.execute-api.ap-south-1.amazonaws.com/dev/incidents/recover",
+  "authorizer_type": "COGNITO_USER_POOLS",
+  "results": [
+    {
+      "role": "UNAUTHENTICATED",
+      "expected": 401,
+      "actual": 401,
+      "pass": true
+    },
+    {
+      "role": "INVALID_TOKEN",
+      "expected": 401,
+      "actual": 401,
+      "pass": true
+    },
+    {
+      "role": "OPERATOR",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "execution_started": true
+    },
+    {
+      "role": "APPROVER",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "execution_started": true
+    },
+    {
+      "role": "DRIVER",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "execution_started": true
+    },
+    {
+      "role": "RECEIVER",
+      "expected": 200,
+      "actual": 200,
+      "pass": true,
+      "execution_started": true
+    }
+  ],
+  "summary": "Live Cognito authentication and token validation verified on API Gateway with 401 unauthorized gate."
+}

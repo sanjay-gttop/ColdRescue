@@ -21,6 +21,7 @@ interface OperatorDashboardProps {
   onNavigateToReceivers: () => void;
   onNavigateToAllocation: () => void;
   onNavigateToAudit: () => void;
+  onNavigateToLiveTrace?: () => void;
 }
 
 export const OperatorDashboard: React.FC<OperatorDashboardProps> = ({
@@ -33,6 +34,7 @@ export const OperatorDashboard: React.FC<OperatorDashboardProps> = ({
   onNavigateToReceivers,
   onNavigateToAllocation,
   onNavigateToAudit,
+  onNavigateToLiveTrace,
 }) => {
   // Aggregate Metrics
   const activeIncidents = incidents.filter((i) => i.status !== 'resolved' && i.status !== 'delivered');
@@ -124,13 +126,24 @@ export const OperatorDashboard: React.FC<OperatorDashboardProps> = ({
                   Click an incident row to inspect thermal telemetry and initiate recovery assignment
                 </p>
               </div>
-              <button
-                className="btn btn-secondary"
-                onClick={onNavigateToAllocation}
-                style={{ fontSize: '0.8rem', padding: '6px 12px' }}
-              >
-                Compare Allocations
-              </button>
+              <div style={{ display: 'flex', gap: '8px' }}>
+                {onNavigateToLiveTrace && (
+                  <button
+                    className="btn btn-primary"
+                    onClick={onNavigateToLiveTrace}
+                    style={{ fontSize: '0.8rem', padding: '6px 12px', display: 'flex', alignItems: 'center', gap: '6px' }}
+                  >
+                    <ZapIcon size={14} /> Run Live AWS Drill
+                  </button>
+                )}
+                <button
+                  className="btn btn-secondary"
+                  onClick={onNavigateToAllocation}
+                  style={{ fontSize: '0.8rem', padding: '6px 12px' }}
+                >
+                  Compare Allocations
+                </button>
+              </div>
             </div>
 
             <div style={{ overflowX: 'auto' }}>

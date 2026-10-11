@@ -2,6 +2,7 @@ import React from 'react';
 
 export type ActiveTab =
   | 'dashboard'
+  | 'live-trace'
   | 'incidents'
   | 'receivers'
   | 'allocation'
@@ -9,6 +10,7 @@ export type ActiveTab =
   | 'driver'
   | 'receiver-portal'
   | 'audit'
+  | 'architecture'
   | 'policy-block'
   | 'action-matrix';
 
@@ -27,6 +29,7 @@ export const Navigation: React.FC<NavigationProps> = ({
 }) => {
   const tabs: Array<{ id: ActiveTab; label: string; badge?: number; badgeType?: 'critical' | 'pending' }> = [
     { id: 'dashboard', label: 'Operator Dashboard' },
+    { id: 'live-trace', label: 'AWS Live Trace' },
     { id: 'incidents', label: 'Incident & Cargo Details', badge: criticalIncidentsCount, badgeType: 'critical' },
     { id: 'receivers', label: 'Receiver Directory' },
     { id: 'allocation', label: 'Greedy vs Global Allocation' },
@@ -34,6 +37,7 @@ export const Navigation: React.FC<NavigationProps> = ({
     { id: 'driver', label: 'Driver Mobile Portal' },
     { id: 'receiver-portal', label: 'Receiver Intake Portal' },
     { id: 'audit', label: 'Audit Timeline' },
+    { id: 'architecture', label: 'AWS Architecture' },
     { id: 'policy-block', label: 'Policy Rules & Safety Block' },
     { id: 'action-matrix', label: 'Action Contracts Matrix' },
   ];
