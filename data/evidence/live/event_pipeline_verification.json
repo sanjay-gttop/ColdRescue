@@ -1,20 +1,20 @@
 {
-  "timestamp": "2026-10-10T20:14:04Z",
+  "timestamp": "2026-10-11T08:18:59Z",
   "aws_region": "ap-south-1",
   "event_bus": {
     "name": "ColdRescue-Bus-dev",
-    "test_event_id": "45f5682d-f603-63a0-f0f5-fe8115fbbd04",
+    "test_event_id": "bc9b8959-8f0e-d9f9-cbae-9526bf368e8a",
     "status": "PUBLISHED"
   },
   "processing_queue": {
     "url": "https://sqs.ap-south-1.amazonaws.com/494110627063/ColdRescue-ProcessingQueue-dev",
-    "test_incident_id": "INC-LIVE-1791663212",
-    "duplicate_message_id": "86a4491b-a060-48cb-89a8-f5ad63d28847",
+    "test_incident_id": "INC-LIVE-1791706703",
+    "duplicate_message_id": "4615d80d-a082-4b5f-858f-68b2972b8c21",
     "idempotency_verified": true
   },
   "dynamodb_verification": {
     "table_name": "ColdRescue-Events-dev",
-    "stream_id": "stream_INC-LIVE-1791663212",
+    "stream_id": "stream_INC-LIVE-1791706703",
     "initial_items_count": 1,
     "after_duplicate_items_count": 1,
     "verified": true
@@ -22,8 +22,8 @@
   "dead_letter_queue": {
     "url": "https://sqs.ap-south-1.amazonaws.com/494110627063/ColdRescue-DLQ-dev",
     "arn": "arn:aws:sqs:ap-south-1:494110627063:ColdRescue-DLQ-dev",
-    "poison_message_id": "4d2fdbcc-1352-448a-b05d-00b79988e440",
-    "approximate_messages": "0"
+    "poison_message_id": "703a011c-9530-41ea-8419-c2a230c6c773",
+    "approximate_messages": "6"
   },
   "overall_status": "VERIFIED_LIVE"
 }
